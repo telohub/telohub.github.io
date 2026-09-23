@@ -1,0 +1,821 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="A cadeia produtiva do açaí no Amapá e o quadro normativo que a regula — diagrama interativo e editável.">
+<title>Observatório do Açaí</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%AB%90%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+<style>
+  :root{
+    box-sizing:border-box;
+    padding-top:env(safe-area-inset-top,0px);
+    padding-bottom:env(safe-area-inset-bottom,0px);
+    --bg:#f6f6f9; --surface:#ffffff; --surface-2:#fbfbfd;
+    --ink:#17171f; --ink-soft:#66667a; --ink-faint:#9a9aab;
+    --border:#e6e6ee;
+    --primary:#7c3aed; --primary-ink:#ffffff; --primary-soft:#f1e9fe; --primary-soft-ink:#6d28d9;
+    --warn-soft:#fdf1e3; --warn-ink:#9a5b12;
+    --danger:#dc4444;
+    --cat-principal:#7c3aed; --cat-principal-soft:#f1e9fe;
+    --cat-aux:#0d9488; --cat-aux-soft:#e1f5f2;
+    --cat-apoio:#2563eb; --cat-apoio-soft:#e7eefd;
+    --shadow-sm:0 1px 2px rgba(20,20,30,.05);
+    --shadow-md:0 4px 14px rgba(20,20,30,.09);
+    --shadow-lg:0 12px 40px rgba(20,20,30,.16);
+    --radius:10px;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#111116; --surface:#191921; --surface-2:#1f1f28;
+      --ink:#f1f1f6; --ink-soft:#a3a3b8; --ink-faint:#6c6c80;
+      --border:#2c2c38;
+      --primary:#a78bfa; --primary-ink:#171723; --primary-soft:#2a2340; --primary-soft-ink:#cbb8ff;
+      --warn-soft:#3a2c17; --warn-ink:#e3ad6c;
+      --danger:#f37171;
+      --cat-principal:#a78bfa; --cat-principal-soft:#2a2340;
+      --cat-aux:#5eead4; --cat-aux-soft:#173330;
+      --cat-apoio:#7ba8ff; --cat-apoio-soft:#1c2740;
+      --shadow-sm:0 1px 2px rgba(0,0,0,.3); --shadow-md:0 4px 14px rgba(0,0,0,.35); --shadow-lg:0 16px 44px rgba(0,0,0,.5);
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#111116; --surface:#191921; --surface-2:#1f1f28;
+    --ink:#f1f1f6; --ink-soft:#a3a3b8; --ink-faint:#6c6c80;
+    --border:#2c2c38;
+    --primary:#a78bfa; --primary-ink:#171723; --primary-soft:#2a2340; --primary-soft-ink:#cbb8ff;
+    --warn-soft:#3a2c17; --warn-ink:#e3ad6c;
+    --danger:#f37171;
+    --cat-principal:#a78bfa; --cat-principal-soft:#2a2340;
+    --cat-aux:#5eead4; --cat-aux-soft:#173330;
+    --cat-apoio:#7ba8ff; --cat-apoio-soft:#1c2740;
+    --shadow-sm:0 1px 2px rgba(0,0,0,.3); --shadow-md:0 4px 14px rgba(0,0,0,.35); --shadow-lg:0 16px 44px rgba(0,0,0,.5);
+  }
+  *,*::before,*::after{box-sizing:inherit;}
+  html{height:100%;}
+  body{
+    height:100%; margin:0; background:var(--bg); color:var(--ink);
+    font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+    font-size:14.5px; line-height:1.5; -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3,h4{margin:0; font-weight:700; letter-spacing:-.01em;}
+  p{margin:0;}
+  button{font-family:inherit;}
+  a{color:var(--primary);}
+
+  /* ---------- layout ---------- */
+  #app-shell{display:flex; height:100%;}
+  #sidebar{
+    width:250px; flex:0 0 250px; background:var(--surface); border-right:1px solid var(--border);
+    display:flex; flex-direction:column; padding:1.1rem .9rem; overflow-y:auto;
+  }
+  .brand{display:flex; align-items:center; gap:.55rem; font-weight:800; font-size:1.02rem; padding:.3rem .4rem .3rem; margin-bottom:1.3rem;}
+  .brand .dot{width:9px; height:9px; border-radius:50%; background:var(--primary); flex:0 0 auto;}
+  nav.sidenav{display:flex; flex-direction:column; gap:.15rem;}
+  nav.sidenav button{
+    all:unset; display:flex; align-items:center; gap:.6rem; padding:.5rem .65rem; border-radius:8px;
+    font-size:.88rem; font-weight:500; color:var(--ink-soft); cursor:pointer;
+  }
+  nav.sidenav button .ic{font-size:1rem; width:1.1rem; text-align:center;}
+  nav.sidenav button:hover{background:var(--bg); color:var(--ink);}
+  nav.sidenav button.active{background:var(--primary-soft); color:var(--primary-soft-ink);}
+  .sidebar-bottom{margin-top:auto; padding-top:.9rem; border-top:1px solid var(--border); display:flex; flex-direction:column; gap:.5rem;}
+  .save-status{font-size:.76rem; color:var(--ink-faint); padding:0 .2rem; min-height:1.1em;}
+  .edit-extra{display:flex; flex-direction:column; gap:.1rem;}
+
+  #mobile-topbar{display:none;}
+
+  #main-area{flex:1; min-width:0; overflow-y:auto; height:100%;}
+  .view{display:none; padding:1.7rem 2rem 4rem; max-width:1670px;}
+  .view.active{display:block;}
+  .view-head{margin-bottom:1.5rem;}
+  .view-head h1{font-size:1.32rem;}
+  .view-head p{color:var(--ink-soft); font-size:.9rem; margin-top:.3rem; max-width:44rem;}
+
+  /* ---------- buttons / inputs ---------- */
+  .btn{
+    display:inline-flex; align-items:center; justify-content:center; gap:.4rem;
+    border-radius:8px; border:1px solid var(--border); background:var(--surface);
+    color:var(--ink); font-size:.85rem; font-weight:600; padding:.5rem .8rem; cursor:pointer;
+  }
+  .btn:hover{border-color:var(--ink-faint);}
+  .btn-primary{background:var(--primary); border-color:var(--primary); color:var(--primary-ink);}
+  .btn-primary:hover{filter:brightness(1.06);}
+  .btn-block{width:100%;}
+  .link-btn{all:unset; color:var(--ink-soft); font-size:.8rem; cursor:pointer; padding:.15rem .2rem;}
+  .link-btn:hover{color:var(--primary);}
+
+  input.search{
+    font-family:inherit; font-size:.9rem; padding:.5rem .7rem; border:1px solid var(--border); border-radius:8px;
+    background:var(--surface); color:var(--ink); width:100%; max-width:22rem;
+  }
+  input.search:focus{outline:none; border-color:var(--primary);}
+
+  /* ---------- diagram ---------- */
+  .diagram{display:flex; flex-direction:column; gap:1.9rem;}
+  .lane-head{display:flex; align-items:baseline; gap:.55rem; margin-bottom:.7rem;}
+  .lane-head .lic{font-size:1.05rem;}
+  .lane-head h2{font-size:1rem;}
+  .lane-head .lane-sub{color:var(--ink-faint); font-size:.8rem;}
+  .lane[data-lane="principal"]{--lc:var(--cat-principal); --lcs:var(--cat-principal-soft);}
+  .lane[data-lane="auxiliar"]{--lc:var(--cat-aux); --lcs:var(--cat-aux-soft);}
+  .lane[data-lane="apoio"]{--lc:var(--cat-apoio); --lcs:var(--cat-apoio-soft);}
+  .lane-head .lic{color:var(--lc);}
+
+  .lane-track{display:flex; align-items:stretch; gap:0; overflow-x:auto; padding:.15rem .15rem .8rem;}
+  .lane-track.wrap{flex-wrap:wrap; gap:.7rem; overflow-x:visible;}
+
+  .node-card{flex:0 0 auto; width:148px;}
+  .lane-track.wrap .node-card{width:172px;}
+  .node-card button.node{
+    all:unset; display:block; width:100%; background:var(--surface); border:1px solid var(--border);
+    border-top:3px solid var(--lc); border-radius:10px; padding:.7rem .75rem; cursor:pointer;
+    box-shadow:var(--shadow-sm); transition:box-shadow .15s ease, transform .15s ease;
+  }
+  .node-card button.node:hover{box-shadow:var(--shadow-md); transform:translateY(-2px);}
+  .node-num{font-size:.7rem; font-weight:700; color:var(--lc);}
+  .node-name{font-size:.83rem; font-weight:600; line-height:1.28; margin-top:.2rem;}
+
+  .connector{flex:0 0 auto; width:26px; display:flex; align-items:center; justify-content:center; color:var(--ink-faint); font-size:1rem;}
+
+  /* ---------- drawer (detalhe de elo/bloco) & backdrop ---------- */
+  #backdrop{position:fixed; inset:0; background:rgba(10,10,16,.4); opacity:0; pointer-events:none; transition:opacity .16s ease; z-index:39;}
+  body.panel-open #backdrop{opacity:1; pointer-events:auto;}
+
+  #drawer{
+    position:fixed; top:0; right:0; height:100%; width:440px; max-width:94vw; background:var(--surface);
+    box-shadow:var(--shadow-lg); transform:translateX(100%); transition:transform .2s ease; z-index:41;
+    display:flex; flex-direction:column;
+  }
+  body.drawer-open #drawer{transform:translateX(0);}
+  .drawer-head{display:flex; align-items:flex-start; gap:.6rem; padding:1.2rem 1.2rem .9rem; border-bottom:1px solid var(--border);}
+  .drawer-head .tag{font-size:.72rem; font-weight:700; text-transform:uppercase; letter-spacing:.04em; padding:.15rem .5rem; border-radius:999px; margin-bottom:.4rem; display:inline-block;}
+  .drawer-title{font-size:1.1rem; font-weight:700; line-height:1.3;}
+  .drawer-close{all:unset; margin-left:auto; cursor:pointer; color:var(--ink-faint); font-size:1.2rem; line-height:1; padding:.2rem;}
+  .drawer-close:hover{color:var(--ink);}
+  .drawer-body{flex:1; overflow-y:auto; padding:1.1rem 1.2rem 2rem;}
+  .drawer-lede{color:var(--ink-soft); font-size:.9rem; margin-bottom:1.1rem;}
+  .drawer-foot{padding:.9rem 1.2rem; border-top:1px solid var(--border);}
+
+  .panel-section{margin-bottom:1.1rem;}
+  .panel-label{display:block; font-size:.74rem; font-weight:700; text-transform:uppercase; letter-spacing:.04em; color:var(--ink-faint); margin-bottom:.4rem;}
+  .callout{border-radius:8px; padding:.7rem .8rem; margin-bottom:1.1rem;}
+  .callout.c-atores{background:var(--surface-2);}
+  .callout.c-critico{background:var(--warn-soft);}
+  .callout.c-critico .panel-label{color:var(--warn-ink);}
+
+  ul.itemlist{list-style:none; margin:0; padding:0;}
+  ul.itemlist li.row{position:relative; padding-left:1rem; margin-bottom:.32rem; font-size:.88rem;}
+  ul.itemlist li.row::before{content:'–'; position:absolute; left:0; color:var(--ink-faint);}
+  ul.itemlist li.row.add-row{padding-left:0;}
+  ul.itemlist li.row.add-row::before{content:'';}
+
+  /* ---------- legislação ---------- */
+  .filters{display:flex; flex-wrap:wrap; align-items:center; gap:.6rem; margin-bottom:.6rem;}
+  .pills{display:flex; flex-wrap:wrap; gap:.4rem;}
+  .pill{font-family:inherit; font-size:.78rem; font-weight:600; padding:.28rem .68rem; border:1px solid var(--border); border-radius:999px; cursor:pointer; color:var(--ink-soft); background:var(--surface);}
+  .pill:hover{border-color:var(--ink-faint);}
+  .pill.active{border-color:var(--primary); color:var(--primary); background:var(--primary-soft);}
+  .count{font-size:.8rem; color:var(--ink-faint); margin:.2rem 0 .8rem;}
+
+  .card{background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); box-shadow:var(--shadow-sm);}
+  .table-wrap{overflow-x:auto;}
+  table.normas{width:100%; border-collapse:collapse; font-size:.86rem;}
+  table.normas th{text-align:left; font-size:.72rem; font-weight:700; text-transform:uppercase; letter-spacing:.03em; color:var(--ink-faint); border-bottom:1px solid var(--border); padding:.7rem .8rem; white-space:nowrap; background:var(--surface-2);}
+  table.normas th:first-child{border-top-left-radius:var(--radius);}
+  table.normas th:last-child{border-top-right-radius:var(--radius);}
+  table.normas td{border-bottom:1px solid var(--border); padding:.65rem .8rem; vertical-align:top;}
+  table.normas tr:last-child td{border-bottom:none;}
+  table.normas td.col-actions{white-space:nowrap;}
+  .badge{display:inline-block; font-size:.72rem; font-weight:600; padding:.1rem .5rem; border-radius:999px; background:var(--warn-soft); color:var(--warn-ink);}
+  .fonte-edit{margin-top:.3rem; font-size:.76rem; color:var(--ink-faint);}
+  .fonte-edit .fonte-label{text-transform:uppercase; font-size:.68rem; letter-spacing:.03em;}
+  .fonte-url{word-break:break-all;}
+  .conferir-toggle{font-size:.76rem; color:var(--ink-soft); display:inline-flex; align-items:center; gap:.3rem; margin-right:.5rem; white-space:nowrap;}
+
+  /* ---------- institucional ---------- */
+  .card-grid{display:grid; grid-template-columns:repeat(auto-fill, minmax(250px,1fr)); gap:.9rem;}
+  .info-card{padding:1rem 1.1rem;}
+  .info-card h3{font-size:.94rem; margin-bottom:.55rem;}
+
+  /* ---------- notas ---------- */
+  .notas-card{padding:1.1rem 1.2rem; max-width:44rem;}
+
+  /* ---------- edição ---------- */
+  [contenteditable="true"]{outline:none; border-radius:4px; padding:0 .15rem; margin:0 -.15rem;}
+  [contenteditable="true"]:hover{background:var(--primary-soft);}
+  [contenteditable="true"]:focus{background:var(--primary-soft); box-shadow:0 0 0 1px var(--primary);}
+  .add-item{background:none; border:1px dashed var(--border); color:var(--ink-faint); font-family:inherit; font-size:.82rem; padding:.15rem .6rem; border-radius:6px; cursor:pointer;}
+  .add-item:hover{border-color:var(--primary); color:var(--primary);}
+  .rm{background:none; border:none; color:var(--ink-faint); opacity:.6; cursor:pointer; font-size:.85rem; line-height:1; padding:0 .2rem; margin-left:.25rem;}
+  .rm:hover{opacity:1; color:var(--danger);}
+  body:not(.editing) .rm, body:not(.editing) .add-item{display:none;}
+  body.editing .node-card button.node{box-shadow:0 0 0 1px var(--lc) inset;}
+
+  /* ---------- responsivo ---------- */
+  @media (max-width:860px){
+    #sidebar{
+      position:fixed; top:0; left:0; height:100%; width:264px; z-index:40; border-right:1px solid var(--border);
+      transform:translateX(-100%); transition:transform .18s ease; padding-top:calc(1.1rem + env(safe-area-inset-top,0px));
+    }
+    body.nav-open #sidebar{transform:translateX(0);}
+    #mobile-topbar{
+      display:flex; align-items:center; gap:.7rem; padding:.7rem .9rem; padding-top:calc(.7rem + env(safe-area-inset-top,0px));
+      background:var(--surface); border-bottom:1px solid var(--border); position:sticky; top:0; z-index:10;
+    }
+    #mobile-topbar .hamburger{all:unset; cursor:pointer; font-size:1.15rem; padding:.2rem .3rem; color:var(--ink);}
+    #mobile-topbar .mt-title{font-weight:700; font-size:.95rem;}
+    #app-shell{display:block; height:auto; min-height:100%;}
+    #main-area{height:auto; overflow-y:visible;}
+    .view{padding:1.3rem 1rem 5rem;}
+    #drawer{width:100%; max-width:100%;}
+  }
+  @media (max-width:520px){
+    body{font-size:14px;}
+    .view-head h1{font-size:1.16rem;}
+  }
+</style>
+</head>
+<body>
+
+<div id="backdrop"></div>
+
+<div id="app-shell">
+  <aside id="sidebar">
+    <div class="brand"><span class="dot"></span>Observatório do Açaí</div>
+    <nav class="sidenav">
+      <button type="button" data-view="cadeia"><span class="ic">🗺️</span>Cadeia</button>
+      <button type="button" data-view="legislacao"><span class="ic">📚</span>Legislação</button>
+      <button type="button" data-view="institucional"><span class="ic">🏛️</span>Institucional</button>
+      <button type="button" data-view="notas"><span class="ic">📝</span>Notas</button>
+    </nav>
+    <div class="sidebar-bottom">
+      <div id="save-status" class="save-status"></div>
+      <div id="edit-extra" class="edit-extra"></div>
+      <button type="button" id="edit-toggle" class="btn btn-block">✎ Editar conteúdo</button>
+    </div>
+  </aside>
+
+  <div id="main-area">
+    <div id="mobile-topbar">
+      <button type="button" class="hamburger" id="hamburger" aria-label="Abrir menu">☰</button>
+      <span class="mt-title" id="mt-title">Cadeia</span>
+    </div>
+
+    <section class="view active" id="view-cadeia">
+      <div class="view-head">
+        <h1>Cadeia produtiva do açaí</h1>
+        <p id="cadeia-intro"></p>
+      </div>
+      <div class="diagram" id="diagram"></div>
+    </section>
+
+    <section class="view" id="view-legislacao">
+      <div class="view-head">
+        <h1>Legislação</h1>
+        <p>Normas federais, estaduais (Amapá, Pará e Amazonas) e municipais aplicáveis. <span class="badge">a conferir</span> indica número, texto ou vigência ainda a confirmar na fonte oficial.</p>
+      </div>
+      <div class="filters">
+        <input type="search" id="search" class="search" placeholder="Buscar na legislação…" aria-label="Buscar na legislação">
+        <div id="pills" class="pills"></div>
+      </div>
+      <p id="normas-count" class="count"></p>
+      <div class="card table-wrap">
+        <table class="normas">
+          <thead><tr><th>Esfera</th><th>Norma</th><th>Resumo</th><th>Elos</th><th class="col-actions"></th></tr></thead>
+          <tbody id="normas-tbody"></tbody>
+        </table>
+      </div>
+      <div id="normas-add" style="margin-top:.8rem;"></div>
+    </section>
+
+    <section class="view" id="view-institucional">
+      <div class="view-head">
+        <h1>Ambiente institucional</h1>
+        <p>Quem regula, fiscaliza e apoia a cadeia.</p>
+      </div>
+      <div class="card-grid" id="inst-body"></div>
+    </section>
+
+    <section class="view" id="view-notas">
+      <div class="view-head">
+        <h1>Pontos em aberto</h1>
+        <p>Lacunas e itens para a próxima rodada de pesquisa.</p>
+      </div>
+      <div class="card notas-card">
+        <div id="notas-body"></div>
+      </div>
+    </section>
+  </div>
+</div>
+
+<div id="drawer">
+  <div class="drawer-head">
+    <div>
+      <span class="tag" id="drawer-tag"></span>
+      <h3 class="drawer-title"><span class="text" id="drawer-name" data-path=""></span></h3>
+    </div>
+    <button type="button" class="drawer-close" id="drawer-close" aria-label="Fechar">✕</button>
+  </div>
+  <div class="drawer-body" id="drawer-body"></div>
+  <div class="drawer-foot" id="drawer-foot"></div>
+</div>
+
+<script>
+"use strict";
+
+/* ---------- dados iniciais (semente) ---------- */
+const SEED = {"meta":{"subtitulo":"A cadeia produtiva do açaí no Amapá e o quadro normativo que a regula","intro":"Um documento vivo sobre o caminho do açaí, do açaizal ao consumidor, com as cadeias auxiliares e de apoio, os utensílios e equipamentos de cada etapa e as normas federais, estaduais (Amapá, Pará e Amazonas) e municipais aplicáveis.","margem":["† indica norma cujo número, texto ou vigência ainda precisa ser conferido; ‡, norma em tramitação. Sem marca: conferida em fonte oficial ou em publicação que a transcreve.","Segundo o boletim de mercado do Sebrae, a safra amapaense tem pico em abril e é defasada da paraense.","Utensílios e equipamentos combinam o material da Embrapa Amapá e a prática típica do estuário; falta validar em campo (Macapá, Santana, Bailique)."],"atualizado":"2026-09-20"},"blocos":[{"id":"e1","grupo":"principal","nome":"Produção primária","resumo":"Manejo de açaizais nativos (várzea, baixios e grotas) e cultivo (várzea e terra firme irrigada; sistemas agroflorestais). Inclui viveiro de mudas.","secoes":[{"titulo":"Entradas","itens":["Açaizal nativo de várzea e estuário (touceiras de Euterpe oleracea); baixios e grotas","Espécies: E. oleracea (touceira; estuário) e E. precatoria (solteiro; terra firme)","Sementes e mudas de matrizes selecionadas; cultivares registradas (RNC)","Substrato, sacos ou tubetes e telas de sombreamento (viveiro)","Adubos orgânicos e minerais; corretivos (calcário)","Defensivos somente se registrados para a cultura","Água e energia para irrigação (plantios em terra firme)","Terra e território: propriedade, assentamento (PAE), RESEX ou RDS, várzea (área da União)","Mão de obra familiar ou comunitária; assistência técnica (ATER)","Combustível para rabeta e voadeira","Crédito rural e seguro (ZARC)"]},{"titulo":"Operações","itens":["Planejamento e regularização: CAR, cadastro do produtor, declaração e relatório ambiental de manejo","Limpeza seletiva da área (roçagem sem eliminar todo o sub-bosque)","Desbaste de touceiras, mantendo estipes de diferentes idades","Enriquecimento: plantio de mudas nas clareiras","Manejo das espécies acompanhantes (palmeiras e árvores)","Poda de folhas e limpeza dos estipes","Adubação e irrigação (cultivos plantados)","Controle de plantas espontâneas, pragas e doenças","Manejo da água em várzea; manutenção de trilhas e pinguelas","Viveiro: coleta de sementes, semeadura, repicagem e aclimatação","Monitoramento de florada e safra; estimativa de produção","Palmito: corte de estipes excedentes apenas dentro da intensidade autorizada"]},{"titulo":"Utensílios","itens":["Terçado ou facão, foice e machado","Enxada, enxadão, pá, cavadeira e rastelo","Podão de haste, serrote e tesoura de poda","Carrinho de mão, baldes e regador","Trena, GPS de mão e fichas de campo","Pinguelas, escadas de apoio e estacas","EPIs: botas, perneiras, luvas, chapéu e repelente","Canoa e remo"]},{"titulo":"Equipamentos","itens":["Roçadeira costal; motosserra (com registro e uso autorizado)","Pulverizador costal","Motobomba, mangueiras, gotejadores ou microaspersores e filtros","Trator com implementos e reboque (terra firme)","Viveiro, casa de vegetação e telados","Embarcações: rabeta, voadeira e barco","Drone, GPS e SIG (inventário e mapeamento)","Gerador ou painel solar para bombeamento"]},{"titulo":"Saídas e resíduos","itens":["Cachos maduros (fruto in natura), que seguem ao elo 2","Mudas prontas para plantio","Biomassa de roçagem e poda (cobertura e adubo orgânico)","Palmito e estipes (manejo autorizado); folhas e estipes para uso rural","Embalagens vazias de insumos (logística reversa de agrotóxicos)","Registros de manejo e safra (relatório anual)","Serviços ambientais: sombra, carbono e biodiversidade"]},{"titulo":"Atores","itens":["Agroextrativistas e ribeirinhos; comunidades tradicionais (ex.: Bailique)","Produtores familiares e empresas rurais; viveiristas","Cooperativas e associações","ATER e pesquisa: RURAP, Embrapa Amapá, IEPA e SEBRAE-AP","Órgãos: SEMA-AP, ICMBio, INCRA, SPU e IBAMA"],"margem":true},{"titulo":"Pontos críticos","itens":["Sustentabilidade do manejo: densidade de touceiras, estipes por touceira e intensidade de extração de palmito","Poucos defensivos registrados para a cultura","Regularidade fundiária e ambiental (CAR, várzea da União, unidades de conservação)","Segurança do trabalho no campo (facão, motosserra, embarcações)","Rastreabilidade de origem e cadastro do produtor","Certificações e selos: FSC, orgânico e Indicação Geográfica (Bailique)","Variabilidade de safra: entressafra e preço"],"margem":true}]},{"id":"e2","grupo":"principal","nome":"Colheita, debulha e acondicionamento","resumo":"Subida na palmeira com peconha, corte do cacho, debulha, catação e acondicionamento dos frutos para o transporte.","secoes":[{"titulo":"Entradas","itens":["Cachos maduros nas touceiras; calendário de safra e entressafra","Mão de obra especializada (peconheiros e apanhadores)","EPIs, água potável e alimentação para a jornada","Embalagens de campo: rasas ou paneiros, basquetas plásticas e sacos","Lonas para debulha e coberturas","Embarcação e combustível","Informação de maturação e de acesso (maré e nível do rio)"]},{"titulo":"Operações","itens":["Verificar a maturação dos cachos","Escalar a palmeira com a peconha","Cortar o cacho (facão ou foice de haste)","Descer o cacho de forma controlada, sem cair na lama ou no solo","Debulhar (tirar os frutos do ráquis) sobre lona limpa","Catar e selecionar: frutos verdes, folhas, ráquis, insetos (barbeiros) e sujidades","Peneirar ou abanar para retirar impurezas","Acondicionar em recipiente limpo (rasa, basqueta ou saco) e cobrir","Medir (lata, rasa) ou pesar","Levar ao trapiche ou porto no menor tempo possível","Higienizar as mãos, os recipientes e o local de debulha","Destinar ráquis e rejeitos"]},{"titulo":"Utensílios","itens":["Peconha (laço de fibra ou tecido)","Facão ou terçado; foice ou podão de haste","Lona plástica ou encerado","Peneira, abano ou tela","Rasa ou paneiro de fibra; basqueta plástica vazada; sacos","Bacias e baldes limpos","Pente ou debulhador manual","Balança de mola portátil; lata como medida de referência","Coberturas (lona e folhas)","EPIs: botas antiderrapantes, luvas, capacete, roupa de manga longa, repelente e protetor solar"]},{"titulo":"Equipamentos","itens":["Cinto de segurança e talabarte com linha de vida (recomendável)","Escada ou apoio para subida (quando usados)","Colhedor de haste telescópica (protótipos)","Debulhadora mecânica (protótipos)","Mesa de catação no ponto de debulha","Balança calibrada","Embarcação de apoio: canoa e rabeta","Lanternas para trabalho na madrugada"]},{"titulo":"Saídas e resíduos","itens":["Frutos debulhados e selecionados (in natura)","Ráquis e engaço: adubo, cobertura, artesanato, energia","Frutos verdes e rejeitos","Sacos, lonas e embalagens descartadas","Registro de origem: produtor, local e data"]},{"titulo":"Atores","itens":["Peconheiros, apanhadores e debulhadores (frequentemente da própria família)","Donos de açaizal e agroextrativistas","Barqueiros e atravessadores","Agentes de ATER e de vigilância sanitária"],"margem":true},{"titulo":"Pontos críticos","itens":["Risco de queda e de ferimentos na subida","Animais peçonhentos e insetos","Contaminação do fruto: contato com solo e água suja; barbeiros (triatomíneos) e suas fezes (transmissão oral do Trypanosoma cruzi)","Tempo entre colheita e processamento (fermentação)","Limpeza dos recipientes e cobertura dos frutos","Rastreabilidade"],"margem":true}]},{"id":"e3","grupo":"principal","nome":"Transporte primário e portos","resumo":"Da beira do rio ao ponto de beneficiamento: embarcações e desembarque do fruto in natura.","secoes":[{"titulo":"Entradas","itens":["Frutos debulhados em rasas, basquetas ou sacos","Embarcação, combustível e tripulação","Coberturas (lona e folhas) contra sol e chuva","Horários de maré e de chegada às feiras"]},{"titulo":"Operações","itens":["Carregar sem contato dos frutos com solo ou lama","Travessia fluvial (ilhas para Macapá e Santana)","Desembarque em trapiche, rampa ou porto","Descarga e transporte urbano (carrinho, caminhonete, moto)"]},{"titulo":"Utensílios","itens":["Rasa ou paneiro, basqueta plástica vazada, sacos","Lona, cordas, tampas e coberturas","Carrinhos de mão e de plataforma","Bacias e baldes; material de limpeza do barco","Coletes salva-vidas e material de segurança náutica"]},{"titulo":"Equipamentos","itens":["Canoa, rabeta, voadeira, barco regional e balsa","Trapiche, rampa de desembarque e flutuantes","Caminhonete, caminhão baú e moto de carga","Rádio e GPS","Iluminação para descarga na madrugada"]},{"titulo":"Saídas e resíduos","itens":["Frutos entregues ao ponto de beneficiamento","Resíduos: sacos, folhas, ráquis e frutos perdidos","Óleo e combustível de motores de embarcações"]},{"titulo":"Atores","itens":["Barqueiros, arrais e marinheiros fluviais; carregadores","Capitania dos Portos (embarcações)"],"margem":true},{"titulo":"Pontos críticos","itens":["Contaminação do fruto por contato com solo, água suja e animais; triatomíneos","Tempo e temperatura: fermentação em recipientes sem ventilação; exposição ao sol","Segurança da navegação (coletes, habilitação e condição do barco)","Descarte irregular de resíduos na orla e no rio"],"margem":true}]},{"id":"e4","grupo":"principal","nome":"Comercialização do fruto","resumo":"Compra e venda do fruto in natura: atravessadores, feiras, cooperativas e indústrias.","secoes":[{"titulo":"Entradas","itens":["Lotes de frutos (lata, rasa, saca)","Preço do dia; capital de giro do comprador","Nota fiscal do produtor; guia de trânsito quando exigida","Ponto de venda: porto, feira, trapiche ou indústria"]},{"titulo":"Operações","itens":["Compra na beira ou na ilha (atravessador) ou direto do extrativista","Medição por lata, rasa ou paneiro, ou pesagem em balança","Negociação e pagamento (à vista, adiantamentos)","Venda a batedeiras, agroindústrias, cooperativas e feirantes","Emissão de documentos fiscais e de trânsito","Fiscalização de pesos, medidas e higiene"]},{"titulo":"Utensílios","itens":["Latas e medidas de referência","Recibos, cadernetas e celular"]},{"titulo":"Equipamentos","itens":["Balança calibrada (plataforma ou suspensa)"]},{"titulo":"Saídas e resíduos","itens":["Notas fiscais e registros de compra (rastreabilidade)","Informação de preço (safra e entressafra)"]},{"titulo":"Atores","itens":["Atravessadores (marreteiros), feirantes e compradores das batedeiras","Cooperativas e associações; agroindústrias; exportadores","Fiscalização: SEFAZ, DIAGRO, vigilância sanitária, INMETRO e órgão estadual de metrologia, PROCON"],"margem":true},{"titulo":"Pontos críticos","itens":["Diferença entre lata, rasa e peso (fraude de medida)","Rastreabilidade: origem, produtor e data"],"margem":true}]},{"id":"e5","grupo":"principal","nome":"Recepção, seleção e higienização","resumo":"Do desembarque dos frutos ao branqueamento (choque térmico): etapa decisiva para a segurança do açaí, inclusive contra a doença de Chagas.","secoes":[{"titulo":"Entradas","itens":["Frutos in natura (rasas e basquetas)","Água potável (rede ou poço tratado)","Hipoclorito de sódio (saneante regularizado)","Água fria ou gelo para o resfriamento","Energia e fonte de calor (gás, elétrica ou vapor)","Detergente neutro para equipamentos","Uniformes e EPIs","POPs e planilhas de registro"]},{"titulo":"Operações","itens":["Recepção: conferir procedência, estado e peso","Seleção e catação em mesa: frutos verdes, impurezas e insetos","Primeira lavagem com água potável","Sanitização por imersão em água clorada (referência da Embrapa Amapá: 150 ppm por 15 min)","Enxágue com água potável","Branqueamento (choque térmico): 80 a 90 °C por 10 s","Resfriamento imediato (referência: água clorada a 50 ppm por cerca de 2 min)","Amolecimento em água morna, conforme o POP do estabelecimento","Registrar temperatura, tempo e concentração de cloro","Higienizar utensílios, tanques e bancadas ao fim da jornada"]},{"titulo":"Utensílios","itens":["Mesa de catação em aço inox","Bacias, cestos e bombonas em inox ou plástico atóxico","Escumadeira e peneira inox","Canecas e dosadores inox","Escovas e panos de uso exclusivo","Termômetro de haste e cronômetro","Kit medidor de cloro livre; pHmetro","Lixeira com tampa e pedal","Mangueira e etiquetas de lote"]},{"titulo":"Equipamentos","itens":["Máquina de branqueamento com controle digital de temperatura","Tanques de lavagem (cubas em série) e tanque de amolecimento","Fonte de calor: gás, resistência elétrica ou vapor de caldeira","Caixa d'água tampada com sistema de cloração e filtro","Bomba d'água","Balanças de bancada e de plataforma","Lavadora de frutos, esteira e elevador (agroindústria)","Resfriador (chiller) ou tanque com gelo","Drenagem, caixa de gordura e tratamento de efluentes"]},{"titulo":"Saídas e resíduos","itens":["Frutos higienizados e branqueados","Efluentes de lavagem (matéria orgânica e cloro)","Rejeitos: frutos verdes, impurezas e insetos","Embalagens vazias de saneantes","Registros de temperatura, tempo e cloro"]},{"titulo":"Atores","itens":["Batedores artesanais e agroindústrias","Responsáveis técnicos (engenharia de alimentos, nutrição e química)","Embrapa Amapá (BPF e choque térmico), SEBRAE-AP e vigilância sanitária","Fabricantes de equipamentos em inox (Belém e Macapá)"],"margem":true},{"titulo":"Pontos críticos","itens":["Temperatura e tempo do branqueamento","Concentração de cloro e tempo de contato","Potabilidade e reservação da água","Contaminação cruzada entre frutos crus e processados","Higiene e saúde do manipulador (ASO, vacinação e treinamento)","Vetores e pragas (triatomíneos atraídos pela luz): telas e portas","Utensílios: evitar madeira e plásticos deteriorados"],"margem":true}]},{"id":"e6","grupo":"principal","nome":"Despolpamento e beneficiamento","resumo":"Batedeira artesanal ou agroindústria: extração da polpa com água, padronização, controle de qualidade e destinação do caroço.","secoes":[{"titulo":"Entradas","itens":["Frutos higienizados, branqueados e amolecidos","Água potável para a extração (quantidade controlada)","Energia elétrica","Produtos de limpeza e sanitização","Uniformes e EPIs","Embalagens e insumos de envase (planejados)","Gelo","POPs, planilhas e rótulos"]},{"titulo":"Operações","itens":["Despolpar na despolpadeira (fricção com água) e peneirar","Padronizar: ajustar a água para obter o teor de sólidos declarado","Homogeneizar","Controlar a qualidade: sólidos totais, pH, Brix, aspecto e cheiro","Retirar e destinar o caroço","Registrar lote e rastreabilidade","Higienizar equipamentos e bancadas após a jornada","Controlar pragas e vetores","Gerir resíduos e efluentes","Encaminhar a polpa ao envase (elo 7) ou à venda imediata"]},{"titulo":"Utensílios","itens":["Bacias, baldes e bombonas em inox ou plástico atóxico","Peneiras e coadores inox (malhas)","Canecas e dosadores inox; pás e colheres inox","Funis e mangueiras sanitárias","Refratômetro (Brix), pHmetro, termômetro e balança","Recipientes de resíduo com tampa","Escovas e esponjas de uso exclusivo","Touca, avental, luvas, botas e máscara"]},{"titulo":"Equipamentos","itens":["Despolpadeira ou batedeira de açaí em aço inox (eixo vertical ou horizontal; motor elétrico)","Peneira vibratória ou finisher (agroindústria)","Bomba sanitária e tubulação inox","Tanque pulmão com agitador (homogeneização)","Trocador de calor ou pasteurizador (elo 7)","Balança de plataforma","Exaustor e telas nas aberturas","Sistema de tratamento de efluentes","Gerador de contingência"]},{"titulo":"Saídas e resíduos","itens":["Polpa (“vinho”) de açaí, comercializada como fino, médio ou grosso; rotulagem conforme o padrão do MAPA","Caroço: principal resíduo sólido (ver cadeias auxiliares)","Efluente com alta carga orgânica","Embalagens e sobras","Registros de lote"]},{"titulo":"Atores","itens":["Batedores artesanais (frequentemente MEI) e agroindústrias de polpa","Cooperativas de extrativistas","Fabricantes de equipamentos (Belém e Macapá)","Técnicos: Embrapa Amapá, SEBRAE-AP, IEPA e IFAP","Fiscalização: vigilância sanitária (SMVS e SVS-GEA), DIAGRO/SIE-AP, SIM de Macapá, MAPA e PROCON"],"margem":true},{"titulo":"Pontos críticos","itens":["Teor de sólidos compatível com o rótulo (padrão do MAPA)","Adulteração (goma, emulsificantes): fiscalizada pelo PROCON e pela vigilância sanitária","Água potável e reservação","Temperatura e tempo de exposição; prazo de venda curto (produto perecível)","Higienização e ausência de contaminação cruzada","Alvará ou licença sanitária, responsável técnico e registro no órgão competente","Segurança em máquinas: proteções, aterramento e treinamento (NR-12)","Descarte do caroço"],"margem":true}]},{"id":"e7","grupo":"principal","nome":"Conservação, envase e rotulagem","resumo":"Estabilização da polpa (pasteurização e/ou congelamento), embalagem, identificação do lote e armazenamento na origem.","secoes":[{"titulo":"Entradas","itens":["Polpa padronizada","Embalagens: sacos de polietileno de grau alimentício, potes, baldes, sachês, bag-in-box e tambores","Embalagens secundárias: caixas de papelão e filme","Rótulos, etiquetas e tinta de codificação","Frio (gelo e câmara) e energia","POPs, planilhas e estudos de validade"]},{"titulo":"Operações","itens":["Pasteurizar (quando adotado) e resfriar rapidamente","Dosar, ensacar ou envasar e selar","Codificar: lote, fabricação e validade","Rotular conforme as normas","Congelar (câmara, túnel ou freezer); referência do Pará para batedores: –18 a –25 °C","Armazenar congelado e controlar a temperatura","Paletizar e expedir","Coletar amostras para análise","Manter rastreabilidade e plano de recolhimento","Higienizar"]},{"titulo":"Utensílios","itens":["Dosadores e jarras graduadas inox; funis","Bacias e baldes inox","Balança de bancada","Termômetro de haste ou infravermelho","Seladora manual ou de pedal","Etiquetas adesivas e lacres","Caixas plásticas","Planilhas de registro e prancheta","EPIs"]},{"titulo":"Equipamentos","itens":["Pasteurizador: trocador de calor de placas ou tubular, ou tanque encamisado","Resfriador (chiller)","Envasadora dosadora e ensacadeira","Seladora térmica (pedal ou contínua); embaladora","Codificador ou datador (jato de tinta ou laser)","Detector de metais (agroindústria)","Esteira","Freezers horizontais e verticais; câmara fria; túnel de congelamento","Registradores de temperatura (data loggers)","Paleteira, empilhadeira e paletes","Gerador"]},{"titulo":"Saídas e resíduos","itens":["Polpa congelada ou pasteurizada, em embalagens de varejo e de uso industrial","Misturas (“mix”) com xarope de guaraná ou outros ingredientes","Sobras de embalagem, rótulos e filmes","Lotes retidos ou reprovados","Registros de temperatura e de lote"]},{"titulo":"Atores","itens":["Agroindústrias e batedores com câmara fria ou freezer exclusivo","Fornecedores de embalagens e gráficas","Empresas de refrigeração e manutenção","Fiscalização: MAPA, vigilância sanitária, DIAGRO e INMETRO"],"margem":true},{"titulo":"Pontos críticos","itens":["Temperatura de congelamento e cadeia do frio","Validade definida por estudo e informada no rótulo","Rotulagem: denominação, teor de sólidos, ingredientes, alergênicos, tabela nutricional e lote","Conteúdo líquido correto","Embalagem e utensílios adequados ao contato com alimentos","Padrões microbiológicos e contaminantes","Registro do produto e do estabelecimento","Recolhimento (recall) e rastreabilidade"],"margem":true}]},{"id":"e8","grupo":"principal","nome":"Armazenagem e distribuição","resumo":"Cadeia do frio e distribuição da polpa até os pontos de venda e os exportadores.","secoes":[{"titulo":"Entradas","itens":["Polpa embalada e congelada","Caixas térmicas, gelo e veículos","Energia e mão de obra"]},{"titulo":"Operações","itens":["Armazenar refrigerado ou congelado","Roteirizar e expedir","Transportar em veículo isotérmico ou refrigerado (fluvial, rodoviário e aéreo)","Receber no ponto de venda: conferir temperatura e rótulo"]},{"titulo":"Utensílios","itens":["Caixas isotérmicas e paletes","Registradores de temperatura (data loggers)","Termômetro","Etiquetas de validade"]},{"titulo":"Equipamentos","itens":["Câmara fria e freezers","Veículo baú refrigerado ou isotérmico","Caixas térmicas e gelo reciclável","Contêiner reefer com gerador e registrador de temperatura","Paletes e empilhadeira"]},{"titulo":"Saídas e resíduos","itens":["Polpa entregue ao varejo, à indústria ou ao exportador"]},{"titulo":"Atores","itens":["Distribuidores e transportadores (fluvial, rodoviário e aéreo)"],"margem":true},{"titulo":"Pontos críticos","itens":["Cadeia do frio: temperatura de congelamento de –18 °C ou menos","Rastreabilidade e recolhimento"],"margem":true}]},{"id":"e9","grupo":"principal","nome":"Varejo, serviços de alimentação e exportação","resumo":"Pontos de venda, açaiterias, mercados institucionais e mercado externo.","secoes":[{"titulo":"Entradas","itens":["Polpa e derivados","Acompanhamentos: xarope de guaraná, banana, granola, farinha de tapioca ou de mandioca, peixe e camarão","Embalagens de consumo","Documentos de exportação"]},{"titulo":"Operações","itens":["Estocar em freezers","Preparar: vinho de açaí, açaí na tigela e blends","Porcionar, atender e entregar (delivery)","Vender em feiras, mercados, supermercados, açaiterias e restaurantes","Exportar: contêiner reefer, documentação e certificações","Descartar e recolher resíduos"]},{"titulo":"Utensílios","itens":["Tigelas, copos, potes, colheres e pegadores","Recipientes inox para porcionamento","Balança","Etiquetas de validade","Luvas, toucas e panos","Dispensadores de acompanhamentos","Embalagens para delivery"]},{"titulo":"Equipamentos","itens":["Freezers verticais e horizontais; expositores","Batedeira ou processador de açaí e liquidificador industrial no ponto de venda","Máquina de açaí ou sorveteira","Balcão refrigerado","Balança e sistema de ponto de venda (PDV e maquininha)"]},{"titulo":"Saídas e resíduos","itens":["Açaí pronto para consumo","Embalagens de consumo (copos, tigelas e sacos)","Sobras e perdas","Resíduos orgânicos","Informações de venda e de reclamações"]},{"titulo":"Atores","itens":["Batedeiras, açaiterias e franquias","Feiras, mercados, supermercados e restaurantes","Compradores institucionais (PNAE e PAA)","Exportadores, tradings e consumidores","Fiscalização: vigilância sanitária, PROCON, MAPA e INMETRO"],"margem":true},{"titulo":"Pontos críticos","itens":["Rotulagem e validade","Boas práticas de manipulação nos pontos de venda","Alergênicos","Adulteração (goma, emulsificantes) e informação ao consumidor","Exportação: requisitos do país de destino e limites de contaminantes"],"margem":true}]},{"id":"e10","grupo":"principal","nome":"Consumo final","resumo":"Vinho de açaí com farinha, peixe ou camarão; açaí na tigela; blends. Elo ainda pouco detalhado.","secoes":[{"titulo":"Entradas","itens":["Polpa ou vinho de açaí","Acompanhamentos: farinha de tapioca ou de mandioca, peixe, camarão, granola e banana"]},{"titulo":"Operações","itens":["Consumo do vinho de açaí com farinha e peixe ou camarão","Consumo de açaí na tigela e de blends"]},{"titulo":"Utensílios","itens":["Cuia ou tigela, colher e copo"]},{"titulo":"Equipamentos","itens":["Geladeira ou freezer doméstico"]},{"titulo":"Saídas e resíduos","itens":["Embalagens de consumo e sobras"]},{"titulo":"Atores","itens":["Consumidores (domicílios e serviços de alimentação)"],"margem":true},{"titulo":"Pontos críticos","itens":[],"margem":true}]},{"id":"a1","grupo":"auxiliar","nome":"Insumos e material genético","resumo":"Viveiros, sementes e mudas, adubos, defensivos e ferramentas que alimentam a produção primária.","secoes":[{"titulo":"Inclui","itens":["Viveiros e matrizes","Sementes e mudas (RNC)","Substrato, sacos e tubetes","Adubos e corretivos","Defensivos registrados","Ferramentas e EPIs","Água e energia para irrigação"]}]},{"id":"a2","grupo":"auxiliar","nome":"Caroço","resumo":"Maior fração da massa do fruto; gerado em grande volume nas batedeiras de Macapá e Santana (hoje: coleta paga, olarias e descarte irregular).","secoes":[{"titulo":"Energia","itens":["Lenha e carvão; briquetes e pellets; caldeiras, fornos e olarias","Biogás e biocombustíveis (P&D)"]},{"titulo":"Agro e ambiental","itens":["Composto, adubo, substrato, cobertura morta e biochar"]},{"titulo":"Materiais","itens":["Artesanato e biojoias; painéis e compósitos; carvão ativado"]},{"titulo":"Alimentos e ingredientes","itens":["Grão torrado e moído (“café de açaí”): norma específica no Pará","Farinha e extratos (a validar)"]},{"titulo":"Cosmético e farmacêutico","itens":["Polifenóis, óleos e extratos (P&D)"]},{"titulo":"Outros","itens":["Ração animal (a validar)"]},{"titulo":"Equipamentos (caroço, fibras e efluentes)","itens":["Peneiras e classificadores; trituradores e moinho de martelo","Secador (estufa ou solar) e silos","Briquetadeira ou peletizadora; forno carbonizador; caldeira de biomassa","Composteira, leiras e revolvedor; biodigestor","Torrefador, moinho e embaladora (grão torrado e moído)","Prensa e extrusora; bancada de artesanato e acabamento","Balança, carrinhos, big bags, caçambas e caminhão de coleta","Decantador, filtro anaeróbio e ETE compacta"]},{"titulo":"Atores e mercados","itens":["Batedeiras e agroindústrias (geradoras de caroço)","Coletores, olarias, cerâmicas e indústrias de biomassa e energia","Artesãos e cooperativas de biojoias; empreendedores de bioeconomia","UNIFAP, IEPA, IFAP e Embrapa (P&D)","Prefeituras (Macapá e Santana): programa de coleta","Indústrias de alimentos, cosméticos e nutracêuticos; exportadores"],"margem":true},{"titulo":"Pontos críticos","itens":["Volume de caroço e descarte irregular (vias públicas, terrenos e corpos d'água)","Umidade elevada: fermentação, odor e vetores; necessidade de secagem","Logística de coleta e transbordo até o ponto de uso","Segurança sanitária de coprodutos usados como alimento","Emissões e queima em olarias; efluentes","Acesso ao patrimônio genético e a conhecimento tradicional em derivados (repartição de benefícios)","Rotulagem e alegações de saúde"],"margem":true}]},{"id":"a3","grupo":"auxiliar","nome":"Fibras, engaço e biomassa","resumo":"","secoes":[{"titulo":"Usos e destinos","itens":["Ráquis e engaço dos cachos: cobertura do solo, compostagem, artesanato (cestaria) e energia","Folhas e estipes do manejo: cobertura, construção rural e artesanato","Borra das peneiras e sedimentos das caixas de decantação: compostagem","Lodo de estação de tratamento: destinação conforme a legislação","Sobras vegetais de higienização e catação"]}]},{"id":"a4","grupo":"auxiliar","nome":"Efluentes e embalagens","resumo":"","secoes":[{"titulo":"Efluentes (elos 5 e 6)","itens":["Água de lavagem (com cloro) e de despolpamento: alta carga orgânica","Gradeamento, caixa de gordura ou decantador, filtro anaeróbio e sumidouro, ETE compacta; reúso quando possível","Lançamento somente dentro dos padrões (CONAMA 430/2011) e com licença"]},{"titulo":"Embalagens e rejeitos","itens":["Sacos, potes, baldes, caixas de papelão e filmes","Coleta seletiva e logística reversa; rejeitos para aterro sanitário","Embalagens de saneantes: retorno ao fornecedor ou coleta específica"]}]},{"id":"a5","grupo":"auxiliar","nome":"Produtos do açaizal","resumo":"Cada produto tem cadeia e normas próprias.","secoes":[{"titulo":"Produtos","itens":["Palmito (estipes excedentes): corte, cozimento e conserva; exige licença ou declaração ambiental","Mel (apicultura no açaizal); pesca e camarão de várzea","Frutas e cacau em sistemas agroflorestais","Madeira e produtos não madeireiros; artesanato","Sementes e mudas (viveiros)","Turismo de base comunitária","Serviços ambientais (carbono e PSA)"]}]},{"id":"a6","grupo":"auxiliar","nome":"Derivados da polpa","resumo":"","secoes":[{"titulo":"Derivados","itens":["Açaí clarificado e açaí desidratado (definidos no padrão do MAPA)","Pó liofilizado ou atomizado; extratos e corantes (antocianinas)","Sorvetes, picolés, blends e “mix” (guaraná e cereais); bebidas, licores e cerveja artesanal","Geleias, barras, snacks e fruta desidratada","Cosméticos (óleo e extratos); suplementos alimentares e cápsulas","Ingrediente industrial e exportação"]},{"titulo":"Equipamentos","itens":["Liofilizador; secador por atomização (spray dryer)","Homogeneizador e moinho coloidal; centrífuga ou microfiltração (clarificação)","Evaporador e concentrador; extratores e reatores (antocianinas e óleos)","Produtora de sorvetes e túnel de congelamento","Envasadora, rotuladora e seladora; pasteurizador ou autoclave para bebidas","Câmaras frias","Laboratório de P&D e controle (HPLC, espectrofotômetro, estufa e mufla)"]}]},{"id":"p1","grupo":"apoio","nome":"Logística e transporte","resumo":"Como o fruto e a polpa se movem: modais, infraestrutura e documentos.","secoes":[{"titulo":"Modais","itens":["Fluvial: canoa, rabeta, voadeira, barco regional e balsa (ilhas, Macapá, Santana e rota para Belém)","Rodoviário: BR-156; caminhonete, caminhão baú ou refrigerado e moto","Aéreo: carga","Portuário: trapiches, rampas e Porto de Santana"]},{"titulo":"Infraestrutura","itens":["Armazéns, câmaras frias, terminais e feiras","Contêiner reefer, paletes e empilhadeiras"]},{"titulo":"Documentos","itens":["NF-e ou NFA-e, CT-e e MDF-e; guia de trânsito quando exigida"]}]},{"id":"p2","grupo":"apoio","nome":"Energia, água e utilidades","resumo":"Energia, água potável, esgoto, calor e frio.","secoes":[{"titulo":"Inclui","itens":["Energia: rede da concessionária, geradores a diesel, sistemas solares em comunidades isoladas e nobreaks","Água: rede pública, poços, caixas d'água tampadas, cloradores, filtros e análises de potabilidade","Esgoto: fossa séptica, filtro e sumidouro; ETE compacta","Calor: gás, lenha, biomassa (caroço) e resistência elétrica","Frio: compressores, câmaras, freezers e fábrica de gelo","Combustíveis e lubrificantes (embarcações e geradores)","Comunicação: celular, internet e rádio"]}]},{"id":"p3","grupo":"apoio","nome":"Máquinas e insumos","resumo":"Fornecedores de equipamentos, embalagens, saneantes e serviços técnicos.","secoes":[{"titulo":"Inclui","itens":["Metalúrgicas de aço inox (Belém e Macapá): bacias, mesas, tanques e despolpadeiras","Refrigeração e assistência técnica (freezers e câmaras)","Motores, bombas, quadros elétricos e oficinas","Embalagens: sacos, potes, baldes, caixas e filmes","Gráficas: rótulos, etiquetas e lacres","Saneantes: hipoclorito, detergentes e sanitizantes","EPIs, uniformes e descartáveis","Calibração e aferição (balanças e termômetros)","Controle integrado de pragas e vetores"]}]},{"id":"p4","grupo":"apoio","nome":"Mão de obra e organização","resumo":"Quem trabalha na cadeia e como se organiza.","secoes":[{"titulo":"Inclui","itens":["Peconheiros e apanhadores, debulhadores, barqueiros e carregadores","Batedores(as), auxiliares, motoristas e entregadores","Responsáveis técnicos (engenharia de alimentos, nutrição, química e agronomia), com registro em conselho","Cooperativas, associações e sindicatos","Comunidades tradicionais e associações locais (ex.: ACTB, Bailique)","Saúde e segurança: ASO, vacinação e treinamento de boas práticas","Educação e capacitação continuada"]}]},{"id":"p5","grupo":"apoio","nome":"ATER, P&D e capacitação","resumo":"Assistência técnica, pesquisa e formação.","secoes":[{"titulo":"Inclui","itens":["ATER: RURAP","Pesquisa: Embrapa Amapá, IEPA, UNIFAP, UEAP e IFAP","Capacitação: SEBRAE-AP, SENAR e SENAI","Temas: manejo do açaizal, choque térmico e BPF, planejamento de batedeiras, coprodutos e bioeconomia","Cartilhas e manuais (ex.: “Planejando batedeiras de açaí”)","Unidades demonstrativas; cooperação internacional"]}]},{"id":"p6","grupo":"apoio","nome":"Laboratórios, qualidade e certificação","resumo":"Análises, programas de qualidade, selos e auditorias.","secoes":[{"titulo":"Inclui","itens":["LACEN-AP (saúde pública); laboratórios de universidades e institutos","Análises microbiológicas (coliformes, Salmonella), físico-químicas (sólidos totais, pH e acidez), contaminantes e antocianinas","Programas de qualidade: BPF, POP e APPCC; ISO 22000 (agroindústrias)","Selos e certificações: FSC, orgânico, Selo de Qualidade do Açaí (Lei 1.914/2015) e IG Açaí do Bailique","Auditorias e inspeções: vigilância sanitária, DIAGRO e MAPA","Calibração, materiais de referência e ensaios de proficiência","Amostragem oficial e controle de fraude (goma e emulsificantes)"]}]},{"id":"p7","grupo":"apoio","nome":"Crédito, seguro e fomento","resumo":"Financiamento, seguro, preços mínimos e regimes tributários.","secoes":[{"titulo":"Inclui","itens":["Crédito rural: Pronaf, FNO (Basa), Banco do Brasil, Caixa e AFAP","Seguro e garantia: Proagro, seguro rural e ZARC do açaí","Preços mínimos: PGPM","Fomento e editais: Fundo Amazônia, BNDES e fundações de amparo à pesquisa","Regimes: MEI, Simples Nacional e cooperativas","Assessoria contábil e tributária","Meios de pagamento: PIX e maquininhas"]}]},{"id":"p8","grupo":"apoio","nome":"Mercados, compras públicas e TI","resumo":"Canais de venda, compras institucionais e rastreabilidade.","secoes":[{"titulo":"Inclui","itens":["PNAE e PAA (mercados institucionais)","Feiras, supermercados, açaiterias, franquias, delivery e e-commerce","Exportadores e tradings; contêiner reefer","Rastreabilidade: CAR, cadastro do produtor, NF-e, lote e data; SIPEAGRO","Marca e origem: IG Açaí do Bailique; açaí como fruta nacional (Lei 15.330/2026)","Informação de mercado: preços, safra e entressafra","Marketing, design de embalagem e mídia"]}]},{"id":"i1","grupo":"institucional","nome":"MAPA (SFA-AP)","resumo":"","secoes":[{"titulo":"Atribuições","itens":["Bebidas (polpa e açaí): registro de estabelecimento e de produto, padrões de identidade e qualidade e fiscalização","Orgânicos, sementes e mudas","ZARC e crédito rural"]}]},{"id":"i2","grupo":"institucional","nome":"Anvisa e SNVS","resumo":"","secoes":[{"titulo":"Atribuições","itens":["Boas práticas, padrões microbiológicos, contaminantes, rotulagem e materiais em contato com alimentos","Ministério da Saúde: vigilância da doença de Chagas de transmissão oral"]}]},{"id":"i3","grupo":"institucional","nome":"Vigilância sanitária","resumo":"","secoes":[{"titulo":"Atribuições","itens":["SVS-GEA e SMVS de Macapá: cadastro de batedores, alvará ou licença sanitária, inspeção e interdição","LACEN-AP: análises de amostras"]}]},{"id":"i4","grupo":"institucional","nome":"DIAGRO-AP e serviços de inspeção","resumo":"","secoes":[{"titulo":"Atribuições","itens":["SIE-AP: polpa de fruta artesanal e outros produtos de origem vegetal","Defesa sanitária vegetal","SIM de Macapá (Lei 2.532/2021)"]}]},{"id":"i5","grupo":"institucional","nome":"Meio ambiente e território","resumo":"","secoes":[{"titulo":"Atribuições","itens":["SEMA-AP, IBAMA, ICMBio, INCRA e SPU","Manejo do açaizal, licenciamento, RESEX, RDS e PAE, várzeas e CAR"]}]},{"id":"i6","grupo":"institucional","nome":"Fiscal, trabalho e propriedade intelectual","resumo":"","secoes":[{"titulo":"Atribuições","itens":["SEFAZ e Receita","MTE (NR-31, NR-35 e NR-12)","INMETRO e PROCON-AP","INPI (IG Açaí do Bailique)","Capitania dos Portos (embarcações)"]}]}],"normas":[{"esfera":"Federal","titulo":"Lei 8.918/1994","resumo":"Padronização, registro e fiscalização de bebidas; abriga polpa e suco de fruta.","elos":["e6","e7"],"status":"ok","fonte":"https://www.planalto.gov.br/ccivil_03/leis/l8918.htm"},{"esfera":"Federal","titulo":"Decreto 6.871/2009","resumo":"Regulamenta a Lei 8.918/1994: registro, padrões e fiscalização de bebidas.","elos":["e6","e7"],"status":"ok","fonte":"https://www.planalto.gov.br/ccivil_03/_ato2007-2010/2009/decreto/d6871.htm"},{"esfera":"Federal","titulo":"IN MAPA 49/2018","resumo":"Padrões de identidade e qualidade de suco e polpa de fruta.","elos":["e6","e7"],"status":"ok","fonte":""},{"esfera":"Federal","titulo":"IN SDA 37/2018","resumo":"Parâmetros analíticos de suco e polpa; define “açaí” com o percentual de sólidos totais (mínimo de 8%).","elos":["e6","e7"],"status":"ok","fonte":""},{"esfera":"Federal","titulo":"IN MAPA 72/2018","resumo":"Registro de estabelecimentos e produtos de bebidas (Sipeagro).","elos":["e6","e7"],"status":"conferir","fonte":""},{"esfera":"Federal","titulo":"Lei 13.648/2018","resumo":"Polpa e suco artesanais em estabelecimento familiar rural.","elos":["e6"],"status":"ok","fonte":"https://www.planalto.gov.br/ccivil_03/_ato2015-2018/2018/lei/l13648.htm"},{"esfera":"Federal","titulo":"Decreto 10.026/2019","resumo":"Regulamenta a Lei 13.648/2018; registro do estabelecimento e da polpa pelo Sipeagro.","elos":["e6"],"status":"ok","fonte":"https://www.planalto.gov.br/ccivil_03/_ato2019-2022/2019/decreto/d10026.htm"},{"esfera":"Federal","titulo":"RDC 216/2004","resumo":"Boas práticas em serviços de alimentação (batedeiras e açaiterias).","elos":["e5","e6","e9"],"status":"ok","fonte":""},{"esfera":"Federal","titulo":"RDC 275/2002","resumo":"POPs e lista de verificação de BPF em estabelecimentos produtores de alimentos.","elos":["e5","e6","e7"],"status":"ok","fonte":""},{"esfera":"Federal","titulo":"Portaria SVS/MS 326/1997","resumo":"Condições higiênico-sanitárias e BPF em estabelecimentos produtores de alimentos.","elos":["e5","e6","e7"],"status":"ok","fonte":""},{"esfera":"Federal","titulo":"RDC 724/2022 e IN 161/2022","resumo":"Padrões microbiológicos dos alimentos (revisão da RDC 331/2019); a IN 161 foi alterada pela IN 313/2024.","elos":["e6","e7","e8","e9"],"status":"ok","fonte":""},{"esfera":"Federal","titulo":"RDC 722/2022 e IN 160/2022","resumo":"Limites máximos tolerados de contaminantes em alimentos.","elos":["e6","e7","e8"],"status":"ok","fonte":""},{"esfera":"Federal","titulo":"RDC 727/2022","resumo":"Rotulagem de alimentos embalados.","elos":["e7","e8","e9"],"status":"ok","fonte":""},{"esfera":"Federal","titulo":"RDC 429/2020 e IN 75/2020","resumo":"Rotulagem nutricional.","elos":["e7","e8","e9"],"status":"ok","fonte":""},{"esfera":"Federal","titulo":"RDC 26/2015","resumo":"Rotulagem de alergênicos.","elos":["e7","e8","e9"],"status":"ok","fonte":""},{"esfera":"Federal","titulo":"Portaria GM/MS 888/2021","resumo":"Potabilidade da água para consumo humano (altera o Anexo XX da Portaria de Consolidação 5/2017).","elos":["e5","e6"],"status":"ok","fonte":""},{"esfera":"Federal","titulo":"Materiais em contato com alimentos (Anvisa)","resumo":"Requisitos para embalagens, utensílios e equipamentos; conferir a norma vigente.","elos":["e5","e6","e7"],"status":"conferir","fonte":""},{"esfera":"Federal","titulo":"RDC 243/2018","resumo":"Suplementos alimentares (derivados da polpa).","elos":["auxiliar"],"status":"ok","fonte":""},{"esfera":"Federal","titulo":"Gelados comestíveis (Anvisa)","resumo":"Norma sanitária de gelados (sorvetes e picolés de açaí); conferir o número.","elos":["auxiliar"],"status":"conferir","fonte":""},{"esfera":"Federal","titulo":"Lei 10.711/2003","resumo":"Sistema Nacional de Sementes e Mudas; cultivares no RNC.","elos":["e1"],"status":"ok","fonte":"https://www.planalto.gov.br/ccivil_03/leis/2003/l10.711.htm"},{"esfera":"Federal","titulo":"Decreto 10.586/2020","resumo":"Regulamenta a Lei 10.711/2003.","elos":["e1"],"status":"conferir","fonte":""},{"esfera":"Federal","titulo":"Lei 14.785/2023","resumo":"Nova lei de agrotóxicos.","elos":["e1"],"status":"ok","fonte":"https://www.planalto.gov.br/ccivil_03/_ato2023-2026/2023/lei/l14785.htm"},{"esfera":"Federal","titulo":"Lei 10.831/2003","resumo":"Agricultura orgânica.","elos":["e1"],"status":"ok","fonte":"https://www.planalto.gov.br/ccivil_03/leis/2003/l10.831.htm"},{"esfera":"Federal","titulo":"Portaria MAPA 52/2021","resumo":"Regulamento técnico dos sistemas orgânicos de produção.","elos":["e1"],"status":"ok","fonte":""},{"esfera":"Federal","titulo":"Portaria SPA/MAPA 5/2024","resumo":"Zoneamento agrícola de risco climático do açaí (cultivo irrigado).","elos":["e1","apoio"],"status":"ok","fonte":""},{"esfera":"Federal","titulo":"Lei 11.326/2006 e Decreto 9.064/2017","resumo":"Agricultura familiar e sua regulamentação.","elos":["e1","e6","apoio"],"status":"ok","fonte":""},{"esfera":"Federal","titulo":"Lei 11.947/2009","resumo":"PNAE: compras da agricultura familiar para a alimentação escolar.","elos":["e9","apoio"],"status":"ok","fonte":"https://www.planalto.gov.br/ccivil_03/_ato2007-2010/2009/lei/l11947.htm"},{"esfera":"Federal","titulo":"Lei 14.628/2023","resumo":"PAA: Programa de Aquisição de Alimentos.","elos":["e9","apoio"],"status":"conferir","fonte":""},{"esfera":"Federal","titulo":"LC 123/2006","resumo":"Simples Nacional e MEI.","elos":["e6","e9","apoio"],"status":"ok","fonte":"https://www.planalto.gov.br/ccivil_03/leis/lcp/lcp123.htm"},{"esfera":"Federal","titulo":"Lei 5.764/1971","resumo":"Política Nacional de Cooperativismo.","elos":["apoio"],"status":"ok","fonte":"https://www.planalto.gov.br/ccivil_03/leis/l5764.htm"},{"esfera":"Federal","titulo":"Lei 12.651/2012","resumo":"Código Florestal; a IN SEMA-AP 1/2024 trata o manejo de açaí em várzea como atividade de baixo impacto.","elos":["e1"],"status":"ok","fonte":"https://www.planalto.gov.br/ccivil_03/_ato2011-2014/2012/lei/l12651.htm"},{"esfera":"Federal","titulo":"Lei 15.190/2025","resumo":"Lei Geral do Licenciamento Ambiental, em vigor desde 4/2/2026 (ADIs 7913, 7916 e 7919 no STF); a Lei 15.300/2025 cria a Licença Ambiental Especial.","elos":["e1","e5","e6","auxiliar"],"status":"ok","fonte":""},{"esfera":"Federal","titulo":"Lei 9.985/2000","resumo":"SNUC: RESEX, RDS e florestas nacionais.","elos":["e1"],"status":"ok","fonte":"https://www.planalto.gov.br/ccivil_03/leis/l9985.htm"},{"esfera":"Federal","titulo":"Lei 11.284/2006","resumo":"Gestão de florestas públicas.","elos":["e1"],"status":"ok","fonte":"https://www.planalto.gov.br/ccivil_03/_ato2004-2006/2006/lei/l11284.htm"},{"esfera":"Federal","titulo":"Lei 13.123/2015","resumo":"Patrimônio genético e conhecimento tradicional: repartição de benefícios em derivados.","elos":["auxiliar"],"status":"ok","fonte":"https://www.planalto.gov.br/ccivil_03/_ato2015-2018/2015/lei/l13123.htm"},{"esfera":"Federal","titulo":"Portaria SPU 284/2005","resumo":"Uso de várzeas da União para o desbaste do açaí.","elos":["e1"],"status":"conferir","fonte":""},{"esfera":"Federal","titulo":"Lei 9.433/1997","resumo":"Política Nacional de Recursos Hídricos (outorga de poços).","elos":["e5","e6"],"status":"ok","fonte":"https://www.planalto.gov.br/ccivil_03/leis/l9433.htm"},{"esfera":"Federal","titulo":"Lei 12.305/2010 e Decreto 10.936/2022","resumo":"PNRS: resíduos sólidos e logística reversa.","elos":["e3","e7","e9","auxiliar"],"status":"ok","fonte":""},{"esfera":"Federal","titulo":"CONAMA 430/2011 e 357/2005","resumo":"Lançamento de efluentes e enquadramento de corpos d'água.","elos":["e5","e6","auxiliar"],"status":"ok","fonte":""},{"esfera":"Federal","titulo":"NR-31","resumo":"Segurança e saúde no trabalho rural.","elos":["e1","e2"],"status":"ok","fonte":""},{"esfera":"Federal","titulo":"NR-35","resumo":"Trabalho em altura; aplicabilidade à escalada com peconha a verificar.","elos":["e2"],"status":"conferir","fonte":""},{"esfera":"Federal","titulo":"NR-12","resumo":"Máquinas e equipamentos (despolpadeiras e batedeiras).","elos":["e6","e7"],"status":"ok","fonte":""},{"esfera":"Federal","titulo":"NR-1, NR-6 e NR-24","resumo":"Gestão de riscos, EPI e condições sanitárias no trabalho.","elos":["e2","e5","e6","e7"],"status":"ok","fonte":""},{"esfera":"Federal","titulo":"Lei 8.078/1990 (CDC)","resumo":"Defesa do consumidor.","elos":["e1","e2","e3","e4","e5","e6","e7","e8","e9","e10","auxiliar","apoio"],"status":"ok","fonte":"https://www.planalto.gov.br/ccivil_03/leis/l8078compilado.htm"},{"esfera":"Federal","titulo":"Lei 6.437/1977","resumo":"Infrações à legislação sanitária.","elos":["e1","e2","e3","e4","e5","e6","e7","e8","e9","e10","auxiliar","apoio"],"status":"ok","fonte":"https://www.planalto.gov.br/ccivil_03/leis/l6437.htm"},{"esfera":"Federal","titulo":"Lei 8.080/1990 e Lei 9.782/1999","resumo":"SUS e Sistema Nacional de Vigilância Sanitária.","elos":["e1","e2","e3","e4","e5","e6","e7","e8","e9","e10","auxiliar","apoio"],"status":"ok","fonte":""},{"esfera":"Federal","titulo":"Decreto-Lei 986/1969","resumo":"Normas básicas sobre alimentos.","elos":["e1","e2","e3","e4","e5","e6","e7","e8","e9","e10","auxiliar","apoio"],"status":"ok","fonte":"https://www.planalto.gov.br/ccivil_03/decreto-lei/del0986.htm"},{"esfera":"Federal","titulo":"Lei 9.933/1999 e Portaria INMETRO 248/2008","resumo":"Metrologia legal e conteúdo líquido de produtos pré-medidos.","elos":["e3","e4","e7"],"status":"conferir","fonte":""},{"esfera":"Federal","titulo":"Lei 9.537/1997","resumo":"Segurança do tráfego aquaviário.","elos":["e3"],"status":"ok","fonte":"https://www.planalto.gov.br/ccivil_03/leis/l9537.htm"},{"esfera":"Federal","titulo":"Lei 9.279/1996 e Portaria INPI 4/2022","resumo":"Indicações Geográficas.","elos":["e1","e9"],"status":"ok","fonte":""},{"esfera":"Federal","titulo":"IG Açaí do Bailique","resumo":"Indicação de Procedência BR402023000008-4, concedida em 8/4/2025 à ACTB; terceira IG de açaí do país.","elos":["e1","e9"],"status":"ok","fonte":""},{"esfera":"Federal","titulo":"Lei 15.330/2026","resumo":"Reconhece o açaí como fruta nacional (DOU de 8/1/2026).","elos":["e1","e2","e3","e4","e5","e6","e7","e8","e9","e10","auxiliar","apoio"],"status":"ok","fonte":""},{"esfera":"Amapá","titulo":"Lei 1.914/2015","resumo":"Programa Estadual de Qualidade do Açaí e Selo de Qualidade; cadastro de batedores e boas práticas de fabricação.","elos":["e2","e3","e4","e5","e6"],"status":"ok","fonte":""},{"esfera":"Amapá","titulo":"Lei 2.260/2017","resumo":"Registro de estabelecimentos e comercialização de produtos artesanais de origem animal e vegetal.","elos":["e6"],"status":"ok","fonte":""},{"esfera":"Amapá","titulo":"Lei 0869/2004 e Decreto 2.696/2006","resumo":"Defesa e inspeção sanitária vegetal e animal; a DIAGRO pode editar normas para a produção artesanal.","elos":["e6"],"status":"ok","fonte":""},{"esfera":"Amapá","titulo":"Portaria DIAGRO 364/2024","resumo":"Registro no SIE; entre as áreas de origem vegetal está a polpa de fruta artesanal.","elos":["e6"],"status":"ok","fonte":""},{"esfera":"Amapá","titulo":"Portaria DIAGRO 17/2024","resumo":"Registro de produtos no SIE-AP.","elos":["e6"],"status":"conferir","fonte":""},{"esfera":"Amapá","titulo":"IN SEMA 1/2024","resumo":"DAPP, RAP e RAPC: manejo, extração e produção de palmito e frutos de açaí.","elos":["e1"],"status":"ok","fonte":""},{"esfera":"Amapá","titulo":"IN SEMA 3/2009","resumo":"Plano de Limpeza de Açaizal e autorização de transporte do palmito; ver se foi substituída.","elos":["e1"],"status":"conferir","fonte":""},{"esfera":"Amapá","titulo":"PL 0073/2024","resumo":"Dia Estadual dos Batedores de Açaí; aprovado na Alap em 2024.","elos":["e6"],"status":"conferir","fonte":""},{"esfera":"Pará","titulo":"Decreto 2.475/2010","resumo":"Programa Estadual de Qualidade do Açaí (alterado pelo Decreto 250/2011).","elos":["e2","e3","e4","e5","e6"],"status":"ok","fonte":""},{"esfera":"Pará","titulo":"Decreto 326/2012","resumo":"Requisitos higiênico-sanitários para batedores artesanais; cadastro e uso do branqueador.","elos":["e5","e6"],"status":"ok","fonte":""},{"esfera":"Pará","titulo":"Lei 7.565/2011 e Decreto 480/2012","resumo":"Licenciamento de estabelecimentos e registro de produtos artesanais comestíveis; execução pela ADEPARÁ.","elos":["e6"],"status":"ok","fonte":""},{"esfera":"Pará","titulo":"Lei 11.140/2025","resumo":"Batedor artesanal (MEI, até 40 latas por dia); congelamento entre –18 e –25 °C; estoque regulador.","elos":["e6","e7"],"status":"ok","fonte":""},{"esfera":"Pará","titulo":"Portaria ADEPARÁ 2.789/2020","resumo":"Trânsito de frutos de açaí, com rastreabilidade (GTV).","elos":["e3","e4"],"status":"ok","fonte":""},{"esfera":"Pará","titulo":"Portaria ADEPARÁ 1.597/2024","resumo":"Padrão de identidade e qualidade do grão de açaí torrado e moído.","elos":["auxiliar"],"status":"ok","fonte":""},{"esfera":"Pará","titulo":"IN SEMA 9/2013","resumo":"Declaração ambiental e relatório anual para manejo de palmito e frutos de açaí em várzeas.","elos":["e1"],"status":"ok","fonte":""},{"esfera":"Pará","titulo":"PL 169/2024","resumo":"Padrões de qualidade do açaí; aprovado na ALEPA em 8/4/2025.","elos":["e6","e7"],"status":"conferir","fonte":""},{"esfera":"Amazonas","titulo":"LC 70/2009","resumo":"Código de Saúde do Estado do Amazonas (base sanitária geral).","elos":["e5","e6","e9"],"status":"ok","fonte":""},{"esfera":"Macapá","titulo":"Lei 2.914/2025","resumo":"Programa municipal de coleta, transporte, tratamento e destino final do caroço de açaí.","elos":["e6","auxiliar"],"status":"ok","fonte":""},{"esfera":"Macapá","titulo":"Lei 2.466/2021","resumo":"Batedeiras como atividade essencial, sujeitas às determinações sanitárias da Secretaria de Saúde.","elos":["e6","e9"],"status":"ok","fonte":""},{"esfera":"Macapá","titulo":"Leis 2.532/2021 e 2.555/2022","resumo":"Serviço de Inspeção Municipal (SIM) para produtos de origem animal e vegetal; a segunda altera a primeira.","elos":["e6"],"status":"ok","fonte":""},{"esfera":"Macapá","titulo":"LC 27/2004","resumo":"Licenciamento, autorização e fiscalização das atividades socioeconômicas.","elos":["e6","e9"],"status":"ok","fonte":""},{"esfera":"Macapá","titulo":"Código Sanitário do Município","resumo":"Referido na LC 144/2021 (licença sanitária e taxas); número da lei a confirmar (LC 52/2008?).","elos":["e5","e6","e9"],"status":"conferir","fonte":""},{"esfera":"Macapá","titulo":"Autorização ambiental para batedeiras","resumo":"Instrumento lançado pela Prefeitura (Semam) para cadastrar e regularizar batedores; ato normativo a localizar.","elos":["e6"],"status":"conferir","fonte":""},{"esfera":"Belém","titulo":"Casa do Açaí (Devisa/Sesma)","resumo":"Fiscaliza o cumprimento do Decreto estadual 326/2012; selo “Açaí Bom”.","elos":["e5","e6"],"status":"ok","fonte":""},{"esfera":"Belém","titulo":"Portaria SEDCON 90/2025","resumo":"Horário do comércio atacadista na Feira do Açaí.","elos":["e4"],"status":"conferir","fonte":""},{"esfera":"Manaus","titulo":"Lei 392/1997 e Decreto 3.910/1997","resumo":"Código Sanitário de Manaus.","elos":["e5","e6","e9"],"status":"ok","fonte":""},{"esfera":"Manaus","titulo":"Licença Sanitária (LC de 27/12/2018)","resumo":"Licença Sanitária e taxas; número da lei (LC 10/2018?) a confirmar.","elos":["e6","e9"],"status":"conferir","fonte":""},{"esfera":"Manaus","titulo":"Decreto 4.648/2019","resumo":"REDESIM/SLIM: licenciamento e alvará de funcionamento.","elos":["e6","e9"],"status":"ok","fonte":""},{"esfera":"Manaus","titulo":"LC 5/2014","resumo":"Código de Posturas de Manaus.","elos":["e6","e9"],"status":"ok","fonte":""},{"esfera":"Outros estados","titulo":"Roraima: Decreto 30.250-E/2021","resumo":"Programa Estadual de Qualidade do Açaí.","elos":["e6"],"status":"ok","fonte":""},{"esfera":"Outros estados","titulo":"Maranhão: Portaria SES 954/2024","resumo":"BPF de polpa de juçara/açaí, bacaba e buriti para batedores artesanais.","elos":["e5","e6"],"status":"ok","fonte":""},{"esfera":"Outros estados","titulo":"Acre: Lei 3.513/2019","resumo":"Programa Estadual de Qualidade do Açaí e selo.","elos":["e6"],"status":"conferir","fonte":""},{"esfera":"Técnicas","titulo":"ABNT NBR ISO 22000","resumo":"Gestão da segurança de alimentos.","elos":["e5","e6","e7"],"status":"ok","fonte":""},{"esfera":"Técnicas","titulo":"ABNT NBR 10004","resumo":"Classificação de resíduos sólidos.","elos":["auxiliar"],"status":"ok","fonte":""},{"esfera":"Técnicas","titulo":"Codex CAC/RCP 1","resumo":"Princípios gerais de higiene dos alimentos.","elos":["e1","e2","e3","e4","e5","e6","e7","e8","e9","e10","auxiliar","apoio"],"status":"ok","fonte":""},{"esfera":"Técnicas","titulo":"FSC","resumo":"Certificação florestal; o açaí da Amazonbai (Bailique) foi o primeiro do mundo certificado, em 2016.","elos":["e1"],"status":"ok","fonte":""},{"esfera":"Técnicas","titulo":"Embrapa Amapá: Açaí Seguro","resumo":"Material técnico de BPF e choque térmico para batedeiras.","elos":["e5","e6"],"status":"ok","fonte":""}],"notas":["Amazonas: não localizei lei ou decreto estadual específico sobre açaí; detalhar ADAF, IDAM e VISA-AM.","Amapá: não localizei a portaria que regulamenta a Lei 1.914/2015 (equipamentos e requisitos).","Macapá: confirmar o número do Código Sanitário e localizar o ato da autorização ambiental para batedeiras.","Acompanhar os PLs 0073/2024 (AP) e 169/2024 (PA).","NR-35: verificar a aplicabilidade à escalada com peconha.","Ainda não cobertos: tributário (ICMS, IBS/CBS), exportação (MAPA, SECEX e exigências do destino), navegação (autoridade marítima) e regime de uso das várzeas (SPU).","Acrescentar o link da fonte oficial de cada norma sem link (campo “fonte”, no modo de edição).","Elo 10 (consumo final): detalhar utensílios, equipamentos e pontos críticos."]};
+function cloneSeed() { return JSON.parse(JSON.stringify(SEED)); }
+
+/* ---------- estado ---------- */
+let state = cloneSeed();
+let editing = false;
+let filters = { q: "", esfera: "", elo: "" };
+let currentView = "cadeia";
+let openBlocoIndex = null;
+let db = null, dbMode = null, downloadsCap = null;
+
+/* ---------- utilidades de caminho ---------- */
+function getPath(obj, path) {
+  if (!path) return obj;
+  return path.split(".").reduce((cur, seg) => {
+    if (cur == null) return undefined;
+    return cur[/^\d+$/.test(seg) ? Number(seg) : seg];
+  }, obj);
+}
+function setPath(obj, path, value) {
+  const parts = path.split(".");
+  const last = parts.pop();
+  const parent = getPath(obj, parts.join("."));
+  parent[/^\d+$/.test(last) ? Number(last) : last] = value;
+}
+function removeAtPath(obj, path) {
+  const parts = path.split(".");
+  const last = parts.pop();
+  const parent = getPath(obj, parts.join("."));
+  parent.splice(Number(last), 1);
+}
+
+/* ---------- elos: parse/format ---------- */
+const TODOS_ELOS = Array.from({ length: 10 }, (_, i) => "e" + (i + 1)).concat(["auxiliar", "apoio"]);
+function parseElosText(text) {
+  const out = [];
+  text.split(/[,;]+/).map(s => s.trim().toLowerCase()).filter(Boolean).forEach(tok => {
+    if (tok === "todos" || tok === "t") out.push(...TODOS_ELOS);
+    else if (tok.startsWith("aux")) out.push("auxiliar");
+    else if (tok.startsWith("apo") || tok === "p") out.push("apoio");
+    else if (/^e?\d+$/.test(tok)) out.push("e" + tok.replace("e", ""));
+  });
+  return [...new Set(out)];
+}
+function formatElosShort(arr) {
+  return (arr || []).map(id => id === "auxiliar" ? "aux" : id === "apoio" ? "apoio" : id.replace("e", "")).join(", ");
+}
+function eloLabel(id) {
+  if (id === "auxiliar") return "cadeias auxiliares";
+  if (id === "apoio") return "cadeias de apoio";
+  const b = state.blocos.find(x => x.id === id);
+  return id.replace("e", "") + (b ? " · " + b.nome : "");
+}
+function laneOf(grupo) { return grupo === "principal" ? "principal" : grupo === "auxiliar" ? "auxiliar" : "apoio"; }
+
+/* ---------- helper de DOM (sem innerHTML) ---------- */
+function el(tag, attrs, children) {
+  const e = document.createElement(tag);
+  if (attrs) for (const k in attrs) {
+    const v = attrs[k];
+    if (v == null || v === false) continue;
+    if (k === "class") e.className = v;
+    else e.setAttribute(k, v === true ? "" : v);
+  }
+  if (children != null) {
+    if (Array.isArray(children)) children.forEach(c => e.appendChild(typeof c === "string" ? document.createTextNode(c) : c));
+    else if (typeof children === "string") e.textContent = children;
+    else e.appendChild(children);
+  }
+  return e;
+}
+function editableSpan(cls, path, text, extraAttrs) {
+  const attrs = Object.assign({ class: cls, "data-path": path, contenteditable: editing ? "true" : null }, extraAttrs || {});
+  return el("span", attrs, text || "");
+}
+
+/* ---------- diagrama ---------- */
+function buildDiagram() {
+  const wrap = el("div");
+  wrap.appendChild(buildLane("principal", "🌴", "Cadeia principal", "os dez elos, em sequência", true));
+  wrap.appendChild(buildLane("auxiliar", "♻️", "Cadeias auxiliares", "insumos, coprodutos e derivados", false));
+  wrap.appendChild(buildLane("apoio", "🧰", "Cadeias de apoio", "o que sustenta todos os elos", false));
+  return wrap;
+}
+function buildLane(grupo, icon, title, sub, sequential) {
+  const lane = el("div", { class: "lane", "data-lane": grupo });
+  const head = el("div", { class: "lane-head" });
+  head.appendChild(el("span", { class: "lic" }, icon));
+  head.appendChild(el("h2", {}, title));
+  head.appendChild(el("span", { class: "lane-sub" }, "— " + sub));
+  lane.appendChild(head);
+  const track = el("div", { class: "lane-track" + (sequential ? "" : " wrap") });
+  const items = state.blocos.map((b, i) => ({ b, i })).filter(({ b }) => b.grupo === grupo);
+  items.forEach(({ b, i }, idx) => {
+    track.appendChild(buildNodeCard(b, i, sequential ? idx + 1 : null));
+    if (sequential && idx < items.length - 1) track.appendChild(el("span", { class: "connector" }, "→"));
+  });
+  lane.appendChild(track);
+  return lane;
+}
+function buildNodeCard(b, i, num) {
+  const wrapEl = el("div", { class: "node-card" });
+  const btn = el("button", { type: "button", class: "node", "data-node-id": b.id, "data-open-bloco": i });
+  if (num) btn.appendChild(el("div", { class: "node-num" }, String(num).padStart(2, "0")));
+  btn.appendChild(el("div", { class: "node-name" }, b.nome));
+  wrapEl.appendChild(btn);
+  return wrapEl;
+}
+function updateNodeCardLabel(i) {
+  const b = state.blocos[i];
+  const btn = document.querySelector('[data-node-id="' + b.id + '"] .node-name, .node-name');
+  document.querySelectorAll('[data-open-bloco="' + i + '"] .node-name').forEach(n => { n.textContent = b.nome; });
+}
+
+/* ---------- painel de detalhe (drawer) ---------- */
+function buildPanelSection(s, path) {
+  const box = el("div", { class: "panel-section" });
+  box.appendChild(editableSpan("panel-label text", path + ".titulo", s.titulo));
+  box.appendChild(buildEditableList(s.itens, path + ".itens"));
+  return box;
+}
+function buildCallout(s, path, variant) {
+  const box = el("div", { class: "callout c-" + variant });
+  box.appendChild(editableSpan("panel-label text", path + ".titulo", s.titulo));
+  box.appendChild(buildEditableList(s.itens, path + ".itens"));
+  return box;
+}
+function buildEditableList(itens, path) {
+  const ul = el("ul", { class: "itemlist" });
+  itens.forEach((txt, i) => {
+    const li = el("li", { class: "row" });
+    li.appendChild(editableSpan("text", `${path}.${i}`, txt));
+    if (editing) li.appendChild(el("button", { class: "rm", type: "button", "data-remove-path": `${path}.${i}`, "aria-label": "remover item" }, "×"));
+    ul.appendChild(li);
+  });
+  if (editing) ul.appendChild(el("li", { class: "row add-row" }, el("button", { class: "add-item", type: "button", "data-add-path": path }, "+ adicionar")));
+  return ul;
+}
+function catTagInfo(grupo) {
+  if (grupo === "principal") return ["Cadeia principal", "var(--cat-principal-soft)", "var(--cat-principal)"];
+  if (grupo === "auxiliar") return ["Cadeia auxiliar", "var(--cat-aux-soft)", "var(--cat-aux)"];
+  if (grupo === "apoio") return ["Cadeia de apoio", "var(--cat-apoio-soft)", "var(--cat-apoio)"];
+  return ["", "", ""];
+}
+function renderDrawerContent() {
+  if (openBlocoIndex == null) return;
+  const b = state.blocos[openBlocoIndex];
+  const [tagText, tagBg, tagFg] = catTagInfo(b.grupo);
+  const tag = document.getElementById("drawer-tag");
+  tag.textContent = tagText; tag.style.background = tagBg; tag.style.color = tagFg;
+
+  const nameEl = document.getElementById("drawer-name");
+  nameEl.textContent = b.nome;
+  nameEl.setAttribute("data-path", `blocos.${openBlocoIndex}.nome`);
+  if (editing) nameEl.setAttribute("contenteditable", "true"); else nameEl.removeAttribute("contenteditable");
+
+  const body = document.getElementById("drawer-body");
+  body.replaceChildren();
+  if (b.resumo) {
+    const p = el("p", { class: "drawer-lede" });
+    p.appendChild(editableSpan("text", `blocos.${openBlocoIndex}.resumo`, b.resumo));
+    body.appendChild(p);
+  }
+  const mainSecs = [], calloutSecs = [];
+  b.secoes.forEach((s, si) => (s.margem ? calloutSecs : mainSecs).push({ s, si }));
+  mainSecs.forEach(({ s, si }) => body.appendChild(buildPanelSection(s, `blocos.${openBlocoIndex}.secoes.${si}`)));
+  calloutSecs.forEach(({ s, si }, idx) => body.appendChild(buildCallout(s, `blocos.${openBlocoIndex}.secoes.${si}`, idx === 0 ? "atores" : "critico")));
+
+  const foot = document.getElementById("drawer-foot");
+  foot.replaceChildren();
+  if (b.grupo === "principal") foot.appendChild(el("button", { class: "btn btn-block", type: "button", "data-filter-elo": b.id }, "Ver legislação deste elo →"));
+  else foot.appendChild(el("button", { class: "btn btn-block", type: "button", "data-filter-elo": b.grupo === "auxiliar" ? "auxiliar" : "apoio" }, "Ver legislação aplicável →"));
+}
+function openDrawer(i) {
+  openBlocoIndex = i;
+  renderDrawerContent();
+  document.body.classList.add("panel-open", "drawer-open");
+}
+function closeDrawer() {
+  document.body.classList.remove("drawer-open");
+  if (!document.body.classList.contains("nav-open")) document.body.classList.remove("panel-open");
+  openBlocoIndex = null;
+}
+function openNav() { document.body.classList.add("panel-open", "nav-open"); }
+function closeNav() {
+  document.body.classList.remove("nav-open");
+  if (!document.body.classList.contains("drawer-open")) document.body.classList.remove("panel-open");
+}
+
+/* ---------- navegação entre views ---------- */
+const VIEW_TITLES = { cadeia: "Cadeia", legislacao: "Legislação", institucional: "Institucional", notas: "Notas" };
+function switchView(name) {
+  currentView = name;
+  document.querySelectorAll(".view").forEach(v => v.classList.toggle("active", v.id === "view-" + name));
+  document.querySelectorAll("nav.sidenav button").forEach(b => b.classList.toggle("active", b.getAttribute("data-view") === name));
+  document.getElementById("mt-title").textContent = VIEW_TITLES[name] || "";
+  closeDrawer();
+  closeNav();
+}
+
+/* ---------- renderizadores de view ---------- */
+function renderCadeiaView() {
+  const c = document.getElementById("diagram");
+  c.replaceChildren();
+  c.appendChild(buildDiagram());
+  document.getElementById("cadeia-intro").textContent = state.meta.intro;
+}
+function matchesFilter(n) {
+  if (filters.esfera && n.esfera !== filters.esfera) return false;
+  if (filters.elo && !(n.elos || []).includes(filters.elo)) return false;
+  const q = filters.q.trim().toLowerCase();
+  if (q) {
+    const hay = [n.esfera, n.titulo, n.resumo, n.fonte].filter(Boolean).join(" ").toLowerCase();
+    if (!hay.includes(q)) return false;
+  }
+  return true;
+}
+function buildNormaRow(n, i) {
+  const tr = el("tr");
+  tr.appendChild(el("td", {}, editableSpan("text", `normas.${i}.esfera`, n.esfera)));
+  const tdTit = el("td");
+  if (!editing && n.fonte) tdTit.appendChild(el("a", { href: n.fonte, target: "_blank", rel: "noopener" }, n.titulo));
+  else tdTit.appendChild(editableSpan("text", `normas.${i}.titulo`, n.titulo));
+  if (n.status === "conferir") { tdTit.appendChild(document.createTextNode(" ")); tdTit.appendChild(el("span", { class: "badge" }, "a conferir")); }
+  if (editing) {
+    const fdiv = el("div", { class: "fonte-edit" });
+    fdiv.appendChild(el("span", { class: "fonte-label" }, "fonte "));
+    fdiv.appendChild(editableSpan("text fonte-url", `normas.${i}.fonte`, n.fonte || ""));
+    tdTit.appendChild(fdiv);
+  }
+  tr.appendChild(tdTit);
+  tr.appendChild(el("td", {}, editableSpan("text", `normas.${i}.resumo`, n.resumo)));
+  tr.appendChild(el("td", {}, editableSpan("text", `normas.${i}.elos`, formatElosShort(n.elos), { "data-parse": "elos" })));
+  if (editing) {
+    const tdAct = el("td", { class: "col-actions" });
+    const lbl = el("label", { class: "conferir-toggle" });
+    lbl.appendChild(el("input", { type: "checkbox", "data-bool-path": `normas.${i}.status`, checked: n.status === "conferir" ? true : null }));
+    lbl.appendChild(document.createTextNode("a conferir"));
+    tdAct.appendChild(lbl);
+    tdAct.appendChild(el("button", { class: "rm", type: "button", "data-remove-path": `normas.${i}`, "aria-label": "remover norma" }, "×"));
+    tr.appendChild(tdAct);
+  }
+  return tr;
+}
+function renderNormas() {
+  const tbody = document.getElementById("normas-tbody");
+  tbody.replaceChildren();
+  const visible = [];
+  state.normas.forEach((n, i) => { if (matchesFilter(n)) visible.push({ n, i }); });
+  visible.forEach(({ n, i }) => tbody.appendChild(buildNormaRow(n, i)));
+  document.getElementById("normas-count").textContent = `${state.normas.length} normas · mostrando ${visible.length}`;
+
+  const pillsEl = document.getElementById("pills");
+  pillsEl.replaceChildren();
+  const order = ["Federal", "Amapá", "Pará", "Amazonas", "Macapá", "Belém", "Manaus", "Outros estados", "Técnicas"];
+  const esferas = [...new Set(state.normas.map(n => n.esfera))].sort((a, b) => {
+    const ia = order.indexOf(a), ib = order.indexOf(b);
+    return (ia === -1 ? 99 : ia) - (ib === -1 ? 99 : ib) || a.localeCompare(b, "pt");
+  });
+  esferas.forEach(es => pillsEl.appendChild(el("button", { class: "pill" + (filters.esfera === es ? " active" : ""), type: "button", "data-filter-esfera": es }, es)));
+  if (filters.elo) pillsEl.appendChild(el("button", { class: "pill active", type: "button", id: "clear-elo-filter" }, "elo: " + eloLabel(filters.elo) + "  ×"));
+
+  document.querySelectorAll("#view-legislacao thead .col-actions").forEach(th => { th.style.display = editing ? "" : "none"; });
+
+  const addWrap = document.getElementById("normas-add");
+  addWrap.replaceChildren();
+  if (editing) addWrap.appendChild(el("button", { class: "add-item", type: "button", id: "add-norma" }, "+ adicionar norma"));
+}
+function renderInstitucional() {
+  const c = document.getElementById("inst-body");
+  c.replaceChildren();
+  state.blocos.forEach((b, i) => {
+    if (b.grupo !== "institucional") return;
+    const card = el("div", { class: "card info-card" });
+    card.appendChild(el("h3", {}, editableSpan("text", `blocos.${i}.nome`, b.nome)));
+    const s = b.secoes[0];
+    if (s) card.appendChild(buildEditableList(s.itens, `blocos.${i}.secoes.0.itens`));
+    c.appendChild(card);
+  });
+}
+function renderNotas() {
+  const c = document.getElementById("notas-body");
+  c.replaceChildren();
+  c.appendChild(buildEditableList(state.notas, "notas"));
+}
+function renderAll() {
+  renderCadeiaView(); renderNormas(); renderInstitucional(); renderNotas();
+  if (openBlocoIndex != null) renderDrawerContent();
+}
+function rerenderForPath(path) {
+  if (path.startsWith("normas")) return renderNormas();
+  if (path.startsWith("notas")) return renderNotas();
+  if (path.startsWith("blocos.")) {
+    const idx = Number(path.split(".")[1]);
+    const grp = state.blocos[idx] && state.blocos[idx].grupo;
+    if (grp === "institucional") renderInstitucional();
+    if (openBlocoIndex === idx) renderDrawerContent();
+  }
+}
+
+/* ---------- edição: eventos ---------- */
+function commitField(t) {
+  const path = t.getAttribute("data-path");
+  if (!path) return;
+  const raw = t.textContent.replace(/\s+/g, " ").trim();
+  if (t.getAttribute("data-parse") === "elos") {
+    const arr = parseElosText(raw);
+    setPath(state, path, arr);
+    t.textContent = formatElosShort(arr);
+  } else {
+    setPath(state, path, raw);
+  }
+  scheduleSave();
+  if (path.match(/^blocos\.\d+\.nome$/)) updateNodeCardLabel(Number(path.split(".")[1]));
+}
+function focusLater(sel) { requestAnimationFrame(() => { const e = document.querySelector(sel); if (e) e.focus(); }); }
+
+document.addEventListener("focusout", e => { const t = e.target; if (t.matches && t.matches("[data-path]") && t.isContentEditable) commitField(t); });
+document.addEventListener("keydown", e => {
+  if (e.key === "Enter" && e.target.isContentEditable) { e.preventDefault(); e.target.blur(); }
+  if (e.key === "Escape") { closeDrawer(); closeNav(); }
+});
+document.addEventListener("paste", e => {
+  if (e.target.isContentEditable) {
+    e.preventDefault();
+    const text = (e.clipboardData || window.clipboardData).getData("text/plain");
+    document.execCommand("insertText", false, text);
+  }
+});
+document.addEventListener("change", e => {
+  const cb = e.target.closest("[data-bool-path]");
+  if (cb) { setPath(state, cb.getAttribute("data-bool-path"), cb.checked ? "conferir" : "ok"); scheduleSave(); renderNormas(); }
+});
+document.addEventListener("click", e => {
+  const navBtn = e.target.closest("nav.sidenav button[data-view]");
+  if (navBtn) { switchView(navBtn.getAttribute("data-view")); return; }
+
+  const nodeBtn = e.target.closest("[data-open-bloco]");
+  if (nodeBtn) { openDrawer(Number(nodeBtn.getAttribute("data-open-bloco"))); return; }
+  if (e.target.closest("#drawer-close") || e.target === document.getElementById("backdrop")) { closeDrawer(); closeNav(); return; }
+  if (e.target.closest("#hamburger")) { openNav(); return; }
+
+  const editToggle = e.target.closest("#edit-toggle");
+  if (editToggle) { setEditing(!editing); return; }
+  const exportBtn = e.target.closest("#export-btn");
+  if (exportBtn) { doExport(); return; }
+  const resetBtn = e.target.closest("#reset-btn");
+  if (resetBtn) { doReset(); return; }
+
+  const rm = e.target.closest("[data-remove-path]");
+  if (rm) { const p = rm.getAttribute("data-remove-path"); removeAtPath(state, p); scheduleSave(); rerenderForPath(p); return; }
+
+  const add = e.target.closest("[data-add-path]");
+  if (add) {
+    const p = add.getAttribute("data-add-path");
+    const arr = getPath(state, p);
+    arr.push("");
+    scheduleSave();
+    rerenderForPath(p);
+    focusLater(`[data-path="${p}.${arr.length - 1}"]`);
+    return;
+  }
+  const addNorma = e.target.closest("#add-norma");
+  if (addNorma) {
+    state.normas.push({ esfera: "", titulo: "", resumo: "", elos: [], status: "ok", fonte: "" });
+    scheduleSave();
+    renderNormas();
+    focusLater(`[data-path="normas.${state.normas.length - 1}.esfera"]`);
+    return;
+  }
+  const jump = e.target.closest("[data-filter-elo]");
+  if (jump) {
+    filters.elo = jump.getAttribute("data-filter-elo");
+    switchView("legislacao");
+    renderNormas();
+    return;
+  }
+  const clr = e.target.closest("#clear-elo-filter");
+  if (clr) { filters.elo = ""; renderNormas(); return; }
+  const esf = e.target.closest("[data-filter-esfera]");
+  if (esf) { const v = esf.getAttribute("data-filter-esfera"); filters.esfera = filters.esfera === v ? "" : v; renderNormas(); return; }
+});
+document.getElementById("search").addEventListener("input", e => { filters.q = e.target.value; renderNormas(); });
+
+function setEditing(v) {
+  editing = v;
+  document.body.classList.toggle("editing", v);
+  renderAll();
+  updateEditControls();
+}
+function updateEditControls() {
+  document.getElementById("edit-toggle").textContent = editing ? "✓ Concluir edição" : "✎ Editar conteúdo";
+  const extra = document.getElementById("edit-extra");
+  extra.replaceChildren();
+  if (editing) {
+    if (downloadsCap || true) extra.appendChild(el("button", { class: "link-btn", type: "button", id: "export-btn" }, "Exportar dados (JSON)"));
+    extra.appendChild(el("button", { class: "link-btn", type: "button", id: "reset-btn" }, "Restaurar conteúdo original"));
+  }
+}
+function setStatus(text) { const s = document.getElementById("save-status"); if (s) s.textContent = text; }
+async function doExport() {
+  const filename = "observatorio-acai.json";
+  const json = JSON.stringify(state, null, 2);
+  if (downloadsCap) {
+    try {
+      const blob = new Blob([json], { type: "application/json" });
+      await downloadsCap.save({ filename, data: blob });
+      return;
+    } catch (err) { /* tenta o modo local abaixo */ }
+  }
+  try {
+    const blob = new Blob([json], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url; a.download = filename;
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    setTimeout(() => URL.revokeObjectURL(url), 1500);
+  } catch (err) { /* nada a fazer */ }
+}
+function doReset() {
+  if (!confirm("Restaurar todo o conteúdo para a versão original? Isso substitui as edições atuais.")) return;
+  state = cloneSeed();
+  scheduleSave();
+  renderAll();
+}
+
+/* ---------- persistência: capacidade db, com alternativa local ---------- */
+const LOCAL_KEY = "observatorio-acai:content/main";
+function makeLocalDb() {
+  return {
+    doc: () => ({
+      get: async () => {
+        const raw = localStorage.getItem(LOCAL_KEY);
+        if (raw == null) return { exists: false, data: () => undefined };
+        return { exists: true, data: () => JSON.parse(raw) };
+      },
+      set: async (data) => { localStorage.setItem(LOCAL_KEY, JSON.stringify(data)); },
+    }),
+  };
+}
+let saveTimer = null, saving = false, pendingAgain = false;
+function scheduleSave() {
+  setStatus(dbMode ? "Salvando…" : "");
+  if (saveTimer) clearTimeout(saveTimer);
+  saveTimer = setTimeout(doSave, 600);
+}
+async function doSave() {
+  if (!db) { setStatus("Alterações não são salvas nesta janela"); return; }
+  if (saving) { pendingAgain = true; return; }
+  saving = true;
+  state.meta.atualizado = new Date().toISOString().slice(0, 10);
+  try {
+    await db.doc("content/main").set(state);
+    setStatus(pendingAgain ? "Salvando…" : (dbMode === "local" ? "Salvo neste navegador" : "Salvo"));
+  } catch (err) {
+    setStatus("Não foi possível salvar");
+  } finally {
+    saving = false;
+    if (pendingAgain) { pendingAgain = false; scheduleSave(); }
+  }
+}
+async function getCap(name) {
+  if (!window.claude || typeof window.claude.use !== "function") return null;
+  try { return await window.claude.use(name); } catch (e) { return null; }
+}
+async function init() {
+  db = await getCap("db");
+  dbMode = db ? "cloud" : null;
+  if (!db) {
+    try { localStorage.getItem(LOCAL_KEY); db = makeLocalDb(); dbMode = "local"; }
+    catch (e) { db = null; dbMode = null; }
+  }
+  downloadsCap = await getCap("downloads");
+  if (db) {
+    try {
+      let snap;
+      try { snap = await db.doc("content/main").get(); }
+      catch (e) { await new Promise(r => setTimeout(r, 500 + Math.random() * 400)); snap = await db.doc("content/main").get(); }
+      if (snap.exists) { state = Object.assign({}, cloneSeed(), snap.data()); renderAll(); }
+    } catch (e) { /* mantém a semente */ }
+  }
+  updateEditControls();
+}
+
+/* ---------- início ---------- */
+renderAll();
+init();
+</script>
+</body>
+</html>
