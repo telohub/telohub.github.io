@@ -126,21 +126,23 @@
   .lane[data-lane="apoio"]{--lc:var(--cat-apoio); --lcs:var(--cat-apoio-soft);}
   .lane-head .lic{color:var(--lc);}
 
-  .lane-track{display:flex; align-items:stretch; gap:0; overflow-x:auto; padding:.15rem .15rem .8rem;}
-  .lane-track.wrap{flex-wrap:wrap; gap:.7rem; overflow-x:visible;}
+  .lane-track{display:flex; flex-wrap:wrap; align-items:stretch; gap:.7rem; padding:.15rem .15rem .8rem;}
 
-  .node-card{flex:0 0 auto; width:148px;}
-  .lane-track.wrap .node-card{width:172px;}
+  .node-card{flex:0 0 auto; width:172px;}
   .node-card button.node{
     all:unset; display:block; width:100%; background:var(--surface); border:1px solid var(--border);
     border-top:3px solid var(--lc); border-radius:10px; padding:.7rem .75rem; cursor:pointer;
     box-shadow:var(--shadow-sm); transition:box-shadow .15s ease, transform .15s ease;
   }
   .node-card button.node:hover{box-shadow:var(--shadow-md); transform:translateY(-2px);}
-  .node-num{font-size:.7rem; font-weight:700; color:var(--lc);}
+  .node-num-row{display:flex; align-items:center; justify-content:space-between; gap:.3rem; margin-bottom:.2rem;}
+  .node-num{
+    background:var(--lcs); color:var(--lc); border-radius:999px; flex:0 0 auto;
+    width:1.3rem; height:1.3rem; display:inline-flex; align-items:center; justify-content:center;
+    font-size:.66rem; font-weight:800;
+  }
+  .node-next{font-size:.8rem; color:var(--ink-faint); flex:0 0 auto;}
   .node-name{font-size:.83rem; font-weight:600; line-height:1.28; margin-top:.2rem;}
-
-  .connector{flex:0 0 auto; width:26px; display:flex; align-items:center; justify-content:center; color:var(--ink-faint); font-size:1rem;}
 
   /* ---------- drawer (detalhe de elo/bloco) & backdrop ---------- */
   #backdrop{position:fixed; inset:0; background:rgba(10,10,16,.4); opacity:0; pointer-events:none; transition:opacity .16s ease; z-index:39;}
@@ -257,6 +259,7 @@
       <div id="save-status" class="save-status"></div>
       <div id="edit-extra" class="edit-extra"></div>
       <button type="button" id="edit-toggle" class="btn btn-block">✎ Editar conteúdo</button>
+      <input type="file" id="import-file" accept="application/json,.json" hidden>
     </div>
   </aside>
 
@@ -420,26 +423,29 @@ function buildLane(grupo, icon, title, sub, sequential) {
   head.appendChild(el("h2", {}, title));
   head.appendChild(el("span", { class: "lane-sub" }, "— " + sub));
   lane.appendChild(head);
-  const track = el("div", { class: "lane-track" + (sequential ? "" : " wrap") });
+  const track = el("div", { class: "lane-track" });
   const items = state.blocos.map((b, i) => ({ b, i })).filter(({ b }) => b.grupo === grupo);
   items.forEach(({ b, i }, idx) => {
-    track.appendChild(buildNodeCard(b, i, sequential ? idx + 1 : null));
-    if (sequential && idx < items.length - 1) track.appendChild(el("span", { class: "connector" }, "→"));
+    track.appendChild(buildNodeCard(b, i, sequential ? idx + 1 : null, sequential && idx < items.length - 1));
   });
   lane.appendChild(track);
   return lane;
 }
-function buildNodeCard(b, i, num) {
+function buildNodeCard(b, i, num, showNext) {
   const wrapEl = el("div", { class: "node-card" });
   const btn = el("button", { type: "button", class: "node", "data-node-id": b.id, "data-open-bloco": i });
-  if (num) btn.appendChild(el("div", { class: "node-num" }, String(num).padStart(2, "0")));
+  if (num) {
+    const row = el("div", { class: "node-num-row" });
+    row.appendChild(el("span", { class: "node-num" }, String(num).padStart(2, "0")));
+    if (showNext) row.appendChild(el("span", { class: "node-next", "aria-hidden": "true" }, "→"));
+    btn.appendChild(row);
+  }
   btn.appendChild(el("div", { class: "node-name" }, b.nome));
   wrapEl.appendChild(btn);
   return wrapEl;
 }
 function updateNodeCardLabel(i) {
   const b = state.blocos[i];
-  const btn = document.querySelector('[data-node-id="' + b.id + '"] .node-name, .node-name');
   document.querySelectorAll('[data-open-bloco="' + i + '"] .node-name').forEach(n => { n.textContent = b.nome; });
 }
 
@@ -661,6 +667,10 @@ document.addEventListener("paste", e => {
 document.addEventListener("change", e => {
   const cb = e.target.closest("[data-bool-path]");
   if (cb) { setPath(state, cb.getAttribute("data-bool-path"), cb.checked ? "conferir" : "ok"); scheduleSave(); renderNormas(); }
+  if (e.target.id === "import-file") {
+    const file = e.target.files && e.target.files[0];
+    handleImportFile(file).finally(() => { e.target.value = ""; });
+  }
 });
 document.addEventListener("click", e => {
   const navBtn = e.target.closest("nav.sidenav button[data-view]");
@@ -675,6 +685,8 @@ document.addEventListener("click", e => {
   if (editToggle) { setEditing(!editing); return; }
   const exportBtn = e.target.closest("#export-btn");
   if (exportBtn) { doExport(); return; }
+  const importBtn = e.target.closest("#import-btn");
+  if (importBtn) { document.getElementById("import-file").click(); return; }
   const resetBtn = e.target.closest("#reset-btn");
   if (resetBtn) { doReset(); return; }
 
@@ -724,7 +736,8 @@ function updateEditControls() {
   const extra = document.getElementById("edit-extra");
   extra.replaceChildren();
   if (editing) {
-    if (downloadsCap || true) extra.appendChild(el("button", { class: "link-btn", type: "button", id: "export-btn" }, "Exportar dados (JSON)"));
+    extra.appendChild(el("button", { class: "link-btn", type: "button", id: "export-btn" }, "Exportar dados (JSON)"));
+    extra.appendChild(el("button", { class: "link-btn", type: "button", id: "import-btn" }, "Importar dados (JSON)"));
     extra.appendChild(el("button", { class: "link-btn", type: "button", id: "reset-btn" }, "Restaurar conteúdo original"));
   }
 }
@@ -753,6 +766,22 @@ function doReset() {
   state = cloneSeed();
   scheduleSave();
   renderAll();
+}
+function validShape(obj) {
+  return obj && typeof obj === "object" && obj.meta && typeof obj.meta === "object"
+    && Array.isArray(obj.blocos) && Array.isArray(obj.normas) && Array.isArray(obj.notas);
+}
+async function handleImportFile(file) {
+  if (!file) return;
+  let parsed;
+  try { parsed = JSON.parse(await file.text()); }
+  catch (err) { alert("Não foi possível ler este arquivo. Confira se é um JSON exportado pelo Observatório do Açaí."); return; }
+  if (!validShape(parsed)) { alert("Este arquivo não tem o formato esperado (meta, blocos, normas, notas)."); return; }
+  if (!confirm("Importar este arquivo vai substituir todo o conteúdo atual por ele. Continuar?")) return;
+  state = Object.assign({}, cloneSeed(), parsed);
+  closeDrawer();
+  renderAll();
+  scheduleSave();
 }
 
 /* ---------- persistência: capacidade db, com alternativa local ---------- */
