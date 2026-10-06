@@ -132,7 +132,8 @@
 
   .eco-wrap{display:flex; justify-content:center; padding:.6rem 0 .4rem;}
   .eco-ring{border:1px solid var(--border); border-radius:50%; display:flex; align-items:center; justify-content:center; position:relative; flex:0 0 auto;}
-  .eco-chip{position:absolute; top:-11px; left:50%; transform:translateX(-50%); background:var(--surface); border:1px solid var(--border); border-radius:999px; font-size:.64rem; font-weight:600; padding:.12rem .5rem; white-space:nowrap; color:var(--ink-soft);}
+  .eco-chip{position:absolute; top:-11px; left:50%; transform:translateX(-50%); background:var(--surface); border:1px solid var(--border); border-radius:999px; font-size:.64rem; font-weight:600; padding:.12rem .5rem; white-space:nowrap; color:var(--ink-soft); font-family:inherit; cursor:pointer;}
+  .eco-chip:hover{border-color:var(--primary); color:var(--primary);}
   .eco-core{background:var(--primary); color:var(--primary-ink); border-radius:50%; width:88%; height:88%; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:.82rem; text-align:center; padding:.5rem;}
   .eco-note{text-align:center; font-size:.76rem; color:var(--ink-faint); margin:0 0 1.6rem;}
 
@@ -214,6 +215,7 @@
   .info-card{padding:1rem 1.1rem;}
   .info-card h3{font-size:.94rem; margin-bottom:.55rem;}
   .sis-tag{display:block; font-size:.68rem; font-weight:700; text-transform:uppercase; letter-spacing:.03em; color:var(--ink-faint); margin-bottom:.3rem;}
+  .info-card.hl{box-shadow:0 0 0 2px var(--primary); transition:box-shadow .15s ease;}
 
   /* ---------- notas ---------- */
   .notas-card{padding:1.1rem 1.2rem; max-width:44rem;}
@@ -430,13 +432,14 @@ const SISTEMAS = [
   { id: "educacional", nome: "Sistema Educacional" },
 ];
 function buildEcosystem() {
-  const outer = 440, inner = 140;
+  const outer = Math.max(220, Math.min(440, (window.innerWidth || 440) - 48));
+  const inner = Math.round(outer * (140 / 440));
   const step = (outer - inner) / (SISTEMAS.length - 1);
   let parent = null, root = null;
   SISTEMAS.forEach((s, i) => {
     const size = Math.round(outer - i * step);
-    const ring = el("div", { class: "eco-ring", style: `width:${size}px;height:${size}px;`, "data-sistema": s.id, title: s.nome });
-    ring.appendChild(el("span", { class: "eco-chip" }, s.nome));
+    const ring = el("div", { class: "eco-ring", style: `width:${size}px;height:${size}px;` });
+    ring.appendChild(el("button", { type: "button", class: "eco-chip", "data-sistema": s.id, title: "Ver no Institucional" }, s.nome));
     if (parent) parent.appendChild(ring); else root = ring;
     parent = ring;
   });
@@ -577,6 +580,18 @@ function switchView(name) {
   closeDrawer();
   closeNav();
 }
+function goToSistema(id) {
+  switchView("institucional");
+  requestAnimationFrame(() => {
+    const cards = document.querySelectorAll('#inst-body [data-sistema="' + id + '"]');
+    if (!cards.length) return;
+    cards[0].scrollIntoView({ behavior: "smooth", block: "center" });
+    cards.forEach(c => {
+      c.classList.add("hl");
+      setTimeout(() => c.classList.remove("hl"), 1600);
+    });
+  });
+}
 
 /* ---------- renderizadores de view ---------- */
 function renderCadeiaView() {
@@ -652,7 +667,7 @@ function renderInstitucional() {
   c.replaceChildren();
   state.blocos.forEach((b, i) => {
     if (b.grupo !== "institucional") return;
-    const card = el("div", { class: "card info-card" });
+    const card = el("div", { class: "card info-card", "data-sistema": SISTEMA_POR_BLOCO[b.id] || "" });
     const sis = SISTEMAS.find(s => s.id === SISTEMA_POR_BLOCO[b.id]);
     if (sis) card.appendChild(el("span", { class: "sis-tag" }, sis.nome));
     card.appendChild(el("h3", {}, editableSpan("text", `blocos.${i}.nome`, b.nome)));
@@ -764,6 +779,8 @@ document.addEventListener("click", e => {
     renderNormas();
     return;
   }
+  const sisBtn = e.target.closest("[data-sistema]");
+  if (sisBtn) { goToSistema(sisBtn.getAttribute("data-sistema")); return; }
   const clr = e.target.closest("#clear-elo-filter");
   if (clr) { filters.elo = ""; renderNormas(); return; }
   const esf = e.target.closest("[data-filter-esfera]");
