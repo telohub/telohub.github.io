@@ -1,0 +1,942 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="A cadeia produtiva do açaí no Amapá e o quadro normativo que a regula — diagrama interativo e editável.">
+<title>Observatório do Açaí</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%AB%90%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+<style>
+  :root{
+    box-sizing:border-box;
+    padding-top:env(safe-area-inset-top,0px);
+    padding-bottom:env(safe-area-inset-bottom,0px);
+    --bg:#f6f6f9; --surface:#ffffff; --surface-2:#fbfbfd;
+    --ink:#17171f; --ink-soft:#66667a; --ink-faint:#9a9aab;
+    --border:#e6e6ee;
+    --primary:#7c3aed; --primary-ink:#ffffff; --primary-soft:#f1e9fe; --primary-soft-ink:#6d28d9;
+    --warn-soft:#fdf1e3; --warn-ink:#9a5b12;
+    --danger:#dc4444;
+    --cat-principal:#7c3aed; --cat-principal-soft:#f1e9fe;
+    --cat-sup:#b45309; --cat-sup-soft:#fdf0e1;
+    --cat-aux:#0d9488; --cat-aux-soft:#e1f5f2;
+    --cat-apoio:#2563eb; --cat-apoio-soft:#e7eefd;
+    --shadow-sm:0 1px 2px rgba(20,20,30,.05);
+    --shadow-md:0 4px 14px rgba(20,20,30,.09);
+    --shadow-lg:0 12px 40px rgba(20,20,30,.16);
+    --radius:10px;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#111116; --surface:#191921; --surface-2:#1f1f28;
+      --ink:#f1f1f6; --ink-soft:#a3a3b8; --ink-faint:#6c6c80;
+      --border:#2c2c38;
+      --primary:#a78bfa; --primary-ink:#171723; --primary-soft:#2a2340; --primary-soft-ink:#cbb8ff;
+      --warn-soft:#3a2c17; --warn-ink:#e3ad6c;
+      --danger:#f37171;
+      --cat-principal:#a78bfa; --cat-principal-soft:#2a2340;
+      --cat-sup:#fbbf6b; --cat-sup-soft:#3a2c17;
+      --cat-aux:#5eead4; --cat-aux-soft:#173330;
+      --cat-apoio:#7ba8ff; --cat-apoio-soft:#1c2740;
+      --shadow-sm:0 1px 2px rgba(0,0,0,.3); --shadow-md:0 4px 14px rgba(0,0,0,.35); --shadow-lg:0 16px 44px rgba(0,0,0,.5);
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#111116; --surface:#191921; --surface-2:#1f1f28;
+    --ink:#f1f1f6; --ink-soft:#a3a3b8; --ink-faint:#6c6c80;
+    --border:#2c2c38;
+    --primary:#a78bfa; --primary-ink:#171723; --primary-soft:#2a2340; --primary-soft-ink:#cbb8ff;
+    --warn-soft:#3a2c17; --warn-ink:#e3ad6c;
+    --danger:#f37171;
+    --cat-principal:#a78bfa; --cat-principal-soft:#2a2340;
+    --cat-sup:#fbbf6b; --cat-sup-soft:#3a2c17;
+    --cat-aux:#5eead4; --cat-aux-soft:#173330;
+    --cat-apoio:#7ba8ff; --cat-apoio-soft:#1c2740;
+    --shadow-sm:0 1px 2px rgba(0,0,0,.3); --shadow-md:0 4px 14px rgba(0,0,0,.35); --shadow-lg:0 16px 44px rgba(0,0,0,.5);
+  }
+  *,*::before,*::after{box-sizing:inherit;}
+  html{height:100%;}
+  body{
+    height:100%; margin:0; background:var(--bg); color:var(--ink);
+    font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+    font-size:14.5px; line-height:1.5; -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3,h4{margin:0; font-weight:700; letter-spacing:-.01em;}
+  p{margin:0;}
+  button{font-family:inherit;}
+  a{color:var(--primary);}
+
+  /* ---------- layout ---------- */
+  #app-shell{display:flex; height:100%;}
+  #sidebar{
+    width:250px; flex:0 0 250px; background:var(--surface); border-right:1px solid var(--border);
+    display:flex; flex-direction:column; padding:1.1rem .9rem; overflow-y:auto;
+  }
+  .brand{display:flex; align-items:center; gap:.55rem; font-weight:800; font-size:1.02rem; padding:.3rem .4rem .3rem; margin-bottom:1.3rem;}
+  .brand .dot{width:9px; height:9px; border-radius:50%; background:var(--primary); flex:0 0 auto;}
+  nav.sidenav{display:flex; flex-direction:column; gap:.15rem;}
+  nav.sidenav button{
+    all:unset; display:flex; align-items:center; gap:.6rem; padding:.5rem .65rem; border-radius:8px;
+    font-size:.88rem; font-weight:500; color:var(--ink-soft); cursor:pointer;
+  }
+  nav.sidenav button .ic{font-size:1rem; width:1.1rem; text-align:center;}
+  nav.sidenav button:hover{background:var(--bg); color:var(--ink);}
+  nav.sidenav button.active{background:var(--primary-soft); color:var(--primary-soft-ink);}
+  .sidebar-bottom{margin-top:auto; padding-top:.9rem; border-top:1px solid var(--border); display:flex; flex-direction:column; gap:.5rem;}
+  .save-status{font-size:.76rem; color:var(--ink-faint); padding:0 .2rem; min-height:1.1em;}
+  .edit-extra{display:flex; flex-direction:column; gap:.1rem;}
+
+  #mobile-topbar{display:none;}
+
+  #main-area{flex:1; min-width:0; overflow-y:auto; height:100%;}
+  .view{display:none; padding:1.7rem 2rem 4rem; max-width:1670px;}
+  .view.active{display:block;}
+  .view-head{margin-bottom:1.5rem;}
+  .view-head h1{font-size:1.32rem;}
+  .view-head p{color:var(--ink-soft); font-size:.9rem; margin-top:.3rem; max-width:44rem;}
+
+  /* ---------- buttons / inputs ---------- */
+  .btn{
+    display:inline-flex; align-items:center; justify-content:center; gap:.4rem;
+    border-radius:8px; border:1px solid var(--border); background:var(--surface);
+    color:var(--ink); font-size:.85rem; font-weight:600; padding:.5rem .8rem; cursor:pointer;
+  }
+  .btn:hover{border-color:var(--ink-faint);}
+  .btn-primary{background:var(--primary); border-color:var(--primary); color:var(--primary-ink);}
+  .btn-primary:hover{filter:brightness(1.06);}
+  .btn-block{width:100%;}
+  .link-btn{all:unset; color:var(--ink-soft); font-size:.8rem; cursor:pointer; padding:.15rem .2rem;}
+  .link-btn:hover{color:var(--primary);}
+
+  input.search{
+    font-family:inherit; font-size:.9rem; padding:.5rem .7rem; border:1px solid var(--border); border-radius:8px;
+    background:var(--surface); color:var(--ink); width:100%; max-width:22rem;
+  }
+  input.search:focus{outline:none; border-color:var(--primary);}
+
+  /* ---------- diagram ---------- */
+  .diagram{display:flex; flex-direction:column; gap:1.9rem;}
+  .lane-head{display:flex; align-items:baseline; gap:.55rem; margin-bottom:.7rem;}
+  .lane-head .lic{font-size:1.05rem;}
+  .lane-head h2{font-size:1rem;}
+  .lane-head .lane-sub{color:var(--ink-faint); font-size:.8rem;}
+  .lane[data-lane="principal"]{--lc:var(--cat-principal); --lcs:var(--cat-principal-soft);}
+  .lane[data-lane="suprimentos"]{--lc:var(--cat-sup); --lcs:var(--cat-sup-soft);}
+  .lane[data-lane="auxiliar"]{--lc:var(--cat-aux); --lcs:var(--cat-aux-soft);}
+  .lane[data-lane="circular"]{--lc:var(--cat-apoio); --lcs:var(--cat-apoio-soft);}
+  .lane-head .lic{color:var(--lc);}
+
+  .eco-wrap{display:flex; justify-content:center; padding:.6rem 0 .4rem;}
+  .eco-ring{border:1px solid var(--border); border-radius:50%; display:flex; align-items:center; justify-content:center; position:relative; flex:0 0 auto;}
+  .eco-chip{position:absolute; top:-11px; left:50%; transform:translateX(-50%); background:var(--surface); border:1px solid var(--border); border-radius:999px; font-size:.64rem; font-weight:600; padding:.12rem .5rem; white-space:nowrap; color:var(--ink-soft); font-family:inherit; cursor:pointer;}
+  .eco-chip:hover{border-color:var(--primary); color:var(--primary);}
+  .eco-core{background:var(--primary); color:var(--primary-ink); border-radius:50%; width:88%; height:88%; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:.82rem; text-align:center; padding:.5rem;}
+  .eco-note{text-align:center; font-size:.76rem; color:var(--ink-faint); margin:0 0 1.6rem;}
+
+  .lane-track{display:flex; flex-wrap:wrap; align-items:stretch; gap:.7rem; padding:.15rem .15rem .8rem;}
+
+  .node-card{flex:0 0 auto; width:172px;}
+  .node-card button.node{
+    all:unset; display:block; width:100%; background:var(--surface); border:1px solid var(--border);
+    border-top:3px solid var(--lc); border-radius:10px; padding:.7rem .75rem; cursor:pointer;
+    box-shadow:var(--shadow-sm); transition:box-shadow .15s ease, transform .15s ease;
+  }
+  .node-card button.node:hover{box-shadow:var(--shadow-md); transform:translateY(-2px);}
+  .node-num-row{display:flex; align-items:center; justify-content:space-between; gap:.3rem; margin-bottom:.2rem;}
+  .node-num{
+    background:var(--lcs); color:var(--lc); border-radius:999px; flex:0 0 auto;
+    width:1.3rem; height:1.3rem; display:inline-flex; align-items:center; justify-content:center;
+    font-size:.66rem; font-weight:800;
+  }
+  .node-next{font-size:.8rem; color:var(--ink-faint); flex:0 0 auto;}
+  .node-name{font-size:.83rem; font-weight:600; line-height:1.28; margin-top:.2rem;}
+
+  /* ---------- drawer (detalhe de elo/bloco) & backdrop ---------- */
+  #backdrop{position:fixed; inset:0; background:rgba(10,10,16,.4); opacity:0; pointer-events:none; transition:opacity .16s ease; z-index:39;}
+  body.panel-open #backdrop{opacity:1; pointer-events:auto;}
+
+  #drawer{
+    position:fixed; top:0; right:0; height:100%; width:440px; max-width:94vw; background:var(--surface);
+    box-shadow:var(--shadow-lg); transform:translateX(100%); transition:transform .2s ease; z-index:41;
+    display:flex; flex-direction:column;
+  }
+  body.drawer-open #drawer{transform:translateX(0);}
+  .drawer-head{display:flex; align-items:flex-start; gap:.6rem; padding:1.2rem 1.2rem .9rem; border-bottom:1px solid var(--border);}
+  .drawer-head .tag{font-size:.72rem; font-weight:700; text-transform:uppercase; letter-spacing:.04em; padding:.15rem .5rem; border-radius:999px; margin-bottom:.4rem; display:inline-block;}
+  .drawer-title{font-size:1.1rem; font-weight:700; line-height:1.3;}
+  .drawer-close{all:unset; margin-left:auto; cursor:pointer; color:var(--ink-faint); font-size:1.2rem; line-height:1; padding:.2rem;}
+  .drawer-close:hover{color:var(--ink);}
+  .drawer-body{flex:1; overflow-y:auto; padding:1.1rem 1.2rem 2rem;}
+  .drawer-lede{color:var(--ink-soft); font-size:.9rem; margin-bottom:1.1rem;}
+  .drawer-foot{padding:.9rem 1.2rem; border-top:1px solid var(--border);}
+
+  .panel-section{margin-bottom:1.1rem;}
+  .panel-label{display:block; font-size:.74rem; font-weight:700; text-transform:uppercase; letter-spacing:.04em; color:var(--ink-faint); margin-bottom:.4rem;}
+  .callout{border-radius:8px; padding:.7rem .8rem; margin-bottom:1.1rem;}
+  .callout.c-atores{background:var(--surface-2);}
+  .callout.c-critico{background:var(--warn-soft);}
+  .callout.c-critico .panel-label{color:var(--warn-ink);}
+
+  ul.itemlist{list-style:none; margin:0; padding:0;}
+  ul.itemlist li.row{position:relative; padding-left:1rem; margin-bottom:.32rem; font-size:.88rem;}
+  ul.itemlist li.row::before{content:'–'; position:absolute; left:0; color:var(--ink-faint);}
+  ul.itemlist li.row.add-row{padding-left:0;}
+  ul.itemlist li.row.add-row::before{content:'';}
+
+  /* ---------- legislação ---------- */
+  .filters{display:flex; flex-wrap:wrap; align-items:center; gap:.6rem; margin-bottom:.6rem;}
+  .pills{display:flex; flex-wrap:wrap; gap:.4rem;}
+  .pill{font-family:inherit; font-size:.78rem; font-weight:600; padding:.28rem .68rem; border:1px solid var(--border); border-radius:999px; cursor:pointer; color:var(--ink-soft); background:var(--surface);}
+  .pill:hover{border-color:var(--ink-faint);}
+  .pill.active{border-color:var(--primary); color:var(--primary); background:var(--primary-soft);}
+  .count{font-size:.8rem; color:var(--ink-faint); margin:.2rem 0 .8rem;}
+
+  .card{background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); box-shadow:var(--shadow-sm);}
+  .table-wrap{overflow-x:auto;}
+  table.normas{width:100%; border-collapse:collapse; font-size:.86rem;}
+  table.normas th{text-align:left; font-size:.72rem; font-weight:700; text-transform:uppercase; letter-spacing:.03em; color:var(--ink-faint); border-bottom:1px solid var(--border); padding:.7rem .8rem; white-space:nowrap; background:var(--surface-2);}
+  table.normas th:first-child{border-top-left-radius:var(--radius);}
+  table.normas th:last-child{border-top-right-radius:var(--radius);}
+  table.normas td{border-bottom:1px solid var(--border); padding:.65rem .8rem; vertical-align:top;}
+  table.normas tr:last-child td{border-bottom:none;}
+  table.normas td.col-actions{white-space:nowrap;}
+  .badge{display:inline-block; font-size:.72rem; font-weight:600; padding:.1rem .5rem; border-radius:999px; background:var(--warn-soft); color:var(--warn-ink);}
+  .fonte-edit{margin-top:.3rem; font-size:.76rem; color:var(--ink-faint);}
+  .fonte-edit .fonte-label{text-transform:uppercase; font-size:.68rem; letter-spacing:.03em;}
+  .fonte-url{word-break:break-all;}
+  .conferir-toggle{font-size:.76rem; color:var(--ink-soft); display:inline-flex; align-items:center; gap:.3rem; margin-right:.5rem; white-space:nowrap;}
+
+  /* ---------- institucional ---------- */
+  .card-grid{display:grid; grid-template-columns:repeat(auto-fill, minmax(250px,1fr)); gap:.9rem;}
+  .info-card{padding:1rem 1.1rem;}
+  .info-card h3{font-size:.94rem; margin-bottom:.55rem;}
+  .sis-tag{display:block; font-size:.68rem; font-weight:700; text-transform:uppercase; letter-spacing:.03em; color:var(--ink-faint); margin-bottom:.3rem;}
+
+  /* ---------- notas ---------- */
+  .notas-card{padding:1.1rem 1.2rem; max-width:44rem;}
+
+  /* ---------- edição ---------- */
+  [contenteditable="true"]{outline:none; border-radius:4px; padding:0 .15rem; margin:0 -.15rem;}
+  [contenteditable="true"]:hover{background:var(--primary-soft);}
+  [contenteditable="true"]:focus{background:var(--primary-soft); box-shadow:0 0 0 1px var(--primary);}
+  .add-item{background:none; border:1px dashed var(--border); color:var(--ink-faint); font-family:inherit; font-size:.82rem; padding:.15rem .6rem; border-radius:6px; cursor:pointer;}
+  .add-item:hover{border-color:var(--primary); color:var(--primary);}
+  .rm{background:none; border:none; color:var(--ink-faint); opacity:.6; cursor:pointer; font-size:.85rem; line-height:1; padding:0 .2rem; margin-left:.25rem;}
+  .rm:hover{opacity:1; color:var(--danger);}
+  body:not(.editing) .rm, body:not(.editing) .add-item{display:none;}
+  body.editing .node-card button.node{box-shadow:0 0 0 1px var(--lc) inset;}
+
+  /* ---------- responsivo ---------- */
+  @media (max-width:860px){
+    #sidebar{
+      position:fixed; top:0; left:0; height:100%; width:264px; z-index:40; border-right:1px solid var(--border);
+      transform:translateX(-100%); transition:transform .18s ease; padding-top:calc(1.1rem + env(safe-area-inset-top,0px));
+    }
+    body.nav-open #sidebar{transform:translateX(0);}
+    #mobile-topbar{
+      display:flex; align-items:center; gap:.7rem; padding:.7rem .9rem; padding-top:calc(.7rem + env(safe-area-inset-top,0px));
+      background:var(--surface); border-bottom:1px solid var(--border); position:sticky; top:0; z-index:10;
+    }
+    #mobile-topbar .hamburger{all:unset; cursor:pointer; font-size:1.15rem; padding:.2rem .3rem; color:var(--ink);}
+    #mobile-topbar .mt-title{font-weight:700; font-size:.95rem;}
+    #app-shell{display:block; height:auto; min-height:100%;}
+    #main-area{height:auto; overflow-y:visible;}
+    .view{padding:1.3rem 1rem 5rem;}
+    #drawer{width:100%; max-width:100%;}
+  }
+  @media (max-width:520px){
+    body{font-size:14px;}
+    .view-head h1{font-size:1.16rem;}
+  }
+</style>
+</head>
+<body>
+
+<div id="backdrop"></div>
+
+<div id="app-shell">
+  <aside id="sidebar">
+    <div class="brand"><span class="dot"></span>Observatório do Açaí</div>
+    <nav class="sidenav">
+      <button type="button" data-view="cadeia"><span class="ic">🗺️</span>Cadeia</button>
+      <button type="button" data-view="legislacao"><span class="ic">📚</span>Legislação</button>
+      <button type="button" data-view="institucional"><span class="ic">🏛️</span>Institucional</button>
+      <button type="button" data-view="notas"><span class="ic">📝</span>Notas</button>
+    </nav>
+    <div class="sidebar-bottom">
+      <div id="save-status" class="save-status"></div>
+      <div id="edit-extra" class="edit-extra"></div>
+      <button type="button" id="edit-toggle" class="btn btn-block">✎ Editar conteúdo</button>
+      <input type="file" id="import-file" accept="application/json,.json" hidden>
+    </div>
+  </aside>
+
+  <div id="main-area">
+    <div id="mobile-topbar">
+      <button type="button" class="hamburger" id="hamburger" aria-label="Abrir menu">☰</button>
+      <span class="mt-title" id="mt-title">Cadeia</span>
+    </div>
+
+    <section class="view active" id="view-cadeia">
+      <div class="view-head">
+        <h1>Cadeia produtiva do açaí</h1>
+        <p id="cadeia-intro"></p>
+      </div>
+      <div class="diagram" id="diagram"></div>
+    </section>
+
+    <section class="view" id="view-legislacao">
+      <div class="view-head">
+        <h1>Legislação</h1>
+        <p>Normas federais, estaduais (Amapá, Pará e Amazonas) e municipais aplicáveis. <span class="badge">a conferir</span> indica número, texto ou vigência ainda a confirmar na fonte oficial.</p>
+      </div>
+      <div class="filters">
+        <input type="search" id="search" class="search" placeholder="Buscar na legislação…" aria-label="Buscar na legislação">
+        <div id="pills" class="pills"></div>
+      </div>
+      <p id="normas-count" class="count"></p>
+      <div class="card table-wrap">
+        <table class="normas">
+          <thead><tr><th>Esfera</th><th>Norma</th><th>Resumo</th><th>Elos</th><th class="col-actions"></th></tr></thead>
+          <tbody id="normas-tbody"></tbody>
+        </table>
+      </div>
+      <div id="normas-add" style="margin-top:.8rem;"></div>
+    </section>
+
+    <section class="view" id="view-institucional">
+      <div class="view-head">
+        <h1>Ambiente institucional</h1>
+        <p>Quem regula, fiscaliza e apoia a cadeia.</p>
+      </div>
+      <div class="card-grid" id="inst-body"></div>
+    </section>
+
+    <section class="view" id="view-notas">
+      <div class="view-head">
+        <h1>Pontos em aberto</h1>
+        <p>Lacunas e itens para a próxima rodada de pesquisa.</p>
+      </div>
+      <div class="card notas-card">
+        <div id="notas-body"></div>
+      </div>
+    </section>
+  </div>
+</div>
+
+<div id="drawer">
+  <div class="drawer-head">
+    <div>
+      <span class="tag" id="drawer-tag"></span>
+      <h3 class="drawer-title"><span class="text" id="drawer-name" data-path=""></span></h3>
+    </div>
+    <button type="button" class="drawer-close" id="drawer-close" aria-label="Fechar">✕</button>
+  </div>
+  <div class="drawer-body" id="drawer-body"></div>
+  <div class="drawer-foot" id="drawer-foot"></div>
+</div>
+
+<script>
+"use strict";
+
+/* ---------- dados iniciais (semente) ---------- */
+const SEED = __SEED_JSON__;
+function cloneSeed() { return JSON.parse(JSON.stringify(SEED)); }
+
+/* ---------- estado ---------- */
+let state = cloneSeed();
+let editing = false;
+let filters = { q: "", esfera: "", elo: "" };
+let currentView = "cadeia";
+let openBlocoIndex = null;
+let openSistemaId = null;
+let db = null, dbMode = null, downloadsCap = null;
+
+/* ---------- utilidades de caminho ---------- */
+function getPath(obj, path) {
+  if (!path) return obj;
+  return path.split(".").reduce((cur, seg) => {
+    if (cur == null) return undefined;
+    return cur[/^\d+$/.test(seg) ? Number(seg) : seg];
+  }, obj);
+}
+function setPath(obj, path, value) {
+  const parts = path.split(".");
+  const last = parts.pop();
+  const parent = getPath(obj, parts.join("."));
+  parent[/^\d+$/.test(last) ? Number(last) : last] = value;
+}
+function removeAtPath(obj, path) {
+  const parts = path.split(".");
+  const last = parts.pop();
+  const parent = getPath(obj, parts.join("."));
+  parent.splice(Number(last), 1);
+}
+
+/* ---------- elos: parse/format ---------- */
+const TODOS_ELOS = Array.from({ length: 10 }, (_, i) => "e" + (i + 1)).concat(["auxiliar", "apoio"]);
+function parseElosText(text) {
+  const out = [];
+  text.split(/[,;]+/).map(s => s.trim().toLowerCase()).filter(Boolean).forEach(tok => {
+    if (tok === "todos" || tok === "t") out.push(...TODOS_ELOS);
+    else if (tok.startsWith("aux")) out.push("auxiliar");
+    else if (tok.startsWith("apo") || tok === "p") out.push("apoio");
+    else if (/^e?\d+$/.test(tok)) out.push("e" + tok.replace("e", ""));
+  });
+  return [...new Set(out)];
+}
+function formatElosShort(arr) {
+  return (arr || []).map(id => id === "auxiliar" ? "aux" : id === "apoio" ? "apoio" : id.replace("e", "")).join(", ");
+}
+function eloLabel(id) {
+  if (id === "auxiliar") return "cadeia auxiliar";
+  if (id === "apoio") return "cadeia de apoio";
+  const b = state.blocos.find(x => x.id === id);
+  return id.replace("e", "") + (b ? " · " + b.nome : "");
+}
+function laneOf(grupo) { return grupo === "principal" ? "principal" : grupo === "auxiliar" ? "auxiliar" : "apoio"; }
+
+/* ---------- helper de DOM (sem innerHTML) ---------- */
+function el(tag, attrs, children) {
+  const e = document.createElement(tag);
+  if (attrs) for (const k in attrs) {
+    const v = attrs[k];
+    if (v == null || v === false) continue;
+    if (k === "class") e.className = v;
+    else e.setAttribute(k, v === true ? "" : v);
+  }
+  if (children != null) {
+    if (Array.isArray(children)) children.forEach(c => e.appendChild(typeof c === "string" ? document.createTextNode(c) : c));
+    else if (typeof children === "string") e.textContent = children;
+    else e.appendChild(children);
+  }
+  return e;
+}
+function editableSpan(cls, path, text, extraAttrs) {
+  const attrs = Object.assign({ class: cls, "data-path": path, contenteditable: editing ? "true" : null }, extraAttrs || {});
+  return el("span", attrs, text || "");
+}
+
+/* ---------- diagrama ---------- */
+const SISTEMAS = [
+  { id: "normas", nome: "Sistema de Normas Técnicas", desc: "Padrões de identidade, qualidade e registro de produtos — MAPA, DIAGRO." },
+  { id: "urbana", nome: "Legislação Urbana", desc: "Uso e ocupação do solo urbano — sem equivalente direto nesta cadeia rural e extrativista." },
+  { id: "ambiental", nome: "Legislação Ambiental", desc: "Licenciamento, manejo e território — SEMA, IBAMA, ICMBio, INCRA, SPU." },
+  { id: "sanitario", nome: "Sistema Sanitário", desc: "Vigilância e segurança sanitária dos alimentos — Anvisa e vigilância estadual/municipal." },
+  { id: "trabalhista", nome: "Sistema Trabalhista", desc: "Segurança e direitos no trabalho rural — MTE e normas regulamentadoras." },
+  { id: "tributario", nome: "Sistema Tributário", desc: "Tributos e obrigações fiscais — SEFAZ e Receita Federal." },
+  { id: "educacional", nome: "Sistema Educacional", desc: "Pesquisa, assistência técnica e capacitação — Embrapa, universidades, Sebrae, Senar, Senai." },
+];
+function sistemaMatches(id) { return state.blocos.map((b, i) => ({ b, i })).filter(({ b }) => (b.sistemas || []).includes(id)); }
+function buildEcosystem() {
+  const outer = Math.max(220, Math.min(440, (window.innerWidth || 440) - 48));
+  const inner = Math.round(outer * (140 / 440));
+  const step = (outer - inner) / (SISTEMAS.length - 1);
+  let parent = null, root = null;
+  SISTEMAS.forEach((s, i) => {
+    const size = Math.round(outer - i * step);
+    const ring = el("div", { class: "eco-ring", style: `width:${size}px;height:${size}px;` });
+    ring.appendChild(el("button", { type: "button", class: "eco-chip", "data-sistema": s.id, title: "Ver no Institucional" }, s.nome));
+    if (parent) parent.appendChild(ring); else root = ring;
+    parent = ring;
+  });
+  parent.appendChild(el("div", { class: "eco-core" }, "Cadeia do açaí"));
+  const wrap = el("div", { class: "eco-wrap" }, root);
+  const note = el("p", { class: "eco-note" }, "Modelo adaptado de Blumenschein (2004, UnB) — a cadeia produtiva situada em sete sistemas de contexto.");
+  const box = el("div", {});
+  box.appendChild(wrap);
+  box.appendChild(note);
+  return box;
+}
+function buildDiagram() {
+  const wrap = el("div");
+  wrap.appendChild(buildEcosystem());
+  wrap.appendChild(buildLane("suprimentos", "📦", "Cadeia de suprimentos", "insumos, máquinas, energia e utilidades", false));
+  wrap.appendChild(buildLane("principal", "🌴", "Cadeia principal ou de processos", "os dez elos, em sequência", true));
+  wrap.appendChild(buildLane("auxiliar", "🔬", "Cadeia auxiliar", "conhecimento, pesquisa, laboratórios e logística", false));
+  wrap.appendChild(buildLane("circular", "♻️", "Economia circular e de apoio", "além do modelo original: coprodutos, mão de obra, crédito e mercado", false));
+  return wrap;
+}
+function buildLane(grupo, icon, title, sub, sequential) {
+  const lane = el("div", { class: "lane", "data-lane": grupo });
+  const head = el("div", { class: "lane-head" });
+  head.appendChild(el("span", { class: "lic" }, icon));
+  head.appendChild(el("h2", {}, title));
+  head.appendChild(el("span", { class: "lane-sub" }, "— " + sub));
+  lane.appendChild(head);
+  const track = el("div", { class: "lane-track" });
+  const items = state.blocos.map((b, i) => ({ b, i })).filter(({ b }) => b.grupo === grupo);
+  items.forEach(({ b, i }, idx) => {
+    track.appendChild(buildNodeCard(b, i, sequential ? idx + 1 : null, sequential && idx < items.length - 1));
+  });
+  lane.appendChild(track);
+  return lane;
+}
+function buildNodeCard(b, i, num, showNext) {
+  const wrapEl = el("div", { class: "node-card" });
+  const btn = el("button", { type: "button", class: "node", "data-node-id": b.id, "data-open-bloco": i });
+  if (num) {
+    const row = el("div", { class: "node-num-row" });
+    row.appendChild(el("span", { class: "node-num" }, String(num).padStart(2, "0")));
+    if (showNext) row.appendChild(el("span", { class: "node-next", "aria-hidden": "true" }, "→"));
+    btn.appendChild(row);
+  }
+  btn.appendChild(el("div", { class: "node-name" }, b.nome));
+  wrapEl.appendChild(btn);
+  return wrapEl;
+}
+function updateNodeCardLabel(i) {
+  const b = state.blocos[i];
+  document.querySelectorAll('[data-open-bloco="' + i + '"] .node-name').forEach(n => { n.textContent = b.nome; });
+}
+
+/* ---------- painel de detalhe (drawer) ---------- */
+function buildPanelSection(s, path) {
+  const box = el("div", { class: "panel-section" });
+  box.appendChild(editableSpan("panel-label text", path + ".titulo", s.titulo));
+  box.appendChild(buildEditableList(s.itens, path + ".itens"));
+  return box;
+}
+function buildCallout(s, path, variant) {
+  const box = el("div", { class: "callout c-" + variant });
+  box.appendChild(editableSpan("panel-label text", path + ".titulo", s.titulo));
+  box.appendChild(buildEditableList(s.itens, path + ".itens"));
+  return box;
+}
+function buildEditableList(itens, path) {
+  const ul = el("ul", { class: "itemlist" });
+  itens.forEach((txt, i) => {
+    const li = el("li", { class: "row" });
+    li.appendChild(editableSpan("text", `${path}.${i}`, txt));
+    if (editing) li.appendChild(el("button", { class: "rm", type: "button", "data-remove-path": `${path}.${i}`, "aria-label": "remover item" }, "×"));
+    ul.appendChild(li);
+  });
+  if (editing) ul.appendChild(el("li", { class: "row add-row" }, el("button", { class: "add-item", type: "button", "data-add-path": path }, "+ adicionar")));
+  return ul;
+}
+function catTagInfo(grupo) {
+  if (grupo === "principal") return ["Cadeia principal", "var(--cat-principal-soft)", "var(--cat-principal)"];
+  if (grupo === "suprimentos") return ["Cadeia de suprimentos", "var(--cat-sup-soft)", "var(--cat-sup)"];
+  if (grupo === "auxiliar") return ["Cadeia auxiliar", "var(--cat-aux-soft)", "var(--cat-aux)"];
+  if (grupo === "circular") return ["Economia circular e de apoio", "var(--cat-apoio-soft)", "var(--cat-apoio)"];
+  if (grupo === "institucional") return ["Institucional", "var(--surface-2)", "var(--ink-soft)"];
+  return ["", "", ""];
+}
+function renderDrawer() {
+  if (openBlocoIndex != null) return renderBlocoDrawerContent();
+  if (openSistemaId != null) return renderSistemaDrawerContent();
+}
+function renderBlocoDrawerContent() {
+  const b = state.blocos[openBlocoIndex];
+  const [tagText, tagBg, tagFg] = catTagInfo(b.grupo);
+  const tag = document.getElementById("drawer-tag");
+  tag.textContent = tagText; tag.style.background = tagBg; tag.style.color = tagFg;
+
+  const nameEl = document.getElementById("drawer-name");
+  nameEl.textContent = b.nome;
+  nameEl.setAttribute("data-path", `blocos.${openBlocoIndex}.nome`);
+  if (editing) nameEl.setAttribute("contenteditable", "true"); else nameEl.removeAttribute("contenteditable");
+
+  const body = document.getElementById("drawer-body");
+  body.replaceChildren();
+  if (b.resumo) {
+    const p = el("p", { class: "drawer-lede" });
+    p.appendChild(editableSpan("text", `blocos.${openBlocoIndex}.resumo`, b.resumo));
+    body.appendChild(p);
+  }
+  const mainSecs = [], calloutSecs = [];
+  b.secoes.forEach((s, si) => (s.margem ? calloutSecs : mainSecs).push({ s, si }));
+  mainSecs.forEach(({ s, si }) => body.appendChild(buildPanelSection(s, `blocos.${openBlocoIndex}.secoes.${si}`)));
+  calloutSecs.forEach(({ s, si }, idx) => body.appendChild(buildCallout(s, `blocos.${openBlocoIndex}.secoes.${si}`, idx === 0 ? "atores" : "critico")));
+
+  const foot = document.getElementById("drawer-foot");
+  foot.replaceChildren();
+  const ELO_TAG_POR_GRUPO = { circular: "auxiliar", suprimentos: "apoio", auxiliar: "apoio" };
+  if (b.grupo === "principal") foot.appendChild(el("button", { class: "btn btn-block", type: "button", "data-filter-elo": b.id }, "Ver legislação deste elo →"));
+  else foot.appendChild(el("button", { class: "btn btn-block", type: "button", "data-filter-elo": ELO_TAG_POR_GRUPO[b.grupo] || "apoio" }, "Ver legislação aplicável →"));
+}
+function renderSistemaDrawerContent() {
+  const sis = SISTEMAS.find(s => s.id === openSistemaId);
+  const tag = document.getElementById("drawer-tag");
+  tag.textContent = "Sistema de contexto"; tag.style.background = "var(--surface-2)"; tag.style.color = "var(--ink-soft)";
+
+  const nameEl = document.getElementById("drawer-name");
+  nameEl.textContent = sis.nome;
+  nameEl.removeAttribute("contenteditable");
+  nameEl.removeAttribute("data-path");
+
+  const body = document.getElementById("drawer-body");
+  body.replaceChildren();
+  body.appendChild(el("p", { class: "drawer-lede" }, sis.desc));
+  const matches = sistemaMatches(sis.id);
+  const label = el("span", { class: "panel-label" }, matches.length ? "Itens relacionados neste projeto" : "Nenhum item mapeado");
+  body.appendChild(label);
+  if (matches.length) {
+    const ul = el("ul", { class: "itemlist" });
+    matches.forEach(({ b, i }) => {
+      const [tagText] = catTagInfo(b.grupo);
+      const li = el("li", { class: "row" });
+      li.appendChild(el("button", { class: "linklike", type: "button", "data-open-bloco": i }, b.nome + (tagText ? " — " + tagText : " — Institucional")));
+      ul.appendChild(li);
+    });
+    body.appendChild(ul);
+  } else {
+    body.appendChild(el("p", { class: "drawer-lede" }, "Esse sistema faz parte do modelo original (Blumenschein, 2004) mas, por ora, não tem um equivalente direto identificado no Amapá."));
+  }
+  document.getElementById("drawer-foot").replaceChildren();
+}
+function openDrawer(i) {
+  openBlocoIndex = i; openSistemaId = null;
+  renderDrawer();
+  document.body.classList.add("panel-open", "drawer-open");
+}
+function openSistemaDrawer(id) {
+  openSistemaId = id; openBlocoIndex = null;
+  renderDrawer();
+  document.body.classList.add("panel-open", "drawer-open");
+}
+function closeDrawer() {
+  document.body.classList.remove("drawer-open");
+  if (!document.body.classList.contains("nav-open")) document.body.classList.remove("panel-open");
+  openBlocoIndex = null; openSistemaId = null;
+}
+function openNav() { document.body.classList.add("panel-open", "nav-open"); }
+function closeNav() {
+  document.body.classList.remove("nav-open");
+  if (!document.body.classList.contains("drawer-open")) document.body.classList.remove("panel-open");
+}
+
+/* ---------- navegação entre views ---------- */
+const VIEW_TITLES = { cadeia: "Cadeia", legislacao: "Legislação", institucional: "Institucional", notas: "Notas" };
+function switchView(name) {
+  currentView = name;
+  document.querySelectorAll(".view").forEach(v => v.classList.toggle("active", v.id === "view-" + name));
+  document.querySelectorAll("nav.sidenav button").forEach(b => b.classList.toggle("active", b.getAttribute("data-view") === name));
+  document.getElementById("mt-title").textContent = VIEW_TITLES[name] || "";
+  closeDrawer();
+  closeNav();
+}
+
+/* ---------- renderizadores de view ---------- */
+function renderCadeiaView() {
+  const c = document.getElementById("diagram");
+  c.replaceChildren();
+  c.appendChild(buildDiagram());
+  document.getElementById("cadeia-intro").textContent = state.meta.intro;
+}
+function matchesFilter(n) {
+  if (filters.esfera && n.esfera !== filters.esfera) return false;
+  if (filters.elo && !(n.elos || []).includes(filters.elo)) return false;
+  const q = filters.q.trim().toLowerCase();
+  if (q) {
+    const hay = [n.esfera, n.titulo, n.resumo, n.fonte].filter(Boolean).join(" ").toLowerCase();
+    if (!hay.includes(q)) return false;
+  }
+  return true;
+}
+function buildNormaRow(n, i) {
+  const tr = el("tr");
+  tr.appendChild(el("td", {}, editableSpan("text", `normas.${i}.esfera`, n.esfera)));
+  const tdTit = el("td");
+  if (!editing && n.fonte) tdTit.appendChild(el("a", { href: n.fonte, target: "_blank", rel: "noopener" }, n.titulo));
+  else tdTit.appendChild(editableSpan("text", `normas.${i}.titulo`, n.titulo));
+  if (n.status === "conferir") { tdTit.appendChild(document.createTextNode(" ")); tdTit.appendChild(el("span", { class: "badge" }, "a conferir")); }
+  if (editing) {
+    const fdiv = el("div", { class: "fonte-edit" });
+    fdiv.appendChild(el("span", { class: "fonte-label" }, "fonte "));
+    fdiv.appendChild(editableSpan("text fonte-url", `normas.${i}.fonte`, n.fonte || ""));
+    tdTit.appendChild(fdiv);
+  }
+  tr.appendChild(tdTit);
+  tr.appendChild(el("td", {}, editableSpan("text", `normas.${i}.resumo`, n.resumo)));
+  tr.appendChild(el("td", {}, editableSpan("text", `normas.${i}.elos`, formatElosShort(n.elos), { "data-parse": "elos" })));
+  if (editing) {
+    const tdAct = el("td", { class: "col-actions" });
+    const lbl = el("label", { class: "conferir-toggle" });
+    lbl.appendChild(el("input", { type: "checkbox", "data-bool-path": `normas.${i}.status`, checked: n.status === "conferir" ? true : null }));
+    lbl.appendChild(document.createTextNode("a conferir"));
+    tdAct.appendChild(lbl);
+    tdAct.appendChild(el("button", { class: "rm", type: "button", "data-remove-path": `normas.${i}`, "aria-label": "remover norma" }, "×"));
+    tr.appendChild(tdAct);
+  }
+  return tr;
+}
+function renderNormas() {
+  const tbody = document.getElementById("normas-tbody");
+  tbody.replaceChildren();
+  const visible = [];
+  state.normas.forEach((n, i) => { if (matchesFilter(n)) visible.push({ n, i }); });
+  visible.forEach(({ n, i }) => tbody.appendChild(buildNormaRow(n, i)));
+  document.getElementById("normas-count").textContent = `${state.normas.length} normas · mostrando ${visible.length}`;
+
+  const pillsEl = document.getElementById("pills");
+  pillsEl.replaceChildren();
+  const order = ["Federal", "Amapá", "Pará", "Amazonas", "Macapá", "Belém", "Manaus", "Outros estados", "Técnicas"];
+  const esferas = [...new Set(state.normas.map(n => n.esfera))].sort((a, b) => {
+    const ia = order.indexOf(a), ib = order.indexOf(b);
+    return (ia === -1 ? 99 : ia) - (ib === -1 ? 99 : ib) || a.localeCompare(b, "pt");
+  });
+  esferas.forEach(es => pillsEl.appendChild(el("button", { class: "pill" + (filters.esfera === es ? " active" : ""), type: "button", "data-filter-esfera": es }, es)));
+  if (filters.elo) pillsEl.appendChild(el("button", { class: "pill active", type: "button", id: "clear-elo-filter" }, "elo: " + eloLabel(filters.elo) + "  ×"));
+
+  document.querySelectorAll("#view-legislacao thead .col-actions").forEach(th => { th.style.display = editing ? "" : "none"; });
+
+  const addWrap = document.getElementById("normas-add");
+  addWrap.replaceChildren();
+  if (editing) addWrap.appendChild(el("button", { class: "add-item", type: "button", id: "add-norma" }, "+ adicionar norma"));
+}
+function renderInstitucional() {
+  const c = document.getElementById("inst-body");
+  c.replaceChildren();
+  state.blocos.forEach((b, i) => {
+    if (b.grupo !== "institucional") return;
+    const card = el("div", { class: "card info-card" });
+    (b.sistemas || []).forEach(sid => {
+      const sis = SISTEMAS.find(s => s.id === sid);
+      if (sis) card.appendChild(el("span", { class: "sis-tag" }, sis.nome));
+    });
+    card.appendChild(el("h3", {}, editableSpan("text", `blocos.${i}.nome`, b.nome)));
+    const s = b.secoes[0];
+    if (s) card.appendChild(buildEditableList(s.itens, `blocos.${i}.secoes.0.itens`));
+    c.appendChild(card);
+  });
+}
+function renderNotas() {
+  const c = document.getElementById("notas-body");
+  c.replaceChildren();
+  c.appendChild(buildEditableList(state.notas, "notas"));
+}
+function renderAll() {
+  renderCadeiaView(); renderNormas(); renderInstitucional(); renderNotas();
+  if (openBlocoIndex != null) renderDrawer();
+}
+function rerenderForPath(path) {
+  if (path.startsWith("normas")) return renderNormas();
+  if (path.startsWith("notas")) return renderNotas();
+  if (path.startsWith("blocos.")) {
+    const idx = Number(path.split(".")[1]);
+    const grp = state.blocos[idx] && state.blocos[idx].grupo;
+    if (grp === "institucional") renderInstitucional();
+    if (openBlocoIndex === idx) renderDrawer();
+  }
+}
+
+/* ---------- edição: eventos ---------- */
+function commitField(t) {
+  const path = t.getAttribute("data-path");
+  if (!path) return;
+  const raw = t.textContent.replace(/\s+/g, " ").trim();
+  if (t.getAttribute("data-parse") === "elos") {
+    const arr = parseElosText(raw);
+    setPath(state, path, arr);
+    t.textContent = formatElosShort(arr);
+  } else {
+    setPath(state, path, raw);
+  }
+  scheduleSave();
+  if (path.match(/^blocos\.\d+\.nome$/)) updateNodeCardLabel(Number(path.split(".")[1]));
+}
+function focusLater(sel) { requestAnimationFrame(() => { const e = document.querySelector(sel); if (e) e.focus(); }); }
+
+document.addEventListener("focusout", e => { const t = e.target; if (t.matches && t.matches("[data-path]") && t.isContentEditable) commitField(t); });
+document.addEventListener("keydown", e => {
+  if (e.key === "Enter" && e.target.isContentEditable) { e.preventDefault(); e.target.blur(); }
+  if (e.key === "Escape") { closeDrawer(); closeNav(); }
+});
+document.addEventListener("paste", e => {
+  if (e.target.isContentEditable) {
+    e.preventDefault();
+    const text = (e.clipboardData || window.clipboardData).getData("text/plain");
+    document.execCommand("insertText", false, text);
+  }
+});
+document.addEventListener("change", e => {
+  const cb = e.target.closest("[data-bool-path]");
+  if (cb) { setPath(state, cb.getAttribute("data-bool-path"), cb.checked ? "conferir" : "ok"); scheduleSave(); renderNormas(); }
+  if (e.target.id === "import-file") {
+    const file = e.target.files && e.target.files[0];
+    handleImportFile(file).finally(() => { e.target.value = ""; });
+  }
+});
+document.addEventListener("click", e => {
+  const navBtn = e.target.closest("nav.sidenav button[data-view]");
+  if (navBtn) { switchView(navBtn.getAttribute("data-view")); return; }
+
+  const nodeBtn = e.target.closest("[data-open-bloco]");
+  if (nodeBtn) { openDrawer(Number(nodeBtn.getAttribute("data-open-bloco"))); return; }
+  if (e.target.closest("#drawer-close") || e.target === document.getElementById("backdrop")) { closeDrawer(); closeNav(); return; }
+  if (e.target.closest("#hamburger")) { openNav(); return; }
+
+  const editToggle = e.target.closest("#edit-toggle");
+  if (editToggle) { setEditing(!editing); return; }
+  const exportBtn = e.target.closest("#export-btn");
+  if (exportBtn) { doExport(); return; }
+  const importBtn = e.target.closest("#import-btn");
+  if (importBtn) { document.getElementById("import-file").click(); return; }
+  const resetBtn = e.target.closest("#reset-btn");
+  if (resetBtn) { doReset(); return; }
+
+  const rm = e.target.closest("[data-remove-path]");
+  if (rm) { const p = rm.getAttribute("data-remove-path"); removeAtPath(state, p); scheduleSave(); rerenderForPath(p); return; }
+
+  const add = e.target.closest("[data-add-path]");
+  if (add) {
+    const p = add.getAttribute("data-add-path");
+    const arr = getPath(state, p);
+    arr.push("");
+    scheduleSave();
+    rerenderForPath(p);
+    focusLater(`[data-path="${p}.${arr.length - 1}"]`);
+    return;
+  }
+  const addNorma = e.target.closest("#add-norma");
+  if (addNorma) {
+    state.normas.push({ esfera: "", titulo: "", resumo: "", elos: [], status: "ok", fonte: "" });
+    scheduleSave();
+    renderNormas();
+    focusLater(`[data-path="normas.${state.normas.length - 1}.esfera"]`);
+    return;
+  }
+  const jump = e.target.closest("[data-filter-elo]");
+  if (jump) {
+    filters.elo = jump.getAttribute("data-filter-elo");
+    switchView("legislacao");
+    renderNormas();
+    return;
+  }
+  const sisBtn = e.target.closest("[data-sistema]");
+  if (sisBtn) { openSistemaDrawer(sisBtn.getAttribute("data-sistema")); return; }
+  const clr = e.target.closest("#clear-elo-filter");
+  if (clr) { filters.elo = ""; renderNormas(); return; }
+  const esf = e.target.closest("[data-filter-esfera]");
+  if (esf) { const v = esf.getAttribute("data-filter-esfera"); filters.esfera = filters.esfera === v ? "" : v; renderNormas(); return; }
+});
+document.getElementById("search").addEventListener("input", e => { filters.q = e.target.value; renderNormas(); });
+
+function setEditing(v) {
+  editing = v;
+  document.body.classList.toggle("editing", v);
+  renderAll();
+  updateEditControls();
+}
+function updateEditControls() {
+  document.getElementById("edit-toggle").textContent = editing ? "✓ Concluir edição" : "✎ Editar conteúdo";
+  const extra = document.getElementById("edit-extra");
+  extra.replaceChildren();
+  if (editing) {
+    extra.appendChild(el("button", { class: "link-btn", type: "button", id: "export-btn" }, "Exportar dados (JSON)"));
+    extra.appendChild(el("button", { class: "link-btn", type: "button", id: "import-btn" }, "Importar dados (JSON)"));
+    extra.appendChild(el("button", { class: "link-btn", type: "button", id: "reset-btn" }, "Restaurar conteúdo original"));
+  }
+}
+function setStatus(text) { const s = document.getElementById("save-status"); if (s) s.textContent = text; }
+async function doExport() {
+  const filename = "observatorio-acai.json";
+  const json = JSON.stringify(state, null, 2);
+  if (downloadsCap) {
+    try {
+      const blob = new Blob([json], { type: "application/json" });
+      await downloadsCap.save({ filename, data: blob });
+      return;
+    } catch (err) { /* tenta o modo local abaixo */ }
+  }
+  try {
+    const blob = new Blob([json], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url; a.download = filename;
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    setTimeout(() => URL.revokeObjectURL(url), 1500);
+  } catch (err) { /* nada a fazer */ }
+}
+function doReset() {
+  if (!confirm("Restaurar todo o conteúdo para a versão original? Isso substitui as edições atuais.")) return;
+  state = cloneSeed();
+  scheduleSave();
+  renderAll();
+}
+function validShape(obj) {
+  return obj && typeof obj === "object" && obj.meta && typeof obj.meta === "object"
+    && Array.isArray(obj.blocos) && Array.isArray(obj.normas) && Array.isArray(obj.notas);
+}
+async function handleImportFile(file) {
+  if (!file) return;
+  let parsed;
+  try { parsed = JSON.parse(await file.text()); }
+  catch (err) { alert("Não foi possível ler este arquivo. Confira se é um JSON exportado pelo Observatório do Açaí."); return; }
+  if (!validShape(parsed)) { alert("Este arquivo não tem o formato esperado (meta, blocos, normas, notas)."); return; }
+  if (!confirm("Importar este arquivo vai substituir todo o conteúdo atual por ele. Continuar?")) return;
+  state = Object.assign({}, cloneSeed(), parsed);
+  closeDrawer();
+  renderAll();
+  scheduleSave();
+}
+
+/* ---------- persistência: capacidade db, com alternativa local ---------- */
+const LOCAL_KEY = "observatorio-acai:content/main";
+function makeLocalDb() {
+  return {
+    doc: () => ({
+      get: async () => {
+        const raw = localStorage.getItem(LOCAL_KEY);
+        if (raw == null) return { exists: false, data: () => undefined };
+        return { exists: true, data: () => JSON.parse(raw) };
+      },
+      set: async (data) => { localStorage.setItem(LOCAL_KEY, JSON.stringify(data)); },
+    }),
+  };
+}
+let saveTimer = null, saving = false, pendingAgain = false;
+function scheduleSave() {
+  setStatus(dbMode ? "Salvando…" : "");
+  if (saveTimer) clearTimeout(saveTimer);
+  saveTimer = setTimeout(doSave, 600);
+}
+async function doSave() {
+  if (!db) { setStatus("Alterações não são salvas nesta janela"); return; }
+  if (saving) { pendingAgain = true; return; }
+  saving = true;
+  state.meta.atualizado = new Date().toISOString().slice(0, 10);
+  try {
+    await db.doc("content/main").set(state);
+    setStatus(pendingAgain ? "Salvando…" : (dbMode === "local" ? "Salvo neste navegador" : "Salvo"));
+  } catch (err) {
+    setStatus("Não foi possível salvar");
+  } finally {
+    saving = false;
+    if (pendingAgain) { pendingAgain = false; scheduleSave(); }
+  }
+}
+async function getCap(name) {
+  if (!window.claude || typeof window.claude.use !== "function") return null;
+  try { return await window.claude.use(name); } catch (e) { return null; }
+}
+async function init() {
+  db = await getCap("db");
+  dbMode = db ? "cloud" : null;
+  if (!db) {
+    try { localStorage.getItem(LOCAL_KEY); db = makeLocalDb(); dbMode = "local"; }
+    catch (e) { db = null; dbMode = null; }
+  }
+  downloadsCap = await getCap("downloads");
+  if (db) {
+    try {
+      let snap;
+      try { snap = await db.doc("content/main").get(); }
+      catch (e) { await new Promise(r => setTimeout(r, 500 + Math.random() * 400)); snap = await db.doc("content/main").get(); }
+      if (snap.exists) { state = Object.assign({}, cloneSeed(), snap.data()); renderAll(); }
+    } catch (e) { /* mantém a semente */ }
+  }
+  updateEditControls();
+}
+
+/* ---------- início ---------- */
+renderAll();
+init();
+</script>
+</body>
+</html>

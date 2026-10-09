@@ -1,0 +1,1056 @@
+[
+  {
+    "esfera": "Federal",
+    "titulo": "Lei 8.918/1994",
+    "resumo": "Padronização, registro e fiscalização de bebidas; abriga polpa e suco de fruta.",
+    "elos": [
+      "e6",
+      "e7"
+    ],
+    "status": "ok",
+    "fonte": "https://www.planalto.gov.br/ccivil_03/leis/l8918.htm"
+  },
+  {
+    "esfera": "Federal",
+    "titulo": "Decreto 6.871/2009",
+    "resumo": "Regulamenta a Lei 8.918/1994: registro, padrões e fiscalização de bebidas.",
+    "elos": [
+      "e6",
+      "e7"
+    ],
+    "status": "ok",
+    "fonte": "https://www.planalto.gov.br/ccivil_03/_ato2007-2010/2009/decreto/d6871.htm"
+  },
+  {
+    "esfera": "Federal",
+    "titulo": "IN MAPA 49/2018",
+    "resumo": "Padrões de identidade e qualidade de suco e polpa de fruta.",
+    "elos": [
+      "e6",
+      "e7"
+    ],
+    "status": "ok",
+    "fonte": "https://www.in.gov.br/materia/-/asset_publisher/Kujrw0TZC2Mb/content/id/42586576"
+  },
+  {
+    "esfera": "Federal",
+    "titulo": "IN SDA 37/2018",
+    "resumo": "Parâmetros analíticos de suco e polpa; confirmado: teor mínimo de sólidos totais do açaí é 8% (item 6.3.1.1 do regulamento técnico).",
+    "elos": [
+      "e6",
+      "e7"
+    ],
+    "status": "ok",
+    "fonte": "https://www.in.gov.br/materia/-/asset_publisher/Kujrw0TZC2Mb/content/id/44304988"
+  },
+  {
+    "esfera": "Federal",
+    "titulo": "IN MAPA 72/2018",
+    "resumo": "Registro de estabelecimentos e produtos de bebidas (Sipeagro).",
+    "elos": [
+      "e6",
+      "e7"
+    ],
+    "status": "ok",
+    "fonte": "https://www.in.gov.br/materia/-/asset_publisher/Kujrw0TZC2Mb/content/id/42586576/do1-2018-09-27-instrucao-normativa-n-72-de-26-de-setembro-de-2018-42586558"
+  },
+  {
+    "esfera": "Federal",
+    "titulo": "Lei 13.648/2018",
+    "resumo": "Polpa e suco artesanais em estabelecimento familiar rural.",
+    "elos": [
+      "e6"
+    ],
+    "status": "ok",
+    "fonte": "https://www.planalto.gov.br/ccivil_03/_ato2015-2018/2018/lei/l13648.htm"
+  },
+  {
+    "esfera": "Federal",
+    "titulo": "Decreto 10.026/2019",
+    "resumo": "Regulamenta a Lei 13.648/2018; registro do estabelecimento e da polpa pelo Sipeagro.",
+    "elos": [
+      "e6"
+    ],
+    "status": "ok",
+    "fonte": "https://www.planalto.gov.br/ccivil_03/_ato2019-2022/2019/decreto/d10026.htm"
+  },
+  {
+    "esfera": "Federal",
+    "titulo": "RDC 216/2004",
+    "resumo": "Boas práticas em serviços de alimentação (batedeiras e açaiterias).",
+    "elos": [
+      "e5",
+      "e6",
+      "e9"
+    ],
+    "status": "ok",
+    "fonte": "https://bvsms.saude.gov.br/bvs/saudelegis/anvisa/2004/res0216_15_09_2004.html"
+  },
+  {
+    "esfera": "Federal",
+    "titulo": "RDC 275/2002",
+    "resumo": "POPs e lista de verificação de BPF em estabelecimentos produtores de alimentos.",
+    "elos": [
+      "e5",
+      "e6",
+      "e7"
+    ],
+    "status": "ok",
+    "fonte": "https://bvsms.saude.gov.br/bvs/saudelegis/anvisa/2002/rdc0275_21_10_2002.html"
+  },
+  {
+    "esfera": "Federal",
+    "titulo": "Portaria SVS/MS 326/1997",
+    "resumo": "Condições higiênico-sanitárias e BPF em estabelecimentos produtores de alimentos.",
+    "elos": [
+      "e5",
+      "e6",
+      "e7"
+    ],
+    "status": "ok",
+    "fonte": "https://antigo.anvisa.gov.br/documents/10181/2718376/(1)PRT_SVS_326_1997.pdf"
+  },
+  {
+    "esfera": "Federal",
+    "titulo": "RDC 724/2022 e IN 161/2022",
+    "resumo": "Padrões microbiológicos dos alimentos (revisão da RDC 331/2019); a IN 161 foi alterada pela IN 313/2024.",
+    "elos": [
+      "e6",
+      "e7",
+      "e8",
+      "e9"
+    ],
+    "status": "ok",
+    "fonte": "https://antigo.anvisa.gov.br/documents/10181/2718376/RDC_724_2022.pdf"
+  },
+  {
+    "esfera": "Federal",
+    "titulo": "RDC 722/2022 e IN 160/2022",
+    "resumo": "Limites máximos tolerados de contaminantes em alimentos.",
+    "elos": [
+      "e6",
+      "e7",
+      "e8"
+    ],
+    "status": "ok",
+    "fonte": "https://antigo.anvisa.gov.br/documents/10181/6503739/(1)IN_160_2022_COMP.pdf"
+  },
+  {
+    "esfera": "Federal",
+    "titulo": "RDC 727/2022",
+    "resumo": "Rotulagem de alimentos embalados; consolidou, sem alteração de mérito, oito normas anteriores — entre elas a RDC 26/2015 (alergênicos), hoje revogada e coberta pelo Anexo III.",
+    "elos": [
+      "e7",
+      "e8",
+      "e9"
+    ],
+    "status": "ok",
+    "fonte": "https://antigo.anvisa.gov.br/documents/10181/2718376/RDC_727_2022.pdf"
+  },
+  {
+    "esfera": "Federal",
+    "titulo": "RDC 429/2020 e IN 75/2020",
+    "resumo": "Rotulagem nutricional; convive com a RDC 727/2022, que remete a ela para a parte nutricional.",
+    "elos": [
+      "e7",
+      "e8",
+      "e9"
+    ],
+    "status": "ok",
+    "fonte": "https://anvisalegis.datalegis.net/action/ActionDatalegis.php?acao=abrirTextoAto&tipo=RDC&numeroAto=00000429&seqAto=000&valorAno=2020&orgao=DCOL/ANVISA/MS&codigoTipo=&desItem=&desItemFinal=&quantidadeMaximaLinha=100"
+  },
+  {
+    "esfera": "Federal",
+    "titulo": "Portaria GM/MS 888/2021",
+    "resumo": "Potabilidade da água para consumo humano (altera o Anexo XX da Portaria de Consolidação 5/2017).",
+    "elos": [
+      "e5",
+      "e6"
+    ],
+    "status": "ok",
+    "fonte": "https://saude.mt.gov.br/documents/1288557/2957837/Portaria+GM+MS+888.pdf"
+  },
+  {
+    "esfera": "Federal",
+    "titulo": "RDC 91/2001",
+    "resumo": "Critérios gerais e classificação de materiais para embalagens e equipamentos em contato com alimentos; materiais específicos (plásticos, metais, vidro) têm normas próprias adicionais.",
+    "elos": [
+      "e5",
+      "e6",
+      "e7"
+    ],
+    "status": "ok",
+    "fonte": "https://faolex.fao.org/docs/pdf/bra37241.pdf"
+  },
+  {
+    "esfera": "Federal",
+    "titulo": "RDC 243/2018",
+    "resumo": "Suplementos alimentares (derivados da polpa).",
+    "elos": [
+      "auxiliar"
+    ],
+    "status": "ok",
+    "fonte": "https://www.gov.br/anvisa/pt-br/centraisdeconteudo/publicacoes/alimentos/rdc-243-2018-ingles.pdf"
+  },
+  {
+    "esfera": "Federal",
+    "titulo": "RDC 713/2022",
+    "resumo": "Requisitos sanitários dos gelados comestíveis e dos preparados para gelados comestíveis (sorvetes e picolés de açaí).",
+    "elos": [
+      "auxiliar"
+    ],
+    "status": "ok",
+    "fonte": ""
+  },
+  {
+    "esfera": "Federal",
+    "titulo": "Lei 10.711/2003",
+    "resumo": "Sistema Nacional de Sementes e Mudas; cultivares no RNC.",
+    "elos": [
+      "e1"
+    ],
+    "status": "ok",
+    "fonte": "https://www.planalto.gov.br/ccivil_03/leis/2003/l10.711.htm"
+  },
+  {
+    "esfera": "Federal",
+    "titulo": "Decreto 10.586/2020",
+    "resumo": "Regulamenta a Lei 10.711/2003.",
+    "elos": [
+      "e1"
+    ],
+    "status": "ok",
+    "fonte": "http://www.planalto.gov.br/ccivil_03/_Ato2019-2022/2020/Decreto/D10586.htm"
+  },
+  {
+    "esfera": "Federal",
+    "titulo": "Lei 14.785/2023",
+    "resumo": "Nova lei de agrotóxicos.",
+    "elos": [
+      "e1"
+    ],
+    "status": "ok",
+    "fonte": "https://www.planalto.gov.br/ccivil_03/_ato2023-2026/2023/lei/l14785.htm"
+  },
+  {
+    "esfera": "Federal",
+    "titulo": "Lei 10.831/2003",
+    "resumo": "Agricultura orgânica.",
+    "elos": [
+      "e1"
+    ],
+    "status": "ok",
+    "fonte": "https://www.planalto.gov.br/ccivil_03/leis/2003/l10.831.htm"
+  },
+  {
+    "esfera": "Federal",
+    "titulo": "Portaria MAPA 52/2021",
+    "resumo": "Regulamento técnico dos sistemas orgânicos de produção; alterada pela Portaria MAPA 404/2022.",
+    "elos": [
+      "e1"
+    ],
+    "status": "ok",
+    "fonte": ""
+  },
+  {
+    "esfera": "Federal",
+    "titulo": "Portaria SPA/MAPA 5/2024",
+    "resumo": "Zoneamento agrícola de risco climático do açaí (cultivo irrigado).",
+    "elos": [
+      "e1",
+      "apoio"
+    ],
+    "status": "ok",
+    "fonte": ""
+  },
+  {
+    "esfera": "Federal",
+    "titulo": "Lei 11.326/2006 e Decreto 9.064/2017",
+    "resumo": "Agricultura familiar e sua regulamentação.",
+    "elos": [
+      "e1",
+      "e6",
+      "apoio"
+    ],
+    "status": "ok",
+    "fonte": ""
+  },
+  {
+    "esfera": "Federal",
+    "titulo": "Lei 11.947/2009",
+    "resumo": "PNAE: compras da agricultura familiar para a alimentação escolar.",
+    "elos": [
+      "e9",
+      "apoio"
+    ],
+    "status": "ok",
+    "fonte": "https://www.planalto.gov.br/ccivil_03/_ato2007-2010/2009/lei/l11947.htm"
+  },
+  {
+    "esfera": "Federal",
+    "titulo": "Lei 14.628/2023",
+    "resumo": "PAA: Programa de Aquisição de Alimentos.",
+    "elos": [
+      "e9",
+      "apoio"
+    ],
+    "status": "ok",
+    "fonte": "https://www.planalto.gov.br/ccivil_03/_ato2023-2026/2023/lei/l14628.htm"
+  },
+  {
+    "esfera": "Federal",
+    "titulo": "LC 123/2006",
+    "resumo": "Simples Nacional e MEI.",
+    "elos": [
+      "e6",
+      "e9",
+      "apoio"
+    ],
+    "status": "ok",
+    "fonte": "https://www.planalto.gov.br/ccivil_03/leis/lcp/lcp123.htm"
+  },
+  {
+    "esfera": "Federal",
+    "titulo": "Lei 5.764/1971",
+    "resumo": "Política Nacional de Cooperativismo.",
+    "elos": [
+      "apoio"
+    ],
+    "status": "ok",
+    "fonte": "https://www.planalto.gov.br/ccivil_03/leis/l5764.htm"
+  },
+  {
+    "esfera": "Federal",
+    "titulo": "Lei 12.651/2012",
+    "resumo": "Código Florestal; a IN SEMA-AP 1/2024 trata o manejo de açaí em várzea como atividade de baixo impacto.",
+    "elos": [
+      "e1"
+    ],
+    "status": "ok",
+    "fonte": "https://www.planalto.gov.br/ccivil_03/_ato2011-2014/2012/lei/l12651.htm"
+  },
+  {
+    "esfera": "Federal",
+    "titulo": "Lei 15.190/2025",
+    "resumo": "Lei Geral do Licenciamento Ambiental, em vigor desde 4/2/2026 (ADIs 7913, 7916 e 7919 no STF); a Lei 15.300/2025 cria a Licença Ambiental Especial.",
+    "elos": [
+      "e1",
+      "e5",
+      "e6",
+      "auxiliar"
+    ],
+    "status": "ok",
+    "fonte": ""
+  },
+  {
+    "esfera": "Federal",
+    "titulo": "Lei 9.985/2000",
+    "resumo": "SNUC: RESEX, RDS e florestas nacionais.",
+    "elos": [
+      "e1"
+    ],
+    "status": "ok",
+    "fonte": "https://www.planalto.gov.br/ccivil_03/leis/l9985.htm"
+  },
+  {
+    "esfera": "Federal",
+    "titulo": "Lei 11.284/2006",
+    "resumo": "Gestão de florestas públicas.",
+    "elos": [
+      "e1"
+    ],
+    "status": "ok",
+    "fonte": "https://www.planalto.gov.br/ccivil_03/_ato2004-2006/2006/lei/l11284.htm"
+  },
+  {
+    "esfera": "Federal",
+    "titulo": "Lei 13.123/2015",
+    "resumo": "Patrimônio genético e conhecimento tradicional: repartição de benefícios em derivados.",
+    "elos": [
+      "auxiliar"
+    ],
+    "status": "ok",
+    "fonte": "https://www.planalto.gov.br/ccivil_03/_ato2015-2018/2015/lei/l13123.htm"
+  },
+  {
+    "esfera": "Federal",
+    "titulo": "Portaria SPU 284/2005",
+    "resumo": "Uso de várzeas da União para o desbaste do açaí.",
+    "elos": [
+      "e1"
+    ],
+    "status": "conferir",
+    "fonte": ""
+  },
+  {
+    "esfera": "Federal",
+    "titulo": "Lei 9.433/1997",
+    "resumo": "Política Nacional de Recursos Hídricos (outorga de poços).",
+    "elos": [
+      "e5",
+      "e6"
+    ],
+    "status": "ok",
+    "fonte": "https://www.planalto.gov.br/ccivil_03/leis/l9433.htm"
+  },
+  {
+    "esfera": "Federal",
+    "titulo": "Lei 12.305/2010 e Decreto 10.936/2022",
+    "resumo": "PNRS: resíduos sólidos e logística reversa.",
+    "elos": [
+      "e3",
+      "e7",
+      "e9",
+      "auxiliar"
+    ],
+    "status": "ok",
+    "fonte": ""
+  },
+  {
+    "esfera": "Federal",
+    "titulo": "CONAMA 430/2011 e 357/2005",
+    "resumo": "Lançamento de efluentes e enquadramento de corpos d'água.",
+    "elos": [
+      "e5",
+      "e6",
+      "auxiliar"
+    ],
+    "status": "ok",
+    "fonte": ""
+  },
+  {
+    "esfera": "Federal",
+    "titulo": "NR-31",
+    "resumo": "Segurança e saúde no trabalho rural.",
+    "elos": [
+      "e1",
+      "e2"
+    ],
+    "status": "ok",
+    "fonte": ""
+  },
+  {
+    "esfera": "Federal",
+    "titulo": "NR-35",
+    "resumo": "Trabalho em altura; aplicabilidade à escalada com peconha a verificar.",
+    "elos": [
+      "e2"
+    ],
+    "status": "conferir",
+    "fonte": ""
+  },
+  {
+    "esfera": "Federal",
+    "titulo": "NR-12",
+    "resumo": "Máquinas e equipamentos (despolpadeiras e batedeiras).",
+    "elos": [
+      "e6",
+      "e7"
+    ],
+    "status": "ok",
+    "fonte": ""
+  },
+  {
+    "esfera": "Federal",
+    "titulo": "NR-1, NR-6 e NR-24",
+    "resumo": "Gestão de riscos, EPI e condições sanitárias no trabalho.",
+    "elos": [
+      "e2",
+      "e5",
+      "e6",
+      "e7"
+    ],
+    "status": "ok",
+    "fonte": ""
+  },
+  {
+    "esfera": "Federal",
+    "titulo": "Lei 8.078/1990 (CDC)",
+    "resumo": "Defesa do consumidor.",
+    "elos": [
+      "e1",
+      "e2",
+      "e3",
+      "e4",
+      "e5",
+      "e6",
+      "e7",
+      "e8",
+      "e9",
+      "e10",
+      "auxiliar",
+      "apoio"
+    ],
+    "status": "ok",
+    "fonte": "https://www.planalto.gov.br/ccivil_03/leis/l8078compilado.htm"
+  },
+  {
+    "esfera": "Federal",
+    "titulo": "Lei 6.437/1977",
+    "resumo": "Infrações à legislação sanitária.",
+    "elos": [
+      "e1",
+      "e2",
+      "e3",
+      "e4",
+      "e5",
+      "e6",
+      "e7",
+      "e8",
+      "e9",
+      "e10",
+      "auxiliar",
+      "apoio"
+    ],
+    "status": "ok",
+    "fonte": "https://www.planalto.gov.br/ccivil_03/leis/l6437.htm"
+  },
+  {
+    "esfera": "Federal",
+    "titulo": "Lei 8.080/1990 e Lei 9.782/1999",
+    "resumo": "SUS e Sistema Nacional de Vigilância Sanitária.",
+    "elos": [
+      "e1",
+      "e2",
+      "e3",
+      "e4",
+      "e5",
+      "e6",
+      "e7",
+      "e8",
+      "e9",
+      "e10",
+      "auxiliar",
+      "apoio"
+    ],
+    "status": "ok",
+    "fonte": ""
+  },
+  {
+    "esfera": "Federal",
+    "titulo": "Decreto-Lei 986/1969",
+    "resumo": "Normas básicas sobre alimentos.",
+    "elos": [
+      "e1",
+      "e2",
+      "e3",
+      "e4",
+      "e5",
+      "e6",
+      "e7",
+      "e8",
+      "e9",
+      "e10",
+      "auxiliar",
+      "apoio"
+    ],
+    "status": "ok",
+    "fonte": "https://www.planalto.gov.br/ccivil_03/decreto-lei/del0986.htm"
+  },
+  {
+    "esfera": "Federal",
+    "titulo": "Lei 9.933/1999 e Portaria INMETRO 248/2008",
+    "resumo": "Metrologia legal e conteúdo líquido de produtos pré-medidos.",
+    "elos": [
+      "e3",
+      "e4",
+      "e7"
+    ],
+    "status": "conferir",
+    "fonte": ""
+  },
+  {
+    "esfera": "Federal",
+    "titulo": "Lei 9.537/1997",
+    "resumo": "Segurança do tráfego aquaviário.",
+    "elos": [
+      "e3"
+    ],
+    "status": "ok",
+    "fonte": "https://www.planalto.gov.br/ccivil_03/leis/l9537.htm"
+  },
+  {
+    "esfera": "Federal",
+    "titulo": "Lei 9.279/1996 e Portaria INPI 4/2022",
+    "resumo": "Indicações Geográficas.",
+    "elos": [
+      "e1",
+      "e9"
+    ],
+    "status": "ok",
+    "fonte": "https://www.planalto.gov.br/ccivil_03/ccivil_03/leis/l9279.htm"
+  },
+  {
+    "esfera": "Federal",
+    "titulo": "IG Açaí do Bailique",
+    "resumo": "Indicação de Procedência BR402023000008-4, concedida em 8/4/2025 à ACTB; terceira IG de açaí do país.",
+    "elos": [
+      "e1",
+      "e9"
+    ],
+    "status": "ok",
+    "fonte": ""
+  },
+  {
+    "esfera": "Federal",
+    "titulo": "Lei 15.330/2026",
+    "resumo": "Reconhece o açaí como fruta nacional (DOU de 8/1/2026).",
+    "elos": [
+      "e1",
+      "e2",
+      "e3",
+      "e4",
+      "e5",
+      "e6",
+      "e7",
+      "e8",
+      "e9",
+      "e10",
+      "auxiliar",
+      "apoio"
+    ],
+    "status": "ok",
+    "fonte": ""
+  },
+  {
+    "esfera": "Amapá",
+    "titulo": "Lei 1.914/2015",
+    "resumo": "Programa Estadual de Qualidade do Açaí e Selo de Qualidade; cadastro de batedores e boas práticas de fabricação.",
+    "elos": [
+      "e2",
+      "e3",
+      "e4",
+      "e5",
+      "e6"
+    ],
+    "status": "ok",
+    "fonte": "https://www.legisweb.com.br/legislacao/?id=287125"
+  },
+  {
+    "esfera": "Amapá",
+    "titulo": "Lei 2.260/2017",
+    "resumo": "Registro de estabelecimentos e comercialização de produtos artesanais de origem animal e vegetal.",
+    "elos": [
+      "e6"
+    ],
+    "status": "ok",
+    "fonte": "https://faolex.fao.org/docs/pdf/bra173633.pdf"
+  },
+  {
+    "esfera": "Amapá",
+    "titulo": "Lei 0869/2004 e Decreto 2.696/2006",
+    "resumo": "Defesa e inspeção sanitária vegetal e animal. Uma Portaria DIAGRO de dez/2025 ainda a citava como vigente, mas em 13/1/2026 foram sancionadas as Leis 3.426/2026 e 3.428/2026, que tratam da mesma matéria (vegetal) — possível substituição parcial, a confirmar.",
+    "elos": [
+      "e6"
+    ],
+    "status": "conferir",
+    "fonte": ""
+  },
+  {
+    "esfera": "Amapá",
+    "titulo": "Lei 3.428/2026",
+    "resumo": "Dispõe sobre a defesa sanitária vegetal no Amapá; sancionada em 13/1/2026, possivelmente sucede a parte vegetal da Lei 0869/2004.",
+    "elos": [
+      "e6"
+    ],
+    "status": "conferir",
+    "fonte": "https://www.legisweb.com.br/legislacao/?id=506133"
+  },
+  {
+    "esfera": "Amapá",
+    "titulo": "Lei 3.426/2026",
+    "resumo": "Dispõe sobre a política de inspeção sanitária vegetal no Amapá (produtos de origem vegetal para consumo); sancionada em 13/1/2026.",
+    "elos": [
+      "e6"
+    ],
+    "status": "conferir",
+    "fonte": "https://www.legisweb.com.br/legislacao/?id=506131"
+  },
+  {
+    "esfera": "Amapá",
+    "titulo": "Portaria DIAGRO 364/2024",
+    "resumo": "Registro no SIE; entre as áreas de origem vegetal está a polpa de fruta artesanal.",
+    "elos": [
+      "e6"
+    ],
+    "status": "ok",
+    "fonte": ""
+  },
+  {
+    "esfera": "Amapá",
+    "titulo": "Portaria DIAGRO 17/2024",
+    "resumo": "Registro de produtos no SIE-AP.",
+    "elos": [
+      "e6"
+    ],
+    "status": "conferir",
+    "fonte": ""
+  },
+  {
+    "esfera": "Amapá",
+    "titulo": "IN SEMA 1/2024",
+    "resumo": "De 5/6/2024. Cria a DAPP, o RAP e o RAPC como atos autorizativos do manejo, extração e produção de palmito e frutos de açaí.",
+    "elos": [
+      "e1"
+    ],
+    "status": "ok",
+    "fonte": "https://www.legisweb.com.br/legislacao/?id=460282"
+  },
+  {
+    "esfera": "Amapá",
+    "titulo": "IN SEMA 3/2009",
+    "resumo": "Plano de Limpeza de Açaizal e autorização de transporte do palmito; ver se foi substituída.",
+    "elos": [
+      "e1"
+    ],
+    "status": "conferir",
+    "fonte": ""
+  },
+  {
+    "esfera": "Amapá",
+    "titulo": "PL 0073/2024",
+    "resumo": "Dia Estadual dos Batedores de Açaí; aprovado na Alap em 2024.",
+    "elos": [
+      "e6"
+    ],
+    "status": "conferir",
+    "fonte": ""
+  },
+  {
+    "esfera": "Pará",
+    "titulo": "Decreto 2.475/2010",
+    "resumo": "Programa Estadual de Qualidade do Açaí (alterado pelo Decreto 250/2011).",
+    "elos": [
+      "e2",
+      "e3",
+      "e4",
+      "e5",
+      "e6"
+    ],
+    "status": "ok",
+    "fonte": ""
+  },
+  {
+    "esfera": "Pará",
+    "titulo": "Decreto 326/2012",
+    "resumo": "Requisitos higiênico-sanitários para batedores artesanais; cadastro e uso do branqueador — definição de “branqueamento” confirmada no texto (tratamento térmico que inativa enzimas).",
+    "elos": [
+      "e5",
+      "e6"
+    ],
+    "status": "ok",
+    "fonte": "https://www.legisweb.com.br/legislacao/?id=148207"
+  },
+  {
+    "esfera": "Pará",
+    "titulo": "Lei 7.565/2011 e Decreto 480/2012",
+    "resumo": "Licenciamento de estabelecimentos e registro de produtos artesanais comestíveis; execução pela ADEPARÁ. O decreto regulamentador foi publicado em 16/7/2012; número 480 ainda a confirmar.",
+    "elos": [
+      "e6"
+    ],
+    "status": "conferir",
+    "fonte": "https://www.legisweb.com.br/legislacao/?id=148089"
+  },
+  {
+    "esfera": "Pará",
+    "titulo": "Lei 11.140/2025",
+    "resumo": "Batedor artesanal (MEI, até 40 latas de 14kg por dia = 240L/dia e 7.200L/mês); congelamento entre –18 e –25°C; estoque regulador. Publicada em 4/9/2025 (origem: PL 344/2025, dep. Carlos Bordalo).",
+    "elos": [
+      "e6",
+      "e7"
+    ],
+    "status": "ok",
+    "fonte": "https://www.alepa.pa.gov.br/Comunicacao/Noticia/11186/lei-regulamenta-atividade-de-batedores-artesanais-de-acai-no-para"
+  },
+  {
+    "esfera": "Pará",
+    "titulo": "Portaria ADEPARÁ 2.789/2020",
+    "resumo": "Trânsito de frutos de açaí, com rastreabilidade (GTV).",
+    "elos": [
+      "e3",
+      "e4"
+    ],
+    "status": "ok",
+    "fonte": ""
+  },
+  {
+    "esfera": "Pará",
+    "titulo": "Portaria ADEPARÁ 1.597/2024",
+    "resumo": "Padrão de identidade e qualidade do grão de açaí torrado e moído.",
+    "elos": [
+      "auxiliar"
+    ],
+    "status": "ok",
+    "fonte": ""
+  },
+  {
+    "esfera": "Pará",
+    "titulo": "IN SEMA 9/2013",
+    "resumo": "Declaração ambiental e relatório anual para manejo de palmito e frutos de açaí em várzeas.",
+    "elos": [
+      "e1"
+    ],
+    "status": "ok",
+    "fonte": ""
+  },
+  {
+    "esfera": "Pará",
+    "titulo": "PL 169/2024",
+    "resumo": "Padronização mais ampla da comercialização do açaí (industrialização, distribuição e mercado interestadual/internacional); processo distinto do PL 344/2025 que virou a Lei 11.140/2025. Status final (sanção) a confirmar.",
+    "elos": [
+      "e6",
+      "e7"
+    ],
+    "status": "conferir",
+    "fonte": ""
+  },
+  {
+    "esfera": "Amazonas",
+    "titulo": "LC 70/2009",
+    "resumo": "Código de Saúde do Estado do Amazonas (base sanitária geral).",
+    "elos": [
+      "e5",
+      "e6",
+      "e9"
+    ],
+    "status": "ok",
+    "fonte": ""
+  },
+  {
+    "esfera": "Macapá",
+    "titulo": "Lei 2.914/2025",
+    "resumo": "Programa municipal de coleta, transporte, transbordo, tratamento e destino final do caroço de açaí; sancionada em 27/5/2025, publicada em 31/5/2025 (origem: PL 014/25-CMM, vereador Pedro DaLua).",
+    "elos": [
+      "e6",
+      "auxiliar"
+    ],
+    "status": "ok",
+    "fonte": "https://www.legisweb.com.br/legislacao/?id=479114"
+  },
+  {
+    "esfera": "Macapá",
+    "titulo": "Lei 2.466/2021",
+    "resumo": "Batedeiras como atividade essencial, sujeitas às determinações sanitárias da Secretaria de Saúde.",
+    "elos": [
+      "e6",
+      "e9"
+    ],
+    "status": "ok",
+    "fonte": ""
+  },
+  {
+    "esfera": "Macapá",
+    "titulo": "Leis 2.532/2021 e 2.555/2022",
+    "resumo": "Serviço de Inspeção Municipal (SIM) para produtos de origem animal e vegetal; a segunda altera a primeira.",
+    "elos": [
+      "e6"
+    ],
+    "status": "ok",
+    "fonte": ""
+  },
+  {
+    "esfera": "Macapá",
+    "titulo": "LC 27/2004",
+    "resumo": "Licenciamento, autorização e fiscalização das atividades socioeconômicas.",
+    "elos": [
+      "e6",
+      "e9"
+    ],
+    "status": "ok",
+    "fonte": ""
+  },
+  {
+    "esfera": "Macapá",
+    "titulo": "Código Sanitário do Município",
+    "resumo": "Número da lei ainda não confirmado. Correção: a LC 144/2021 é o Código Tributário de Macapá (não o sanitário) — descartada essa hipótese.",
+    "elos": [
+      "e5",
+      "e6",
+      "e9"
+    ],
+    "status": "conferir",
+    "fonte": ""
+  },
+  {
+    "esfera": "Macapá",
+    "titulo": "Autorização ambiental para batedeiras",
+    "resumo": "Instrumento lançado pela Prefeitura (Semam) para cadastrar e regularizar batedores; ato normativo a localizar.",
+    "elos": [
+      "e6"
+    ],
+    "status": "conferir",
+    "fonte": ""
+  },
+  {
+    "esfera": "Belém",
+    "titulo": "Casa do Açaí (Devisa/Sesma)",
+    "resumo": "Fiscaliza o cumprimento do Decreto estadual 326/2012; selo “Açaí Bom”.",
+    "elos": [
+      "e5",
+      "e6"
+    ],
+    "status": "ok",
+    "fonte": ""
+  },
+  {
+    "esfera": "Belém",
+    "titulo": "Portaria SEDCON 90/2025",
+    "resumo": "Horário do comércio atacadista na Feira do Açaí.",
+    "elos": [
+      "e4"
+    ],
+    "status": "conferir",
+    "fonte": ""
+  },
+  {
+    "esfera": "Manaus",
+    "titulo": "Lei 392/1997 e Decreto 3.910/1997",
+    "resumo": "Código Sanitário de Manaus.",
+    "elos": [
+      "e5",
+      "e6",
+      "e9"
+    ],
+    "status": "ok",
+    "fonte": ""
+  },
+  {
+    "esfera": "Manaus",
+    "titulo": "Licença Sanitária (LC de 27/12/2018)",
+    "resumo": "Licença Sanitária e taxas; número da lei (LC 10/2018?) a confirmar.",
+    "elos": [
+      "e6",
+      "e9"
+    ],
+    "status": "conferir",
+    "fonte": ""
+  },
+  {
+    "esfera": "Manaus",
+    "titulo": "Decreto 4.648/2019",
+    "resumo": "REDESIM/SLIM: licenciamento e alvará de funcionamento.",
+    "elos": [
+      "e6",
+      "e9"
+    ],
+    "status": "ok",
+    "fonte": ""
+  },
+  {
+    "esfera": "Manaus",
+    "titulo": "LC 5/2014",
+    "resumo": "Código de Posturas de Manaus.",
+    "elos": [
+      "e6",
+      "e9"
+    ],
+    "status": "ok",
+    "fonte": ""
+  },
+  {
+    "esfera": "Outros estados",
+    "titulo": "Roraima: Decreto 30.250-E/2021",
+    "resumo": "Programa Estadual de Qualidade do Açaí.",
+    "elos": [
+      "e6"
+    ],
+    "status": "ok",
+    "fonte": ""
+  },
+  {
+    "esfera": "Outros estados",
+    "titulo": "Maranhão: Portaria SES 954/2024",
+    "resumo": "BPF de polpa de juçara/açaí, bacaba e buriti para batedores artesanais.",
+    "elos": [
+      "e5",
+      "e6"
+    ],
+    "status": "ok",
+    "fonte": ""
+  },
+  {
+    "esfera": "Outros estados",
+    "titulo": "Acre: Lei 3.513/2019",
+    "resumo": "Programa Estadual de Qualidade do Açaí e selo.",
+    "elos": [
+      "e6"
+    ],
+    "status": "conferir",
+    "fonte": ""
+  },
+  {
+    "esfera": "Técnicas",
+    "titulo": "ABNT NBR ISO 22000",
+    "resumo": "Gestão da segurança de alimentos.",
+    "elos": [
+      "e5",
+      "e6",
+      "e7"
+    ],
+    "status": "ok",
+    "fonte": ""
+  },
+  {
+    "esfera": "Técnicas",
+    "titulo": "ABNT NBR 10004",
+    "resumo": "Classificação de resíduos sólidos.",
+    "elos": [
+      "auxiliar"
+    ],
+    "status": "ok",
+    "fonte": ""
+  },
+  {
+    "esfera": "Técnicas",
+    "titulo": "Codex CAC/RCP 1",
+    "resumo": "Princípios gerais de higiene dos alimentos.",
+    "elos": [
+      "e1",
+      "e2",
+      "e3",
+      "e4",
+      "e5",
+      "e6",
+      "e7",
+      "e8",
+      "e9",
+      "e10",
+      "auxiliar",
+      "apoio"
+    ],
+    "status": "ok",
+    "fonte": ""
+  },
+  {
+    "esfera": "Técnicas",
+    "titulo": "FSC",
+    "resumo": "Certificação florestal; o açaí da Amazonbai (Bailique) foi o primeiro do mundo certificado, em 2016.",
+    "elos": [
+      "e1"
+    ],
+    "status": "ok",
+    "fonte": ""
+  },
+  {
+    "esfera": "Federal",
+    "titulo": "Lei 7.678/1988",
+    "resumo": "Reserva o nome “vinho” à bebida de uva (art. 3º, parágrafo único) — base do debate sobre chamar produtos de açaí de “vinho”. Seu decreto regulamentador foi trocado em 31/10/2025 (Decreto 12.709/2025, sobre fiscalização de produtos de origem vegetal em geral).",
+    "elos": [
+      "e6",
+      "auxiliar"
+    ],
+    "status": "conferir",
+    "fonte": "https://legis.senado.leg.br/norma/549554/publicacao/15751958"
+  },
+  {
+    "esfera": "Técnicas",
+    "titulo": "Embrapa Amapá: Açaí Seguro",
+    "resumo": "Material técnico de BPF e choque térmico para batedeiras.",
+    "elos": [
+      "e5",
+      "e6"
+    ],
+    "status": "ok",
+    "fonte": ""
+  }
+]
