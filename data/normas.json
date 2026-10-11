@@ -13,12 +13,12 @@
   {
     "esfera": "Federal",
     "titulo": "Decreto 6.871/2009",
-    "resumo": "Regulamenta a Lei 8.918/1994: registro, padrões e fiscalização de bebidas.",
+    "resumo": "Regulamenta a Lei 8.918/1994: registro, padrões e fiscalização de bebidas. Suspeita a confirmar: o Decreto 12.709/2025 (31/10/2025) passou a regulamentar a própria Lei 8.918/1994, o que sugere que pode ter substituído este decreto — não localizei o artigo de revogação do 12.709/2025 (texto muito longo para extrair o trecho final) para confirmar.",
     "elos": [
       "e6",
       "e7"
     ],
-    "status": "ok",
+    "status": "conferir",
     "fonte": "https://www.planalto.gov.br/ccivil_03/_ato2007-2010/2009/decreto/d6871.htm"
   },
   {
@@ -639,7 +639,7 @@
   {
     "esfera": "Amapá",
     "titulo": "Lei 0869/2004 e Decreto 2.696/2006",
-    "resumo": "Defesa e inspeção sanitária vegetal e animal. Uma Portaria DIAGRO de dez/2025 ainda a citava como vigente, mas em 13/1/2026 foram sancionadas as Leis 3.426/2026 e 3.428/2026, que tratam da mesma matéria (vegetal) — possível substituição parcial, a confirmar.",
+    "resumo": "Defesa e inspeção sanitária vegetal e animal. Verificado: as Leis 3.426/2026 e 3.428/2026 (13/1/2026) só revogam \"disposições em contrário\" (cláusula genérica, sem citar esta lei pelo nome) — ou seja, não há revogação expressa. Na prática, a parte vegetal desta lei deve ceder às duas leis novas onde o conteúdo coincidir; a parte animal (fora do escopo das leis novas) permanece intocada. Segue como \"a conferir\" pela imprecisão prática, não pela existência de revogação expressa.",
     "elos": [
       "e6"
     ],
@@ -649,22 +649,22 @@
   {
     "esfera": "Amapá",
     "titulo": "Lei 3.428/2026",
-    "resumo": "Dispõe sobre a defesa sanitária vegetal no Amapá; sancionada em 13/1/2026, possivelmente sucede a parte vegetal da Lei 0869/2004.",
+    "resumo": "Dispõe sobre a defesa sanitária vegetal no Amapá; sancionada em 13/1/2026. Confirmado no texto: Art. 90 revoga apenas \"disposições em contrário\" (cláusula genérica) — não cita a Lei 0869/2004 nem outra norma específica.",
     "elos": [
       "e6"
     ],
-    "status": "conferir",
-    "fonte": "https://www.legisweb.com.br/legislacao/?id=506133"
+    "status": "ok",
+    "fonte": "https://www.normasbrasil.com.br/norma/lei-3428-2026-ap_489447.html"
   },
   {
     "esfera": "Amapá",
     "titulo": "Lei 3.426/2026",
-    "resumo": "Dispõe sobre a política de inspeção sanitária vegetal no Amapá (produtos de origem vegetal para consumo); sancionada em 13/1/2026.",
+    "resumo": "Dispõe sobre a política de inspeção sanitária vegetal no Amapá (produtos de origem vegetal para consumo); sancionada em 13/1/2026. Confirmado no texto: Art. 109 revoga apenas \"disposições em contrário\" (cláusula genérica) — não cita a Lei 0869/2004 nem outra norma específica.",
     "elos": [
       "e6"
     ],
-    "status": "conferir",
-    "fonte": "https://www.legisweb.com.br/legislacao/?id=506131"
+    "status": "ok",
+    "fonte": "https://www.normasbrasil.com.br/norma/lei-3426-2026-ap_489445.html"
   },
   {
     "esfera": "Amapá",
@@ -1034,7 +1034,7 @@
   {
     "esfera": "Federal",
     "titulo": "Lei 7.678/1988",
-    "resumo": "Reserva o nome “vinho” à bebida de uva (art. 3º, parágrafo único) — base do debate sobre chamar produtos de açaí de “vinho”. Seu decreto regulamentador foi trocado em 31/10/2025 (Decreto 12.709/2025, sobre fiscalização de produtos de origem vegetal em geral).",
+    "resumo": "Reserva o nome “vinho” à bebida de uva (art. 3º, parágrafo único) — base do debate sobre chamar produtos de açaí de “vinho”. Confirmado: o Decreto 12.709/2025 (31/10/2025) regulamenta expressamente esta lei junto com as Leis 8.171/1991, 8.918/1994, 9.972/2000 e 14.515/2022, com uma subseção própria sobre \"vinho e derivados da uva e do vinho\" (arts. 92-94). Como a Lei 8.918/1994 também era a base do Decreto 6.871/2009, é provável que o 12.709/2025 o tenha substituído — não encontrei o artigo de revogação para confirmar (ver nota em Decreto 6.871/2009). A Lei 13.648/2018 (base do Decreto 10.026/2019) não está na lista de normas regulamentadas pelo 12.709/2025, então o 10.026/2019 não parece afetado.",
     "elos": [
       "e6",
       "auxiliar"
