@@ -2,7 +2,7 @@
   {
     "esfera": "Federal",
     "titulo": "Lei 8.918/1994",
-    "resumo": "Padronização, registro e fiscalização de bebidas; abriga polpa e suco de fruta.",
+    "resumo": "Padronização, registro e fiscalização de bebidas; abriga polpa e suco de fruta. Revogação parcial confirmada: o caput do Art. 9º foi revogado pela Lei 14.515/2022 (o restante da lei segue vigente).",
     "elos": [
       "e6",
       "e7"
@@ -13,13 +13,24 @@
   {
     "esfera": "Federal",
     "titulo": "Decreto 6.871/2009",
-    "resumo": "Regulamenta a Lei 8.918/1994: registro, padrões e fiscalização de bebidas. Suspeita a confirmar: o Decreto 12.709/2025 (31/10/2025) passou a regulamentar a própria Lei 8.918/1994, o que sugere que pode ter substituído este decreto — não localizei o artigo de revogação do 12.709/2025 (texto muito longo para extrair o trecho final) para confirmar.",
+    "resumo": "CONFIRMADO REVOGADO pelo Decreto 12.709/2025 (a própria página do Planalto traz o aviso \"Revogado pelo Decreto nº 12.709, de 2025\"). Mantido aqui como registro histórico: regulamentava a Lei 8.918/1994 (registro, padrões e fiscalização de bebidas); o Decreto 12.709/2025 assumiu esse papel — ver entrada própria.",
     "elos": [
       "e6",
       "e7"
     ],
     "status": "conferir",
     "fonte": "https://www.planalto.gov.br/ccivil_03/_ato2007-2010/2009/decreto/d6871.htm"
+  },
+  {
+    "esfera": "Federal",
+    "titulo": "Decreto 12.709/2025",
+    "resumo": "Regulamenta a fiscalização de produtos de origem vegetal em geral (classificação, rotulagem, autocontrole, rastreabilidade); substituiu o Decreto 6.871/2009 como regulamento da Lei 8.918/1994 (registro e fiscalização de bebidas, onde se enquadra a polpa). Também regulamenta a Lei 7.678/1988 (nome \"vinho\"), com subseção própria sobre vinho e derivados da uva (arts. 92-94).",
+    "elos": [
+      "e6",
+      "e7"
+    ],
+    "status": "ok",
+    "fonte": "https://www.planalto.gov.br/ccivil_03/_ato2023-2026/2025/decreto/d12709.htm"
   },
   {
     "esfera": "Federal",
@@ -67,7 +78,7 @@
   {
     "esfera": "Federal",
     "titulo": "Decreto 10.026/2019",
-    "resumo": "Regulamenta a Lei 13.648/2018; registro do estabelecimento e da polpa pelo Sipeagro.",
+    "resumo": "Regulamenta a Lei 13.648/2018; registro do estabelecimento e da polpa pelo Sipeagro. Revogação parcial confirmada: Arts. 32, 33, 43 e 44 (e parágrafos únicos) revogados pelo Decreto 12.502/2025 — ainda não verifiquei se essas são as partes do decreto que tratam de polpa especificamente ou de outra categoria de agroindústria rural regulada pelo mesmo decreto.",
     "elos": [
       "e6"
     ],
@@ -89,13 +100,13 @@
   {
     "esfera": "Federal",
     "titulo": "RDC 275/2002",
-    "resumo": "POPs e lista de verificação de BPF em estabelecimentos produtores de alimentos.",
+    "resumo": "POPs e lista de verificação de BPF em estabelecimentos produtores de alimentos. Sinal de alerta: na fonte oficial (bvsms), a ementa, os Arts. 1º-7º e o Anexo I aparecem em texto riscado (tachado) — exatamente o padrão que costuma indicar revogação — mas não achei, numa busca rápida, qual norma posterior fez isso nem a data. A conferir com mais cuidado.",
     "elos": [
       "e5",
       "e6",
       "e7"
     ],
-    "status": "ok",
+    "status": "conferir",
     "fonte": "https://bvsms.saude.gov.br/bvs/saudelegis/anvisa/2002/rdc0275_21_10_2002.html"
   },
   {
@@ -113,7 +124,7 @@
   {
     "esfera": "Federal",
     "titulo": "RDC 724/2022 e IN 161/2022",
-    "resumo": "Padrões microbiológicos dos alimentos (revisão da RDC 331/2019); a IN 161 foi alterada pela IN 313/2024.",
+    "resumo": "Padrões microbiológicos dos alimentos (revisão da RDC 331/2019); confirmado — a IN 161 foi alterada pela IN 313/2024, mas especificamente para produtos cárneos (foodsafetybrazil.org), o que não parece afetar polpa/suco de fruta.",
     "elos": [
       "e6",
       "e7",
@@ -796,7 +807,7 @@
   {
     "esfera": "Pará",
     "titulo": "PL 169/2024",
-    "resumo": "Padronização mais ampla da comercialização do açaí (industrialização, distribuição e mercado interestadual/internacional); processo distinto do PL 344/2025 que virou a Lei 11.140/2025. Status final (sanção) a confirmar.",
+    "resumo": "Padronização mais ampla da comercialização do açaí (industrialização, distribuição e mercado interestadual/internacional); processo distinto do PL 344/2025 que virou a Lei 11.140/2025. Confirmado: aprovado pelo plenário da Alepa em 8/4/2025 (dol.com.br). Sanção e número de lei definitivo ainda não localizados.",
     "elos": [
       "e6",
       "e7"
