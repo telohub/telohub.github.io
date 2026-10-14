@@ -216,7 +216,7 @@
   {
     "esfera": "Federal",
     "titulo": "Lei 10.711/2003",
-    "resumo": "Sistema Nacional de Sementes e Mudas; cultivares no RNC.",
+    "resumo": "Sistema Nacional de Sementes e Mudas; cultivares no RNC. Revogação parcial confirmada: Art. 42 e Art. 43, incisos I-VI (penalidades), revogados pela Lei 14.515/2022 — não afeta o registro de cultivares em si.",
     "elos": [
       "e1"
     ],
@@ -246,7 +246,7 @@
   {
     "esfera": "Federal",
     "titulo": "Lei 10.831/2003",
-    "resumo": "Agricultura orgânica.",
+    "resumo": "Agricultura orgânica. Revogação parcial confirmada: Art. 6º (sanções administrativas) revogado pela Lei 14.515/2022 — não afeta as regras substantivas de produção orgânica.",
     "elos": [
       "e1"
     ],
@@ -289,7 +289,7 @@
   {
     "esfera": "Federal",
     "titulo": "Lei 11.947/2009",
-    "resumo": "PNAE: compras da agricultura familiar para a alimentação escolar.",
+    "resumo": "PNAE: compras da agricultura familiar para a alimentação escolar. Achado: o Art. 14 (percentual mínimo de compra da agricultura familiar) foi alterado por leis de 2023-2025 — o mínimo aparece como 30% numa versão e 45% noutra do texto consolidado; não confirmei qual vigora hoje.",
     "elos": [
       "e9",
       "apoio"
