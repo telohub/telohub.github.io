@@ -4,6 +4,13 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="color-scheme" content="light dark">
+<!-- Não restringe script-src/style-src: a página é um único arquivo com
+     <script>/<style> inline de propósito (sem build step, sem CDN), e isso
+     exigiria nonce/hash por versão. object-src/base-uri/form-action não têm
+     esse custo e já fecham uma classe real de abuso (plugins embutidos,
+     sequestro de URL relativa via <base>, um <form> injetado enviando dados
+     para fora) numa página que nunca precisa de nenhum dos três. -->
+<meta http-equiv="Content-Security-Policy" content="object-src 'none'; base-uri 'none'; form-action 'none'">
 <meta name="description" content="A cadeia produtiva do açaí no Amapá e o quadro normativo que a regula — diagrama interativo e editável.">
 <title>Observatório do Açaí</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%AB%90%3C/text%3E%3C/svg%3E">
@@ -183,6 +190,8 @@
   ul.itemlist li.row::before{content:'–'; position:absolute; left:0; color:var(--ink-faint);}
   ul.itemlist li.row.add-row{padding-left:0;}
   ul.itemlist li.row.add-row::before{content:'';}
+  .linklike{all:unset; cursor:pointer; color:var(--primary); text-align:left;}
+  .linklike:hover, .linklike:focus-visible{text-decoration:underline;}
 
   /* ---------- legislação ---------- */
   .filters{display:flex; flex-wrap:wrap; align-items:center; gap:.6rem; margin-bottom:.6rem;}
@@ -206,6 +215,34 @@
   .fonte-edit .fonte-label{text-transform:uppercase; font-size:.68rem; letter-spacing:.03em;}
   .fonte-url{word-break:break-all;}
   .conferir-toggle{font-size:.76rem; color:var(--ink-soft); display:inline-flex; align-items:center; gap:.3rem; margin-right:.5rem; white-space:nowrap;}
+
+  /* ---------- siglas (dicionário de acrônimos) ----------
+     A dica usa position:fixed, posicionada por JS (positionSiglaTip, perto dos
+     outros addEventListener): a tabela, o painel lateral e a área principal
+     têm overflow:auto, e position:fixed é a única forma confiável de escapar
+     desse recorte em vez de a dica ficar cortada ou escondida atrás do
+     conteúdo. O padding do lado do botão funciona como uma "ponte" invisível
+     — sem ele, o cursor sai de cima do botão ao subir até o link e a dica
+     fecha antes de chegar lá (o espaço entre os dois deixa de contar como
+     "ainda em cima do botão"). A cor do cartão é fixa (não usa var(--ink)):
+     --ink é o texto principal da página, então ele INVERTE no tema escuro
+     (de quase-preto para quase-branco) para continuar legível sobre o fundo
+     — um cartão com fundo var(--ink) ficaria então quase-branco no tema
+     escuro, com o texto branco fixo da dica por cima: branco sobre branco.
+     A dica é sempre um cartão escuro com texto claro, nos dois temas. */
+  .sigla{display:inline; cursor:help; border-bottom:1px dotted var(--ink-faint);}
+  .sigla:hover, .sigla:focus-visible{border-bottom-color:var(--primary);}
+  .sigla-tip{position:fixed; z-index:9999; width:max-content; max-width:280px;
+    padding-bottom:7px; opacity:0; pointer-events:none; transition:opacity .12s ease;}
+  .sigla-tip.flip-below{padding-bottom:0; padding-top:7px;}
+  .sigla-tip.is-open{opacity:1; pointer-events:auto;}
+  .sigla-tip-card{display:block; background:#17171f; color:#fff; border-radius:8px;
+    box-shadow:var(--shadow-md); padding:.55rem .7rem; font-size:.78rem; line-height:1.4; text-align:left;
+    transform:translateY(4px); transition:transform .12s ease;}
+  .sigla-tip.flip-below .sigla-tip-card{transform:translateY(-4px);}
+  .sigla-tip.is-open .sigla-tip-card{transform:translateY(0);}
+  .sigla-tip-card b{display:block; margin-bottom:.15rem;}
+  .sigla-tip-card a{display:inline-block; margin-top:.3rem; color:#fff; font-weight:600; text-decoration:underline;}
 
   /* ---------- institucional ---------- */
   .card-grid{display:grid; grid-template-columns:repeat(auto-fill, minmax(250px,1fr)); gap:.9rem;}
@@ -325,7 +362,7 @@
   </div>
 </div>
 
-<div id="drawer">
+<div id="drawer" role="dialog" aria-modal="true" aria-labelledby="drawer-name">
   <div class="drawer-head">
     <div>
       <span class="tag" id="drawer-tag"></span>
@@ -350,6 +387,7 @@ let editing = false;
 let filters = { q: "", esfera: "", elo: "" };
 let currentView = "cadeia";
 let openBlocoIndex = null;
+let drawerOpenerEl = null; // elemento que tinha o foco antes de abrir o drawer (ver closeDrawer)
 let openSistemaId = null;
 let db = null, dbMode = null, downloadsCap = null;
 
@@ -413,9 +451,85 @@ function el(tag, attrs, children) {
   }
   return e;
 }
+// Nomes legíveis para os campos mais comuns, usados por pathToLabel() abaixo.
+// Um campo que não está aqui ainda ganha um rótulo (o próprio nome do campo no
+// path), só menos natural -- é o atalho de um único lugar cobrindo todos os
+// ~30 pontos que chamam editableSpan(), em vez de escrever um aria-label à mão
+// em cada campo editável do site.
+const FIELD_LABELS = {
+  esfera: "Esfera", titulo: "Título", resumo: "Resumo", fonte: "Fonte (link da norma)",
+  elos: "Elos (ids separados por vírgula)", nome: "Nome", itens: "Item",
+};
+function pathToLabel(path) {
+  const parts = path.split(".");
+  const last = parts[parts.length - 1];
+  const human = FIELD_LABELS[last] || last;
+  return (parts.length >= 3 && /^\d+$/.test(parts[1])) ? `${human} (${parts[0]}, item ${Number(parts[1]) + 1})` : human;
+}
 function editableSpan(cls, path, text, extraAttrs) {
   const attrs = Object.assign({ class: cls, "data-path": path, contenteditable: editing ? "true" : null }, extraAttrs || {});
-  return el("span", attrs, text || "");
+  // Sem isto, um leitor de tela só anuncia "texto editável", sem dizer qual
+  // campo é -- só faz sentido no modo de edição (fora dele o span não é
+  // editável, e o próprio texto já é o nome acessível do elemento).
+  if (editing && !attrs["aria-label"]) attrs["aria-label"] = pathToLabel(path);
+  // no modo de edição o campo fica como texto puro (edição permanece simples);
+  // fora dele, siglas conhecidas ganham a dica com expansão e link.
+  return el("span", attrs, editing ? (text || "") : wrapSiglas(text || ""));
+}
+
+/* ---------- siglas (dicionário de acrônimos) ----------
+   wrapSiglas() troca, dentro de um texto livre, cada ocorrência de uma sigla
+   cadastrada em siglas.json por um botão com dica (expansão + link oficial),
+   sem innerHTML: cada pedaço vira um nó de texto ou um <button> de verdade. */
+let SIGLA_RE = null;
+function siglaRegex() {
+  if (SIGLA_RE !== null) return SIGLA_RE;
+  const keys = Object.keys(state.siglas || {}).sort((a, b) => b.length - a.length);
+  if (!keys.length) { SIGLA_RE = undefined; return SIGLA_RE; }
+  const esc = keys.map(k => k.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"));
+  SIGLA_RE = new RegExp("\\b(" + esc.join("|") + ")\\b", "g");
+  return SIGLA_RE;
+}
+// Links vêm de dados importáveis (JSON que qualquer pessoa pode editar e
+// compartilhar), então nunca viram href sem passar por aqui: só http/https
+// é aceito, o resto (ex.: "javascript:...") vira texto em vez de link.
+function safeHref(url) {
+  return typeof url === "string" && /^https?:\/\//i.test(url) ? url : null;
+}
+let siglaIdSeq = 0;
+function siglaNode(token) {
+  const info = state.siglas[token];
+  const card = el("span", { class: "sigla-tip-card" });
+  card.appendChild(el("b", {}, token));
+  card.appendChild(document.createTextNode(" — " + info.expansao));
+  const href = safeHref(info.url);
+  if (href) card.appendChild(el("a", { href, target: "_blank", rel: "noopener" }, "Site institucional ↗"));
+  const tipId = "sigla-tip-" + (++siglaIdSeq);
+  const tip = el("span", { class: "sigla-tip", id: tipId, role: "tooltip" }, card);
+  // <span>, não <button>: um <button> com um <a> dentro é inválido no modelo de
+  // conteúdo do HTML (conteúdo interativo dentro de conteúdo interativo) — e o
+  // título de uma norma pode envolver a sigla inteira num <a> da fonte (ver
+  // buildNormaRow), o que tornaria isso um <a> dentro de um <a>. Um span com
+  // tabindex continua focável (Tab chega até ele, abrindo a dica como um botão
+  // faria), só sem anunciar pra tecnologia assistiva uma ação que ele não tem;
+  // aria-describedby é o que liga o span à dica para quem usa leitor de tela.
+  return el("span", { class: "sigla", tabindex: "0", "aria-describedby": tipId }, [token, tip]);
+}
+function wrapSiglas(text, wrapPlain) {
+  const mk = wrapPlain || (s => document.createTextNode(s));
+  if (!text) return [mk("")];
+  const re = siglaRegex();
+  if (!re) return [mk(text)];
+  re.lastIndex = 0;
+  const out = [];
+  let last = 0, m;
+  while ((m = re.exec(text))) {
+    if (m.index > last) out.push(mk(text.slice(last, m.index)));
+    out.push(siglaNode(m[0]));
+    last = m.index + m[0].length;
+  }
+  if (last < text.length) out.push(mk(text.slice(last)));
+  return out;
 }
 
 /* ---------- diagrama ---------- */
@@ -443,7 +557,7 @@ function buildEcosystem() {
   });
   parent.appendChild(el("div", { class: "eco-core" }, "Cadeia do açaí"));
   const wrap = el("div", { class: "eco-wrap" }, root);
-  const note = el("p", { class: "eco-note" }, "Modelo adaptado de Blumenschein (2004, UnB) — a cadeia produtiva situada em sete sistemas de contexto.");
+  const note = el("p", { class: "eco-note" }, wrapSiglas("Modelo adaptado de Blumenschein (2004, UnB) — a cadeia produtiva situada em sete sistemas de contexto."));
   const box = el("div", {});
   box.appendChild(wrap);
   box.appendChild(note);
@@ -536,7 +650,8 @@ function renderBlocoDrawerContent() {
   const nameEl = document.getElementById("drawer-name");
   nameEl.textContent = b.nome;
   nameEl.setAttribute("data-path", `blocos.${openBlocoIndex}.nome`);
-  if (editing) nameEl.setAttribute("contenteditable", "true"); else nameEl.removeAttribute("contenteditable");
+  if (editing) { nameEl.setAttribute("contenteditable", "true"); nameEl.setAttribute("aria-label", "Nome"); }
+  else { nameEl.removeAttribute("contenteditable"); nameEl.removeAttribute("aria-label"); }
 
   const body = document.getElementById("drawer-body");
   body.replaceChildren();
@@ -568,7 +683,7 @@ function renderSistemaDrawerContent() {
 
   const body = document.getElementById("drawer-body");
   body.replaceChildren();
-  body.appendChild(el("p", { class: "drawer-lede" }, sis.desc));
+  body.appendChild(el("p", { class: "drawer-lede" }, wrapSiglas(sis.desc)));
   const matches = sistemaMatches(sis.id);
   const label = el("span", { class: "panel-label" }, matches.length ? "Itens relacionados neste projeto" : "Nenhum item mapeado");
   body.appendChild(label);
@@ -587,21 +702,35 @@ function renderSistemaDrawerContent() {
   document.getElementById("drawer-foot").replaceChildren();
 }
 function openDrawer(i) {
+  drawerOpenerEl = document.activeElement;
   openBlocoIndex = i; openSistemaId = null;
   renderDrawer();
   document.body.classList.add("panel-open", "drawer-open");
+  focusLater("#drawer-close");
 }
 function openSistemaDrawer(id) {
+  drawerOpenerEl = document.activeElement;
   openSistemaId = id; openBlocoIndex = null;
   renderDrawer();
   document.body.classList.add("panel-open", "drawer-open");
+  focusLater("#drawer-close");
 }
 function closeDrawer() {
+  const wasOpen = document.body.classList.contains("drawer-open");
   document.body.classList.remove("drawer-open");
   if (!document.body.classList.contains("nav-open")) document.body.classList.remove("panel-open");
   openBlocoIndex = null; openSistemaId = null;
   document.getElementById("drawer-body").replaceChildren();
   document.getElementById("drawer-foot").replaceChildren();
+  // devolve o foco pra quem abriu o drawer (o card ou item de sistema
+  // clicado) -- sem isto, depois de fechar via teclado o foco do navegador
+  // some (fica no botão removido/escondido) e quem navega por teclado perde
+  // a posição na página. Se esse elemento não existir mais (a lista foi
+  // re-renderizada enquanto o drawer estava aberto), não força foco em nada.
+  if (wasOpen && drawerOpenerEl && document.contains(drawerOpenerEl) && typeof drawerOpenerEl.focus === "function") {
+    drawerOpenerEl.focus();
+  }
+  drawerOpenerEl = null;
 }
 function openNav() { document.body.classList.add("panel-open", "nav-open"); }
 function closeNav() {
@@ -626,7 +755,7 @@ function renderCadeiaView() {
   const c = document.getElementById("diagram");
   c.replaceChildren();
   c.appendChild(buildDiagram());
-  document.getElementById("cadeia-intro").textContent = state.meta.intro;
+  document.getElementById("cadeia-intro").replaceChildren(...wrapSiglas(state.meta.intro));
 }
 function matchesFilter(n) {
   if (filters.esfera && n.esfera !== filters.esfera) return false;
@@ -642,7 +771,16 @@ function buildNormaRow(n, i) {
   const tr = el("tr");
   tr.appendChild(el("td", {}, editableSpan("text", `normas.${i}.esfera`, n.esfera)));
   const tdTit = el("td");
-  if (!editing && n.fonte) tdTit.appendChild(el("a", { href: n.fonte, target: "_blank", rel: "noopener" }, n.titulo));
+  const fonteHref = safeHref(n.fonte);
+  if (!editing && fonteHref) {
+    // siglas no título ganham seu próprio botão com dica (não podem ficar
+    // dentro do <a> da fonte — não se aninha elemento interativo em link);
+    // o restante do título continua clicável para a fonte, em um ou mais
+    // trechos de texto ao redor de cada sigla. Um fonte que não seja um link
+    // http(s) de verdade (vazio, malformado, ou algo como "javascript:...") cai
+    // no mesmo caminho do "sem fonte" abaixo — nunca vira um <a href>.
+    wrapSiglas(n.titulo, s => el("a", { href: fonteHref, target: "_blank", rel: "noopener" }, s)).forEach(node => tdTit.appendChild(node));
+  }
   else tdTit.appendChild(editableSpan("text", `normas.${i}.titulo`, n.titulo));
   if (n.status === "conferir") { tdTit.appendChild(document.createTextNode(" ")); tdTit.appendChild(el("span", { class: "badge" }, "a conferir")); }
   if (editing) {
@@ -748,20 +886,105 @@ function commitField(t) {
   }
   scheduleSave();
   if (path.match(/^blocos\.\d+\.nome$/)) updateNodeCardLabel(Number(path.split(".")[1]));
+  // esfera alimenta os pills de filtro e elos decide quais linhas um filtro de
+  // elo mostra — sem isto, editar um dos dois deixava os pills/filtros com
+  // contagens ou resultados desatualizados até outra ação forçar um re-render.
+  if (path.match(/^normas\.\d+\.(esfera|elos)$/)) renderNormas();
 }
 function focusLater(sel) { requestAnimationFrame(() => { const e = document.querySelector(sel); if (e) e.focus(); }); }
 
-document.addEventListener("focusout", e => { const t = e.target; if (t.matches && t.matches("[data-path]") && t.isContentEditable) commitField(t); });
+/* ---------- siglas: abrir/fechar e posicionar a dica ----------
+   mouseover/mouseout (não mouseenter/mouseleave) porque só eles sobem por
+   delegação; e Node.contains() (não CSS :hover) porque a dica é fixed e fica
+   visualmente separada do botão — :hover deixaria de "ver" o botão assim que
+   o cursor saísse da caixinha dele, mesmo a dica sendo filha dele no DOM. */
+function positionSiglaTip(btn) {
+  const tip = btn.querySelector(".sigla-tip");
+  if (!tip) return;
+  const r = btn.getBoundingClientRect();
+  const origin = btn.closest("#drawer, #sidebar"); // únicos ancestrais com transform (criam containing block próprio p/ position:fixed)
+  const o = origin ? origin.getBoundingClientRect() : { left: 0, top: 0 };
+  const margin = 8;
+  const th = tip.offsetHeight, tw = tip.offsetWidth;
+  const flip = r.top - th < margin;
+  tip.classList.toggle("flip-below", flip);
+  let top = flip ? r.bottom : r.top - th;
+  let left = r.left;
+  if (left + tw > window.innerWidth - margin) left = window.innerWidth - margin - tw;
+  if (left < margin) left = margin;
+  tip.style.left = (left - o.left) + "px";
+  tip.style.top = (top - o.top) + "px";
+}
+function openSiglaTip(btn) { positionSiglaTip(btn); const tip = btn.querySelector(".sigla-tip"); if (tip) tip.classList.add("is-open"); }
+function closeSiglaTip(btn) { const tip = btn.querySelector(".sigla-tip"); if (tip) tip.classList.remove("is-open"); }
+document.addEventListener("mouseover", e => { const b = e.target.closest(".sigla"); if (b) openSiglaTip(b); });
+document.addEventListener("mouseout", e => { const b = e.target.closest(".sigla"); if (b && !b.contains(e.relatedTarget)) closeSiglaTip(b); });
+document.addEventListener("focusin", e => { const b = e.target.closest(".sigla"); if (b) openSiglaTip(b); });
+document.addEventListener("focusout", e => {
+  const t = e.target; if (t.matches && t.matches("[data-path]") && t.isContentEditable) commitField(t);
+  const b = t.closest && t.closest(".sigla"); if (b && !b.contains(e.relatedTarget)) closeSiglaTip(b);
+});
 document.addEventListener("keydown", e => {
   if (e.key === "Enter" && e.target.isContentEditable) { e.preventDefault(); e.target.blur(); }
   if (e.key === "Escape") { closeDrawer(); closeNav(); }
+  // Prende o Tab dentro do drawer enquanto ele está aberto -- sem isto, Tab a
+  // partir do último campo/botão de dentro escapa pro resto da página por
+  // trás, que continua tecnicamente alcançável mesmo com o drawer por cima.
+  if (e.key === "Tab" && document.body.classList.contains("drawer-open")) {
+    const drawer = document.getElementById("drawer");
+    const focusables = [...drawer.querySelectorAll('a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"]), [contenteditable="true"]')]
+      .filter(f => f.offsetParent !== null);
+    if (!focusables.length) return;
+    const firstEl = focusables[0], lastEl = focusables[focusables.length - 1];
+    if (!drawer.contains(document.activeElement)) { e.preventDefault(); firstEl.focus(); }
+    else if (e.shiftKey && document.activeElement === firstEl) { e.preventDefault(); lastEl.focus(); }
+    else if (!e.shiftKey && document.activeElement === lastEl) { e.preventDefault(); firstEl.focus(); }
+  }
 });
+// Insere texto puro na posição do cursor sem document.execCommand (descontinuado,
+// e seu comportamento real varia por navegador) -- mexe direto no Range da seleção:
+// apaga o que estiver selecionado (mesmo sem seleção, um cursor é um Range vazio),
+// insere um nó de texto novo e deixa o cursor logo depois dele.
+function insertTextAtCaret(text) {
+  const sel = window.getSelection();
+  if (!sel || !sel.rangeCount) return;
+  const range = sel.getRangeAt(0);
+  range.deleteContents();
+  const node = document.createTextNode(text);
+  range.insertNode(node);
+  range.setStartAfter(node);
+  range.setEndAfter(node);
+  sel.removeAllRanges();
+  sel.addRange(range);
+}
 document.addEventListener("paste", e => {
   if (e.target.isContentEditable) {
     e.preventDefault();
     const text = (e.clipboardData || window.clipboardData).getData("text/plain");
-    document.execCommand("insertText", false, text);
+    insertTextAtCaret(text);
   }
+});
+// Sem isto, colar (acima) virava texto puro, mas arrastar-e-soltar um trecho de
+// outra página continuava entrando como HTML de verdade (ex.: uma <img onerror=...>
+// chega a executar) -- o mesmo buraco que o paste handler já tapava, só que pela
+// porta ao lado. dragover previne o comportamento padrão só para liberar o drop;
+// caretRangeFromPoint/caretPositionFromPoint posiciona o texto onde foi largado
+// (não há clique antes, então não dá pra confiar numa seleção já existente).
+document.addEventListener("dragover", e => { if (e.target.isContentEditable) e.preventDefault(); });
+document.addEventListener("drop", e => {
+  if (!e.target.isContentEditable) return;
+  e.preventDefault();
+  const text = e.dataTransfer ? e.dataTransfer.getData("text/plain") : "";
+  if (!text) return;
+  let range = null;
+  if (document.caretRangeFromPoint) {
+    range = document.caretRangeFromPoint(e.clientX, e.clientY);
+  } else if (document.caretPositionFromPoint) {
+    const pos = document.caretPositionFromPoint(e.clientX, e.clientY);
+    if (pos) { range = document.createRange(); range.setStart(pos.offsetNode, pos.offset); range.collapse(true); }
+  }
+  if (range) { const sel = window.getSelection(); sel.removeAllRanges(); sel.addRange(range); }
+  insertTextAtCaret(text);
 });
 document.addEventListener("change", e => {
   const cb = e.target.closest("[data-bool-path]");
@@ -788,6 +1011,8 @@ document.addEventListener("click", e => {
   if (importBtn) { document.getElementById("import-file").click(); return; }
   const resetBtn = e.target.closest("#reset-btn");
   if (resetBtn) { doReset(); return; }
+  const undoBtn = e.target.closest("#undo-btn");
+  if (undoBtn) { doUndo(); return; }
 
   const rm = e.target.closest("[data-remove-path]");
   if (rm) { const p = rm.getAttribute("data-remove-path"); removeAtPath(state, p); scheduleSave(); rerenderForPath(p); return; }
@@ -840,6 +1065,7 @@ function updateEditControls() {
     extra.appendChild(el("button", { class: "link-btn", type: "button", id: "export-btn" }, "Exportar dados (JSON)"));
     extra.appendChild(el("button", { class: "link-btn", type: "button", id: "import-btn" }, "Importar dados (JSON)"));
     extra.appendChild(el("button", { class: "link-btn", type: "button", id: "reset-btn" }, "Restaurar conteúdo original"));
+    if (undoSnapshot) extra.appendChild(el("button", { class: "link-btn", type: "button", id: "undo-btn" }, "↺ Desfazer importação/restauração"));
   }
 }
 function setStatus(text) { const s = document.getElementById("save-status"); if (s) s.textContent = text; }
@@ -862,26 +1088,104 @@ async function doExport() {
     setTimeout(() => URL.revokeObjectURL(url), 1500);
   } catch (err) { /* nada a fazer */ }
 }
+// Backup de um nível para "Desfazer importação/restauração": guardado como
+// JSON (não a referência) logo antes de qualquer mutação em doReset/handleImportFile,
+// nunca em localStorage — some ao recarregar a página, de propósito (é uma
+// rede de segurança para o minuto seguinte à ação, não um histórico permanente).
+let undoSnapshot = null;
+function doUndo() {
+  if (!undoSnapshot) return;
+  state = JSON.parse(undoSnapshot);
+  undoSnapshot = null;
+  SIGLA_RE = null; // o conjunto de siglas pode ter voltado a mudar — invalida o cache
+  closeDrawer();
+  renderAll();
+  updateEditControls();
+  scheduleSave();
+}
 function doReset() {
   if (!confirm("Restaurar todo o conteúdo para a versão original? Isso substitui as edições atuais.")) return;
+  undoSnapshot = JSON.stringify(state);
   state = cloneSeed();
+  SIGLA_RE = null; // siglas.json da seed pode ter um conjunto diferente do estado atual
   scheduleSave();
   renderAll();
+  updateEditControls();
 }
+// Confere não só a presença de meta/blocos/normas/notas (forma de alto nível),
+// mas o tipo de cada campo que o render de fato lê — um JSON importado é
+// conteúdo de fora, então um item malformado (ex.: um bloco nulo, ou uma
+// norma sem elos) precisa ser rejeitado aqui, antes de entrar em `state`,
+// em vez de quebrar no meio do render com `state` já mutado.
 function validShape(obj) {
-  return obj && typeof obj === "object" && obj.meta && typeof obj.meta === "object"
-    && Array.isArray(obj.blocos) && Array.isArray(obj.normas) && Array.isArray(obj.notas);
+  if (!obj || typeof obj !== "object") return false;
+  if (!obj.meta || typeof obj.meta !== "object") return false;
+  if (!Array.isArray(obj.blocos) || !Array.isArray(obj.normas) || !Array.isArray(obj.notas)) return false;
+  const isStr = v => typeof v === "string";
+  for (const b of obj.blocos) {
+    if (!b || typeof b !== "object" || !isStr(b.id) || !isStr(b.grupo) || !isStr(b.nome)) return false;
+    if (b.secoes !== undefined) {
+      if (!Array.isArray(b.secoes)) return false;
+      for (const s of b.secoes) {
+        if (!s || typeof s !== "object" || !isStr(s.titulo) || !Array.isArray(s.itens)) return false;
+      }
+    }
+    if (b.sistemas !== undefined && !Array.isArray(b.sistemas)) return false;
+  }
+  for (const n of obj.normas) {
+    if (!n || typeof n !== "object" || !isStr(n.esfera) || !isStr(n.titulo) || !Array.isArray(n.elos)) return false;
+    if (n.fonte !== undefined && !isStr(n.fonte)) return false;
+    if (n.status !== undefined && n.status !== "ok" && n.status !== "conferir") return false;
+  }
+  for (const nota of obj.notas) { if (!isStr(nota)) return false; }
+  if (obj.siglas !== undefined) {
+    if (!obj.siglas || typeof obj.siglas !== "object" || Array.isArray(obj.siglas)) return false;
+    for (const key of Object.keys(obj.siglas)) {
+      const info = obj.siglas[key];
+      if (!info || typeof info !== "object" || !isStr(info.expansao) || !info.expansao.trim()) return false;
+      if (info.url !== undefined && !isStr(info.url)) return false;
+    }
+  }
+  return true;
 }
 async function handleImportFile(file) {
   if (!file) return;
   let parsed;
   try { parsed = JSON.parse(await file.text()); }
   catch (err) { alert("Não foi possível ler este arquivo. Confira se é um JSON exportado pelo Observatório do Açaí."); return; }
-  if (!validShape(parsed)) { alert("Este arquivo não tem o formato esperado (meta, blocos, normas, notas)."); return; }
-  if (!confirm("Importar este arquivo vai substituir todo o conteúdo atual por ele. Continuar?")) return;
-  state = Object.assign({}, cloneSeed(), parsed);
+  if (!validShape(parsed)) { alert("Este arquivo não tem o formato esperado, ou algum item dentro dele (bloco, norma, sigla...) está incompleto."); return; }
+  const seed = cloneSeed();
+  const atualizado = (parsed.meta && typeof parsed.meta.atualizado === "string") ? `Atualizado em: ${parsed.meta.atualizado}\n` : "";
+  const resumo = `${atualizado}Blocos: ${parsed.blocos.length} · Normas: ${parsed.normas.length} · Notas: ${parsed.notas.length}`;
+  if (!confirm(`Importar este arquivo vai substituir todo o conteúdo atual por ele.\n\n${resumo}\n\nContinuar?`)) return;
+  undoSnapshot = JSON.stringify(state);
+  // Monta o novo estado campo a campo (nunca Object.assign({}, seed, parsed), que
+  // copiaria QUALQUER chave de nível superior do arquivo importado, inclusive uma
+  // chave literal "__proto__" — um arquivo JSON malicioso poderia usar isso para
+  // trocar o protótipo do objeto `state` resultante). Aqui só os 5 campos
+  // esperados são lidos do arquivo; o resto do conteúdo importado é ignorado.
+  state = {
+    meta: parsed.meta, blocos: parsed.blocos, normas: parsed.normas, notas: parsed.notas,
+    siglas: (parsed.siglas && typeof parsed.siglas === "object") ? parsed.siglas : seed.siglas,
+  };
+  SIGLA_RE = null; // o conjunto de siglas pode ter mudado — invalida o cache (ver siglaRegex)
   closeDrawer();
-  renderAll();
+  try {
+    renderAll();
+  } catch (err) {
+    // Passou pelo validShape mas ainda assim quebrou ao desenhar a tela (um
+    // caso que a validação não previu). Em vez de deixar a página num estado
+    // quebrado e arriscar persistir isso no próximo salvamento automático,
+    // volta para a seed original agora mesmo — e, como isso acontece antes do
+    // scheduleSave() abaixo, nada do conteúdo quebrado chega a ser salvo.
+    state = seed;
+    SIGLA_RE = null;
+    renderAll();
+    updateEditControls();
+    alert("O arquivo importado causou um erro ao exibir o conteúdo. A importação foi desfeita e o conteúdo original foi restaurado.");
+    return;
+  }
+  updateEditControls();
   scheduleSave();
 }
 
@@ -909,17 +1213,29 @@ async function doSave() {
   if (!db) { setStatus("Alterações não são salvas nesta janela"); return; }
   if (saving) { pendingAgain = true; return; }
   saving = true;
+  const prevAtualizado = state.meta.atualizado;
   state.meta.atualizado = new Date().toISOString().slice(0, 10);
   try {
     await db.doc("content/main").set(state);
     setStatus(pendingAgain ? "Salvando…" : (dbMode === "local" ? "Salvo neste navegador" : "Salvo"));
   } catch (err) {
+    state.meta.atualizado = prevAtualizado; // o salvamento falhou -- não finge que atualizou
     setStatus("Não foi possível salvar");
   } finally {
     saving = false;
     if (pendingAgain) { pendingAgain = false; scheduleSave(); }
   }
 }
+// Sem isto, fechar a aba (ou trocar de app no celular) logo depois de digitar
+// perdia a última edição: scheduleSave() espera 600ms antes de salvar, e nada
+// cancelava essa espera quando a página ia para segundo plano. pagehide cobre
+// fechar/navegar para fora; visibilitychange cobre trocar de aba/app sem
+// fechar (em geral o único dos dois que ainda tem tempo de completar o save).
+function flushPendingSave() {
+  if (saveTimer) { clearTimeout(saveTimer); saveTimer = null; doSave(); }
+}
+document.addEventListener("visibilitychange", () => { if (document.visibilityState === "hidden") flushPendingSave(); });
+window.addEventListener("pagehide", flushPendingSave);
 async function getCap(name) {
   if (!window.claude || typeof window.claude.use !== "function") return null;
   try { return await window.claude.use(name); } catch (e) { return null; }
