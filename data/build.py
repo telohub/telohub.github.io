@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Rebuild observatorio-acai.html from template.html + the domain data files
-in this same directory (meta.json, blocos.json, normas.json, notas.json).
+in this same directory (meta.json, blocos.json, normas.json, notas.json,
+siglas.json).
 
 Usage:
     python3 build.py [output_path]
@@ -12,7 +13,7 @@ import os
 import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-DOMAINS = ("meta", "blocos", "normas", "notas")
+DOMAINS = ("meta", "blocos", "normas", "notas", "siglas")
 
 # The closed sets each relation is allowed to range over. Not a type system —
 # just the cheapest possible stand-in for one: every id a bloco or norma can
@@ -31,6 +32,11 @@ def validate(seed):
     just strings to Python, so nothing stops a typo'd id from compiling —
     this function is what catches it instead, at build time rather than as
     a silently-empty drawer the user finds by clicking around.
+
+    siglas is a dict keyed by the exact acronym text the page matches against
+    (template.html builds one case-sensitive regex straight from these keys),
+    so a blank key or a missing expansion would silently show an empty or
+    broken tooltip instead of failing the build.
     """
     errors = []
 
@@ -50,6 +56,15 @@ def validate(seed):
         for eid in n.get("elos", []):
             if eid not in ELO_IDS:
                 errors.append(f"norma #{i} ({n.get('titulo')!r}): elo desconhecido {eid!r}")
+
+    for sigla, info in seed.get("siglas", {}).items():
+        if not sigla.strip():
+            errors.append("siglas: chave vazia ou só espaços")
+        if not isinstance(info, dict) or not info.get("expansao", "").strip():
+            errors.append(f"sigla {sigla!r}: falta 'expansao' (não vazia)")
+        url = info.get("url") if isinstance(info, dict) else None
+        if url and not (url.startswith("http://") or url.startswith("https://")):
+            errors.append(f"sigla {sigla!r}: url {url!r} não parece um link http(s)")
 
     if errors:
         raise SystemExit("Falhas de integridade referencial:\n  - " + "\n  - ".join(errors))

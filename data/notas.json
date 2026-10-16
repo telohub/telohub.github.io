@@ -17,5 +17,6 @@
   "NR-35: verificar a aplicabilidade à escalada com peconha.",
   "Ainda sem fonte com link: Portaria MAPA 52/2021, Portaria SPA/MAPA 5/2024, Lei 11.326/2006, Lei 15.190/2025, Lei 12.305/2010, CONAMA 430/2011, as NRs, Lei 9.933/1999, IG do Bailique, Lei 15.330/2026, boa parte de PA/AM/municípios/outros estados e as normas técnicas (ABNT, Codex, FSC, Embrapa) — nesta rodada priorizei o bloco federal (Anvisa/MAPA) e o Amapá.",
   "Ainda não cobertos: tributário (ICMS, IBS/CBS), exportação (MAPA, SECEX e exigências do destino), navegação (autoridade marítima) e regime de uso das várzeas (SPU).",
-  "Elo 10 (consumo final): detalhar utensílios, equipamentos e pontos críticos."
+  "Elo 10 (consumo final): detalhar utensílios, equipamentos e pontos críticos.",
+  "Siglas (2026-10-15): criado src/siglas.json — dicionário de acrônimos com dica (expansão + link institucional) ao passar o mouse, em todo o site. 97 cadastradas, 38 ainda como 'conferir' (quase sempre o link, não a expansão). Faltam pesquisar e cadastrar: Sipeagro/SIPEAGRO (nome oficial do sistema — aparece em IN MAPA 72/2018 e Decreto 10.026/2019), ACTB (associação do Bailique, titular da IG), DAPP/RAP/RAPC (atos da IN SEMA 1/2024), SVS-GEA (de propósito não cadastrada junto do SVS/MS da Portaria 326/1997 — são siglas distintas e cadastrar as duas como 'SVS' colidiria), SEDCON (Belém) e SLIM (Decreto 4.648/2019, Manaus)."
 ]
