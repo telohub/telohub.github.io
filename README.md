@@ -2,8 +2,6 @@
 
 Um documento vivo sobre a cadeia produtiva do açaí (*Euterpe oleracea*) no Amapá — do açaizal ao consumidor — e o quadro normativo federal, estadual (Amapá, Pará, Amazonas) e municipal (Macapá e outras capitais) que a regula.
 
-**Site publicado:** https://claude.ai/artifact/RWBp1eMePkiokKxsEyMfLD
-
 ## Sobre o projeto
 
 O projeto nasceu como um diagrama LaTeX/TikZ da cadeia produtiva e evoluiu em três fases:
