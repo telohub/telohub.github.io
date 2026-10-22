@@ -897,7 +897,32 @@ function focusLater(sel) { requestAnimationFrame(() => { const e = document.quer
    mouseover/mouseout (não mouseenter/mouseleave) porque só eles sobem por
    delegação; e Node.contains() (não CSS :hover) porque a dica é fixed e fica
    visualmente separada do botão — :hover deixaria de "ver" o botão assim que
-   o cursor saísse da caixinha dele, mesmo a dica sendo filha dele no DOM. */
+   o cursor saísse da caixinha dele, mesmo a dica sendo filha dele no DOM.
+   Em touch não existe hover de verdade: o próprio toque dispara, pouco antes
+   do click, um mouseover/mousemove "fantasma" (compatibilidade do navegador
+   com sites que só conhecem mouse) -- touchActive marca que a interação atual
+   começou por um toque, e o handler de mouseover ignora esse fantasma enquanto
+   ela estiver ligada. Ela liga no touchstart e desliga sozinha um tanto depois
+   do touchend (não num mousemove "de verdade", que não dá pra distinguir com
+   segurança do fantasma), liberando o hover normal pro próximo uso com mouse.
+   touchSiglaWasOpen tira uma "foto" do estado da sigla tocada no touchstart,
+   antes de qualquer outro efeito do mesmo toque -- importante porque tocar um
+   <span tabindex="0"> move o foco pra ele ANTES do click (mousedown dispara
+   focusout de quem tinha foco e focusin na sigla), e o focusin sempre abre a
+   dica (pra funcionar também por teclado); sem essa foto prévia, o click do
+   mesmo toque veria a dica "já aberta" por causa desse focusin e fecharia na
+   hora o que deveria ter acabado de abrir. */
+let touchActive = false;
+let touchActiveTimer = null;
+let touchSiglaWasOpen = null;
+document.addEventListener("touchstart", e => {
+  touchActive = true;
+  clearTimeout(touchActiveTimer);
+  const b = e.target.closest(".sigla");
+  touchSiglaWasOpen = b ? (b === openSiglaBtn) : null;
+}, { passive: true });
+document.addEventListener("touchend", () => { touchActiveTimer = setTimeout(() => { touchActive = false; }, 500); }, { passive: true });
+let openSiglaBtn = null;
 function positionSiglaTip(btn) {
   const tip = btn.querySelector(".sigla-tip");
   if (!tip) return;
@@ -915,18 +940,33 @@ function positionSiglaTip(btn) {
   tip.style.left = (left - o.left) + "px";
   tip.style.top = (top - o.top) + "px";
 }
-function openSiglaTip(btn) { positionSiglaTip(btn); const tip = btn.querySelector(".sigla-tip"); if (tip) tip.classList.add("is-open"); }
-function closeSiglaTip(btn) { const tip = btn.querySelector(".sigla-tip"); if (tip) tip.classList.remove("is-open"); }
-document.addEventListener("mouseover", e => { const b = e.target.closest(".sigla"); if (b) openSiglaTip(b); });
-document.addEventListener("mouseout", e => { const b = e.target.closest(".sigla"); if (b && !b.contains(e.relatedTarget)) closeSiglaTip(b); });
+function openSiglaTip(btn) {
+  if (openSiglaBtn && openSiglaBtn !== btn) closeSiglaTip(openSiglaBtn);
+  positionSiglaTip(btn);
+  const tip = btn.querySelector(".sigla-tip");
+  if (tip) tip.classList.add("is-open");
+  openSiglaBtn = btn;
+}
+function closeSiglaTip(btn) {
+  const tip = btn.querySelector(".sigla-tip");
+  if (tip) tip.classList.remove("is-open");
+  if (openSiglaBtn === btn) openSiglaBtn = null;
+}
+document.addEventListener("mouseover", e => { if (touchActive) return; const b = e.target.closest(".sigla"); if (b) openSiglaTip(b); });
+document.addEventListener("mouseout", e => { if (touchActive) return; const b = e.target.closest(".sigla"); if (b && !b.contains(e.relatedTarget)) closeSiglaTip(b); });
 document.addEventListener("focusin", e => { const b = e.target.closest(".sigla"); if (b) openSiglaTip(b); });
 document.addEventListener("focusout", e => {
   const t = e.target; if (t.matches && t.matches("[data-path]") && t.isContentEditable) commitField(t);
   const b = t.closest && t.closest(".sigla"); if (b && !b.contains(e.relatedTarget)) closeSiglaTip(b);
 });
+// Dica é position:fixed e não acompanha rolagem -- sem isto ficaria flutuando
+// longe da sigla que a abriu assim que a página (ou um contêiner interno, como
+// o corpo do drawer) rolasse. scroll não borbulha, mas a fase de captura num
+// ancestral comum (document) enxerga a rolagem de qualquer descendente.
+document.addEventListener("scroll", () => { if (openSiglaBtn) closeSiglaTip(openSiglaBtn); }, true);
 document.addEventListener("keydown", e => {
   if (e.key === "Enter" && e.target.isContentEditable) { e.preventDefault(); e.target.blur(); }
-  if (e.key === "Escape") { closeDrawer(); closeNav(); }
+  if (e.key === "Escape") { closeDrawer(); closeNav(); if (openSiglaBtn) closeSiglaTip(openSiglaBtn); }
   // Prende o Tab dentro do drawer enquanto ele está aberto -- sem isto, Tab a
   // partir do último campo/botão de dentro escapa pro resto da página por
   // trás, que continua tecnicamente alcançável mesmo com o drawer por cima.
@@ -995,6 +1035,25 @@ document.addEventListener("change", e => {
   }
 });
 document.addEventListener("click", e => {
+  // Fecha a dica aberta se o clique foi fora dela (cobre o "tocar fora fecha"
+  // do toque, que não conta com mouseout/blur confiável pra isso); não
+  // retorna -- os handlers abaixo continuam processando o mesmo clique normalmente.
+  if (openSiglaBtn && !openSiglaBtn.contains(e.target)) closeSiglaTip(openSiglaBtn);
+
+  // Em toque, a sigla não conta com hover: um toque alterna a dica (abre/fecha).
+  // Decide pelo touchSiglaWasOpen (a foto tirada no touchstart), não pelo
+  // estado atual -- a esta altura o mousedown já pode ter disparado um
+  // focusin nesta mesma sigla (que sempre abre a dica), e usar o estado atual
+  // fecharia o que esse focusin acabou de abrir na mesma tocada. Não chama
+  // preventDefault, então um toque no link institucional dentro da dica
+  // continua navegando normalmente -- fechar a dica junto é só um efeito
+  // colateral inofensivo (a página fica para trás da nova aba).
+  const siglaBtn = e.target.closest(".sigla");
+  if (siglaBtn && touchActive) {
+    if (touchSiglaWasOpen) closeSiglaTip(siglaBtn); else openSiglaTip(siglaBtn);
+    return;
+  }
+
   const navBtn = e.target.closest("nav.sidenav button[data-view]");
   if (navBtn) { switchView(navBtn.getAttribute("data-view")); return; }
 
