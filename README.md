@@ -73,10 +73,11 @@ O script injeta `meta.json` + `blocos.json` + `normas.json` + `notas.json` + `si
 
 ## Siglas e abreviações
 
-Qualquer sigla cadastrada em `siglas.json` ganha, no site, um sublinhado pontilhado: passar o mouse (ou navegar até ela com Tab) mostra a expansão e, quando houver, um link para o site institucional. A correspondência roda inteiramente no `template.html` (função `wrapSiglas`, ao lado de `el()`/`editableSpan()`): o texto livre é varrido com uma expressão regular montada a partir das chaves de `siglas.json`, e cada ocorrência vira um `<span tabindex="0">` focável (nunca `innerHTML`, e nunca um `<button>` — ver "Segurança e robustez" abaixo). Duas regras foram necessárias para não quebrar o resto do site:
+Qualquer sigla cadastrada em `siglas.json` ganha, no site, um sublinhado pontilhado: passar o mouse, navegar até ela com Tab, ou tocar nela num celular/tablet mostra a expansão e, quando houver, um link para o site institucional. A correspondência roda inteiramente no `template.html` (função `wrapSiglas`, ao lado de `el()`/`editableSpan()`): o texto livre é varrido com uma expressão regular montada a partir das chaves de `siglas.json`, e cada ocorrência vira um `<span tabindex="0">` focável (nunca `innerHTML`, e nunca um `<button>` — ver "Segurança e robustez" abaixo). Três regras foram necessárias para não quebrar o resto do site:
 
 - **Fica fora do modo de edição.** Em edição, o campo volta a ser texto puro — zero risco de a marcação da dica atrapalhar o cursor ou ser salva junto do conteúdo.
 - **Nunca aninha dentro do link da fonte.** No título de uma norma (que já é um link para `fonte`), a sigla principal vira seu próprio span ao lado do link, em vez de ficar dentro dele — um link não pode conter outro link.
+- **Em touch, um toque alterna a dica.** Tocar a sigla abre; tocar de novo na mesma, tocar em outra sigla, tocar fora, rolar a página ou apertar Esc fecha (só uma dica fica aberta por vez). Como não existe hover de verdade em touch, um `touchstart` liga uma flag (`touchActive`) que faz o `mouseover`/`mouseout` "fantasma" que o navegador dispara logo antes do `click` ser ignorado — sem essa flag, o toque abriria a dica duas vezes (uma por engano via hover, outra pelo toque de fato) e o `click` seguinte a fecharia na hora, dando a impressão de que nada aconteceu. Tocar no link institucional dentro da dica continua navegando normalmente (nada de `preventDefault`); a dica fechar junto é só um efeito colateral inofensivo.
 
 ## Segurança e robustez
 
