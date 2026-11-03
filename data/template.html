@@ -379,6 +379,15 @@
 
 /* ---------- dados iniciais (semente) ---------- */
 const SEED = __SEED_JSON__;
+// Hash do conteúdo deste build (ver build.py) -- não é o "atualizado em" de
+// meta.json (editorial, muda a cada salvamento local); esta marca é sobre QUAL
+// conteúdo publicado é este arquivo, e só muda quando o conteúdo de verdade
+// muda. init() usa isto pra saber se uma cópia salva no navegador (local ou
+// na capacidade db) já ficou desatualizada em relação a uma versão mais nova
+// deste site -- sem isso, uma edição local antiga (mesmo que só acidental)
+// blindava esse navegador contra qualquer atualização de conteúdo publicada
+// depois, pra sempre, até alguém lembrar de clicar em "Restaurar".
+const SEED_VERSION = "__SEED_VERSION__";
 function cloneSeed() { return JSON.parse(JSON.stringify(SEED)); }
 
 /* ---------- estado ---------- */
@@ -1275,7 +1284,10 @@ async function doSave() {
   const prevAtualizado = state.meta.atualizado;
   state.meta.atualizado = new Date().toISOString().slice(0, 10);
   try {
-    await db.doc("content/main").set(state);
+    // Salva junto a versão do build atual (ver SEED_VERSION) -- é o que
+    // permite ao init() da próxima visita saber se este salvamento já está
+    // desatualizado em relação a um conteúdo publicado depois dele.
+    await db.doc("content/main").set({ version: SEED_VERSION, state });
     setStatus(pendingAgain ? "Salvando…" : (dbMode === "local" ? "Salvo neste navegador" : "Salvo"));
   } catch (err) {
     state.meta.atualizado = prevAtualizado; // o salvamento falhou -- não finge que atualizou
@@ -1300,6 +1312,7 @@ async function getCap(name) {
   try { return await window.claude.use(name); } catch (e) { return null; }
 }
 async function init() {
+  let contentWasRefreshed = false;
   db = await getCap("db");
   dbMode = db ? "cloud" : null;
   if (!db) {
@@ -1312,10 +1325,36 @@ async function init() {
       let snap;
       try { snap = await db.doc("content/main").get(); }
       catch (e) { await new Promise(r => setTimeout(r, 500 + Math.random() * 400)); snap = await db.doc("content/main").get(); }
-      if (snap.exists) { state = Object.assign({}, cloneSeed(), snap.data()); renderAll(); }
+      if (snap.exists) {
+        const raw = snap.data();
+        // Salvamentos de antes de SEED_VERSION existir guardavam o próprio
+        // estado sem embrulho -- tratados como versão desconhecida, o que
+        // cai direto no "prioriza a semente nova" abaixo (certo: são
+        // exatamente os navegadores que ficaram presos numa cópia antiga).
+        const wrapped = raw && typeof raw === "object" && typeof raw.version === "string" && raw.state && typeof raw.state === "object";
+        const savedVersion = wrapped ? raw.version : null;
+        const savedState = wrapped ? raw.state : raw;
+        if (savedVersion === SEED_VERSION) {
+          state = Object.assign({}, cloneSeed(), savedState);
+        } else {
+          // O conteúdo publicado mudou desde o último salvamento feito neste
+          // navegador (ou não há como saber, por ser de antes de existir essa
+          // marca de versão) -- prioriza a versão nova em vez de uma cópia
+          // local possivelmente desatualizada. É isto que faz uma correção de
+          // conteúdo (ex.: um link consertado) chegar a quem já tinha editado
+          // algo neste navegador antes, inclusive num hard refresh: sem isto,
+          // o Object.assign acima substituiria cada array (blocos/normas/
+          // notas/siglas) pela versão salva, por mais antiga que estivesse,
+          // para sempre -- até alguém lembrar de clicar em "Restaurar".
+          state = cloneSeed();
+          contentWasRefreshed = true; // havia um snap.exists -- sempre houve algo pra descartar, formato antigo ou não
+        }
+        renderAll();
+      }
     } catch (e) { /* mantém a semente */ }
   }
   updateEditControls();
+  if (contentWasRefreshed) setStatus("Conteúdo atualizado nesta página — uma edição local anterior foi substituída pela versão mais recente.");
 }
 
 /* ---------- início ---------- */
