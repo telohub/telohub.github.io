@@ -2,6 +2,8 @@
 
 Um documento vivo sobre a cadeia produtiva do açaí (*Euterpe oleracea*) no Amapá — do açaizal ao consumidor — e o quadro normativo federal, estadual (Amapá, Pará, Amazonas) e municipal (Macapá e outras capitais) que a regula.
 
+**Site publicado:** https://claude.ai/artifact/RWBp1eMePkiokKxsEyMfLD
+
 ## Sobre o projeto
 
 O projeto nasceu como um diagrama LaTeX/TikZ da cadeia produtiva e evoluiu em três fases:
@@ -87,6 +89,7 @@ Uma revisão de código (2026-10-16) encontrou e corrigiu um XSS real, além de 
 - **O painel lateral (drawer) tem semântica de diálogo.** `role="dialog"` + `aria-modal`, Tab fica preso dentro dele enquanto está aberto, e o foco volta para o elemento que o abriu ao fechar (✕, Escape, ou o fundo escurecido).
 - **Colar e arrastar-e-soltar em campos editáveis só aceitam texto puro.** Antes, só colar era filtrado; uma `<img onerror="...">` arrastada para dentro de um campo não executa mais. O texto puro passou a ser inserido via `Selection`/`Range` em vez de `document.execCommand` (descontinuado).
 - Uma `<meta http-equiv="Content-Security-Policy">` com `object-src`/`base-uri`/`form-action` todos `'none'` fecha mais uma camada, sem tocar em `script-src`/`style-src` (a página é de propósito um único arquivo com `<script>`/`<style>` inline, sem build step).
+- **Conteúdo publicado agora vence uma cópia local desatualizada (2026-10-22).** Antes, qualquer edição salva no navegador (mesmo uma acidental, feita só testando o modo "Editar") passava a vencer a semente embutida pra sempre — inclusive num hard refresh — porque `init()` fazia `Object.assign({}, cloneSeed(), snap.data())`, e esse merge raso substitui cada array (`blocos`/`normas`/`notas`/`siglas`) inteiro pelo que estava salvo, por mais antigo que fosse. Um link corrigido em `normas.json`, por exemplo, nunca chegava a quem já tivesse qualquer coisa salva localmente. Agora `build.py` calcula um hash do conteúdo (`SEED_VERSION`, não um timestamp — o mesmo conteúdo gera sempre a mesma versão) e `doSave()` grava esse hash junto do estado; no carregamento, `init()` só reaproveita o que está salvo se a versão bater com a deste build — caso contrário (incluindo salvamentos de antes desta correção existir, que não têm hash nenhum) descarta a cópia local em favor do conteúdo publicado, avisando na barra de status ("Conteúdo atualizado nesta página…"). Uma edição feita ao vivo no navegador continua funcionando normalmente entre um salvamento e outro, enquanto o build não mudar.
 
 ## Modelo conceitual
 
