@@ -8,6 +8,7 @@ Usage:
 
 Default output_path is ../observatorio-acai.html (i.e. next to src/).
 """
+import hashlib
 import json
 import os
 import sys
@@ -82,13 +83,23 @@ def build():
     validate(seed)
 
     seed_json = json.dumps(seed, ensure_ascii=False)
+    # Hash do CONTEÚDO (não um timestamp): dois builds com os mesmos dados
+    # geram a mesma versão, então reconstruir o site sem mudar nada em
+    # meta/blocos/normas/notas/siglas não invalida à toa o que já estiver
+    # salvo no navegador de quem visitou antes. template.html (init()) usa
+    # isto pra saber se uma cópia salva no localStorage/db já está
+    # desatualizada em relação ao conteúdo que este build publica.
+    seed_version = hashlib.sha256(seed_json.encode("utf-8")).hexdigest()[:12]
 
-    placeholder = "__SEED_JSON__"
-    count = template.count(placeholder)
-    if count != 1:
-        raise SystemExit(f"expected exactly 1 occurrence of {placeholder!r}, found {count}")
+    def inject(tpl, placeholder, value):
+        count = tpl.count(placeholder)
+        if count != 1:
+            raise SystemExit(f"expected exactly 1 occurrence of {placeholder!r}, found {count}")
+        return tpl.replace(placeholder, value, 1)
 
-    return template.replace(placeholder, seed_json, 1)
+    template = inject(template, "__SEED_JSON__", seed_json)
+    template = inject(template, "__SEED_VERSION__", seed_version)
+    return template
 
 
 if __name__ == "__main__":
