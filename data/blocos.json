@@ -1,7 +1,7 @@
 [
   {
     "id": "e1",
-    "grupo": "principal",
+    "grupo": "suprimentos",
     "nome": "Produção primária",
     "resumo": "Manejo de açaizais nativos (várzea, baixios e grotas) e cultivo (várzea e terra firme irrigada; sistemas agroflorestais). Inclui viveiro de mudas.",
     "secoes": [
@@ -104,7 +104,7 @@
   },
   {
     "id": "e2",
-    "grupo": "principal",
+    "grupo": "suprimentos",
     "nome": "Colheita, debulha e acondicionamento",
     "resumo": "Subida na palmeira com peconha, corte do cacho, debulha, catação e acondicionamento dos frutos para o transporte.",
     "secoes": [
@@ -201,7 +201,7 @@
   },
   {
     "id": "e3",
-    "grupo": "principal",
+    "grupo": "suprimentos",
     "nome": "Transporte primário e portos",
     "resumo": "Da beira do rio ao ponto de beneficiamento: embarcações e desembarque do fruto in natura.",
     "secoes": [
@@ -273,7 +273,7 @@
   },
   {
     "id": "e4",
-    "grupo": "principal",
+    "grupo": "suprimentos",
     "nome": "Comercialização do fruto",
     "resumo": "Compra e venda do fruto in natura: atravessadores, feiras, cooperativas e indústrias.",
     "secoes": [
