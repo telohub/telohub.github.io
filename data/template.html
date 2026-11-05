@@ -575,8 +575,8 @@ function buildEcosystem() {
 function buildDiagram() {
   const wrap = el("div");
   wrap.appendChild(buildEcosystem());
-  wrap.appendChild(buildLane("suprimentos", "📦", "Cadeia de suprimentos", "insumos, máquinas, energia e utilidades", false));
-  wrap.appendChild(buildLane("principal", "🌴", "Cadeia principal ou de processos", "os dez elos, em sequência", true));
+  wrap.appendChild(buildLane("suprimentos", "📦", "Cadeia de suprimentos", "produção, colheita, transporte e venda do fruto; insumos, máquinas, energia e utilidades", false));
+  wrap.appendChild(buildLane("principal", "🌴", "Cadeia principal ou de processos", "do beneficiamento ao consumo final, em sequência", true));
   wrap.appendChild(buildLane("auxiliar", "🔬", "Cadeia auxiliar", "conhecimento, pesquisa, laboratórios e logística", false));
   wrap.appendChild(buildLane("circular", "♻️", "Economia circular e de apoio", "além do modelo original: coprodutos, mão de obra, crédito e mercado", false));
   return wrap;
@@ -677,7 +677,10 @@ function renderBlocoDrawerContent() {
   const foot = document.getElementById("drawer-foot");
   foot.replaceChildren();
   const ELO_TAG_POR_GRUPO = { circular: "auxiliar", suprimentos: "apoio", auxiliar: "apoio" };
-  if (b.grupo === "principal") foot.appendChild(el("button", { class: "btn btn-block", type: "button", "data-filter-elo": b.id }, "Ver legislação deste elo →"));
+  // o filtro por elo segue o id do bloco (e1..e10), não o grupo em que ele é
+  // exibido: e1-e4 ficam na raia de suprimentos mas continuam tendo normas
+  // marcadas com o próprio id.
+  if (/^e\d+$/.test(b.id)) foot.appendChild(el("button", { class: "btn btn-block", type: "button", "data-filter-elo": b.id }, "Ver legislação deste elo →"));
   else foot.appendChild(el("button", { class: "btn btn-block", type: "button", "data-filter-elo": ELO_TAG_POR_GRUPO[b.grupo] || "apoio" }, "Ver legislação aplicável →"));
 }
 function renderSistemaDrawerContent() {
