@@ -1,0 +1,134 @@
+{
+  "grupos": [
+    {
+      "id": "suprimentos",
+      "nome": "Cadeia de suprimentos",
+      "icone": "📦",
+      "subtitulo": "produção, colheita, transporte e venda do fruto; insumos, máquinas, energia e utilidades",
+      "etiqueta": "Cadeia de suprimentos",
+      "sequencial": false,
+      "raia": true,
+      "cor": "sup",
+      "filtroElo": "apoio"
+    },
+    {
+      "id": "principal",
+      "nome": "Cadeia principal ou de processos",
+      "icone": "🌴",
+      "subtitulo": "do beneficiamento ao consumo final, em sequência",
+      "etiqueta": "Cadeia principal",
+      "sequencial": true,
+      "raia": true,
+      "cor": "principal"
+    },
+    {
+      "id": "auxiliar",
+      "nome": "Cadeia auxiliar",
+      "icone": "🔬",
+      "subtitulo": "conhecimento, pesquisa, laboratórios e logística",
+      "etiqueta": "Cadeia auxiliar",
+      "sequencial": false,
+      "raia": true,
+      "cor": "aux",
+      "filtroElo": "auxiliar"
+    },
+    {
+      "id": "circular",
+      "nome": "Economia circular e de apoio",
+      "icone": "♻️",
+      "subtitulo": "além do modelo original: coprodutos, mão de obra, crédito e mercado",
+      "etiqueta": "Economia circular e de apoio",
+      "sequencial": false,
+      "raia": true,
+      "cor": "apoio",
+      "filtroElo": "apoio"
+    },
+    {
+      "id": "institucional",
+      "nome": "Institucional",
+      "etiqueta": "Institucional",
+      "sequencial": false,
+      "raia": false,
+      "cor": "neutro",
+      "filtroElo": "apoio"
+    }
+  ],
+  "sistemas": [
+    { "id": "normas", "nome": "Sistema de Normas Técnicas", "desc": "Padrões de identidade, qualidade e registro de produtos — MAPA, DIAGRO." },
+    { "id": "urbana", "nome": "Legislação Urbana", "desc": "Uso e ocupação do solo urbano — sem equivalente direto nesta cadeia rural e extrativista." },
+    { "id": "ambiental", "nome": "Legislação Ambiental", "desc": "Licenciamento, manejo e território — SEMA, IBAMA, ICMBio, INCRA, SPU." },
+    { "id": "sanitario", "nome": "Sistema Sanitário", "desc": "Vigilância e segurança sanitária dos alimentos — Anvisa e vigilância estadual/municipal." },
+    { "id": "trabalhista", "nome": "Sistema Trabalhista", "desc": "Segurança e direitos no trabalho rural — MTE e normas regulamentadoras." },
+    { "id": "tributario", "nome": "Sistema Tributário", "desc": "Tributos e obrigações fiscais — SEFAZ e Receita Federal." },
+    { "id": "educacional", "nome": "Sistema Educacional", "desc": "Pesquisa, assistência técnica e capacitação — Embrapa, universidades, Sebrae, Senar, Senai." }
+  ],
+  "elos": [
+    { "id": "e1", "tipo": "bloco", "abrev": "1" },
+    { "id": "e2", "tipo": "bloco", "abrev": "2" },
+    { "id": "e3", "tipo": "bloco", "abrev": "3" },
+    { "id": "e4", "tipo": "bloco", "abrev": "4" },
+    { "id": "e5", "tipo": "bloco", "abrev": "5" },
+    { "id": "e6", "tipo": "bloco", "abrev": "6" },
+    { "id": "e7", "tipo": "bloco", "abrev": "7" },
+    { "id": "e8", "tipo": "bloco", "abrev": "8" },
+    { "id": "e9", "tipo": "bloco", "abrev": "9" },
+    { "id": "e10", "tipo": "bloco", "abrev": "10" },
+    { "id": "auxiliar", "tipo": "agregado", "abrev": "aux", "rotulo": "cadeia auxiliar", "apelidos": [] },
+    { "id": "apoio", "tipo": "agregado", "abrev": "apoio", "rotulo": "cadeia de apoio", "apelidos": ["apo", "p"] }
+  ],
+  "ecossistema": {
+    "nucleo": "Cadeia do açaí",
+    "nota": "Modelo adaptado de Blumenschein (2004, UnB) — a cadeia produtiva situada em sete sistemas de contexto.",
+    "semItem": "Esse sistema faz parte do modelo original (Blumenschein, 2004) mas, por ora, não tem um equivalente direto identificado no Amapá.",
+    "dicaChip": "Ver no Institucional"
+  },
+  "vistas": [
+    {
+      "id": "cadeia",
+      "tipo": "diagrama",
+      "rotulo": "Cadeia",
+      "icone": "🗺️",
+      "titulo": "Cadeia produtiva do açaí",
+      "intro": "Um documento vivo sobre o caminho do açaí, do açaizal ao consumidor, situado — conforme a metodologia de Blumenschein (2004) — entre cadeia de suprimentos, cadeia auxiliar e os sete sistemas de contexto que a regulam. Inclui utensílios, equipamentos de cada etapa e as normas federais, estaduais (Amapá, Pará e Amazonas) e municipais aplicáveis.",
+      "componentes": ["ecossistema", "raias"]
+    },
+    {
+      "id": "legislacao",
+      "tipo": "normas",
+      "rotulo": "Legislação",
+      "icone": "📚",
+      "titulo": "Legislação",
+      "intro": "Normas federais, estaduais (Amapá, Pará e Amazonas) e municipais aplicáveis. {aConferir} indica número, texto ou vigência ainda a confirmar na fonte oficial.",
+      "colunas": { "esfera": "Esfera", "norma": "Norma", "resumo": "Resumo", "elos": "Elos" },
+      "ordemEsferas": ["Federal", "Amapá", "Pará", "Amazonas", "Macapá", "Belém", "Manaus", "Outros estados", "Técnicas"],
+      "rotulos": {
+        "busca": "Buscar na legislação…",
+        "buscaAria": "Buscar na legislação",
+        "contagem": "{total} normas · mostrando {visiveis}",
+        "adicionar": "+ adicionar norma",
+        "filtroElo": "elo",
+        "aConferir": "a conferir",
+        "verElo": "Ver legislação deste elo →",
+        "verAplicavel": "Ver legislação aplicável →"
+      }
+    },
+    {
+      "id": "institucional",
+      "tipo": "cartoes",
+      "rotulo": "Institucional",
+      "icone": "🏛️",
+      "titulo": "Ambiente institucional",
+      "intro": "Quem regula, fiscaliza e apoia a cadeia.",
+      "grupo": "institucional"
+    },
+    {
+      "id": "notas",
+      "tipo": "lista",
+      "rotulo": "Notas",
+      "icone": "📝",
+      "titulo": "Pontos em aberto",
+      "intro": "Lacunas e itens para a próxima rodada de pesquisa.",
+      "fonte": "notas"
+    }
+  ]
+}
