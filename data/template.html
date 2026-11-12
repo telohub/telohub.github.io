@@ -11,9 +11,9 @@
      sequestro de URL relativa via <base>, um <form> injetado enviando dados
      para fora) numa página que nunca precisa de nenhum dos três. -->
 <meta http-equiv="Content-Security-Policy" content="object-src 'none'; base-uri 'none'; form-action 'none'">
-<meta name="description" content="A cadeia produtiva do açaí no Amapá e o quadro normativo que a regula — diagrama interativo e editável.">
-<title>Observatório do Açaí</title>
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%AB%90%3C/text%3E%3C/svg%3E">
+<meta name="description" content="__DESCRICAO__">
+<title>__TITULO__</title>
+<link rel="icon" href="__FAVICON__">
 <style>
   :root{
     box-sizing:border-box;
@@ -29,6 +29,9 @@
     --cat-sup:#b45309; --cat-sup-soft:#fdf0e1;
     --cat-aux:#0d9488; --cat-aux-soft:#e1f5f2;
     --cat-apoio:#2563eb; --cat-apoio-soft:#e7eefd;
+    /* slot "neutro" (grupos sem cor própria): deriva do texto/superfície, então
+       acompanha sozinho o modo escuro sem precisar de variante dedicada */
+    --cat-neutro:var(--ink-soft); --cat-neutro-soft:var(--surface-2);
     --shadow-sm:0 1px 2px rgba(20,20,30,.05);
     --shadow-md:0 4px 14px rgba(20,20,30,.09);
     --shadow-lg:0 12px 40px rgba(20,20,30,.16);
@@ -128,10 +131,12 @@
   .lane-head .lic{font-size:1.05rem;}
   .lane-head h2{font-size:1rem;}
   .lane-head .lane-sub{color:var(--ink-faint); font-size:.8rem;}
-  .lane[data-lane="principal"]{--lc:var(--cat-principal); --lcs:var(--cat-principal-soft);}
-  .lane[data-lane="suprimentos"]{--lc:var(--cat-sup); --lcs:var(--cat-sup-soft);}
-  .lane[data-lane="auxiliar"]{--lc:var(--cat-aux); --lcs:var(--cat-aux-soft);}
-  .lane[data-lane="circular"]{--lc:var(--cat-apoio); --lcs:var(--cat-apoio-soft);}
+  /* a cor da raia vem do slot de paleta que o grupo escolhe em modelo.json */
+  .lane[data-cor="principal"]{--lc:var(--cat-principal); --lcs:var(--cat-principal-soft);}
+  .lane[data-cor="sup"]{--lc:var(--cat-sup); --lcs:var(--cat-sup-soft);}
+  .lane[data-cor="aux"]{--lc:var(--cat-aux); --lcs:var(--cat-aux-soft);}
+  .lane[data-cor="apoio"]{--lc:var(--cat-apoio); --lcs:var(--cat-apoio-soft);}
+  .lane[data-cor="neutro"]{--lc:var(--cat-neutro); --lcs:var(--cat-neutro-soft);}
   .lane-head .lic{color:var(--lc);}
 
   .eco-wrap{display:flex; justify-content:center; padding:.6rem 0 .4rem;}
@@ -294,13 +299,8 @@
 
 <div id="app-shell">
   <aside id="sidebar">
-    <div class="brand"><span class="dot"></span>Observatório do Açaí</div>
-    <nav class="sidenav">
-      <button type="button" data-view="cadeia"><span class="ic">🗺️</span>Cadeia</button>
-      <button type="button" data-view="legislacao"><span class="ic">📚</span>Legislação</button>
-      <button type="button" data-view="institucional"><span class="ic">🏛️</span>Institucional</button>
-      <button type="button" data-view="notas"><span class="ic">📝</span>Notas</button>
-    </nav>
+    <div class="brand" id="brand"></div>
+    <nav class="sidenav" id="sidenav"></nav>
     <div class="sidebar-bottom">
       <div id="save-status" class="save-status"></div>
       <div id="edit-extra" class="edit-extra"></div>
@@ -312,53 +312,9 @@
   <div id="main-area">
     <div id="mobile-topbar">
       <button type="button" class="hamburger" id="hamburger" aria-label="Abrir menu">☰</button>
-      <span class="mt-title" id="mt-title">Cadeia</span>
+      <span class="mt-title" id="mt-title"></span>
     </div>
-
-    <section class="view active" id="view-cadeia">
-      <div class="view-head">
-        <h1>Cadeia produtiva do açaí</h1>
-        <p id="cadeia-intro"></p>
-      </div>
-      <div class="diagram" id="diagram"></div>
-    </section>
-
-    <section class="view" id="view-legislacao">
-      <div class="view-head">
-        <h1>Legislação</h1>
-        <p>Normas federais, estaduais (Amapá, Pará e Amazonas) e municipais aplicáveis. <span class="badge">a conferir</span> indica número, texto ou vigência ainda a confirmar na fonte oficial.</p>
-      </div>
-      <div class="filters">
-        <input type="search" id="search" class="search" placeholder="Buscar na legislação…" aria-label="Buscar na legislação">
-        <div id="pills" class="pills"></div>
-      </div>
-      <p id="normas-count" class="count"></p>
-      <div class="card table-wrap">
-        <table class="normas">
-          <thead><tr><th>Esfera</th><th>Norma</th><th>Resumo</th><th>Elos</th><th class="col-actions"></th></tr></thead>
-          <tbody id="normas-tbody"></tbody>
-        </table>
-      </div>
-      <div id="normas-add" style="margin-top:.8rem;"></div>
-    </section>
-
-    <section class="view" id="view-institucional">
-      <div class="view-head">
-        <h1>Ambiente institucional</h1>
-        <p>Quem regula, fiscaliza e apoia a cadeia.</p>
-      </div>
-      <div class="card-grid" id="inst-body"></div>
-    </section>
-
-    <section class="view" id="view-notas">
-      <div class="view-head">
-        <h1>Pontos em aberto</h1>
-        <p>Lacunas e itens para a próxima rodada de pesquisa.</p>
-      </div>
-      <div class="card notas-card">
-        <div id="notas-body"></div>
-      </div>
-    </section>
+    <!-- as seções (section.view) são geradas por buildChrome() a partir de modelo.vistas -->
   </div>
 </div>
 
@@ -394,7 +350,7 @@ function cloneSeed() { return JSON.parse(JSON.stringify(SEED)); }
 let state = cloneSeed();
 let editing = false;
 let filters = { q: "", esfera: "", elo: "" };
-let currentView = "cadeia";
+let currentView = SEED.modelo.vistas[0].id; // a primeira vista de modelo.vistas é a inicial
 let openBlocoIndex = null;
 let drawerOpenerEl = null; // elemento que tinha o foco antes de abrir o drawer (ver closeDrawer)
 let openSistemaId = null;
@@ -422,27 +378,33 @@ function removeAtPath(obj, path) {
 }
 
 /* ---------- elos: parse/format ---------- */
-const TODOS_ELOS = Array.from({ length: 10 }, (_, i) => "e" + (i + 1)).concat(["auxiliar", "apoio"]);
+/* As etiquetas de elo que uma norma pode ter (e1…e10, auxiliar, apoio, ...)
+   são definidas em state.modelo.elos: cada uma tem id, abreviação (como aparece
+   e se digita na tabela) e, opcionalmente, apelidos aceitos na digitação. O
+   reconhecimento é EXATO (id, abreviação ou apelido, sem diferenciar
+   maiúsculas); o que não casa com nenhum elo é descartado. */
+function eloDef(id) { return state.modelo.elos.find(e => e.id === id) || null; }
 function parseElosText(text) {
+  const elos = state.modelo.elos;
   const out = [];
   text.split(/[,;]+/).map(s => s.trim().toLowerCase()).filter(Boolean).forEach(tok => {
-    if (tok === "todos" || tok === "t") out.push(...TODOS_ELOS);
-    else if (tok.startsWith("aux")) out.push("auxiliar");
-    else if (tok.startsWith("apo") || tok === "p") out.push("apoio");
-    else if (/^e?\d+$/.test(tok)) out.push("e" + tok.replace("e", ""));
+    if (tok === "todos" || tok === "t") { elos.forEach(e => out.push(e.id)); return; }
+    const hit = elos.find(e => e.id.toLowerCase() === tok || e.abrev.toLowerCase() === tok ||
+      (e.apelidos || []).some(a => a.toLowerCase() === tok));
+    if (hit) out.push(hit.id);
   });
   return [...new Set(out)];
 }
 function formatElosShort(arr) {
-  return (arr || []).map(id => id === "auxiliar" ? "aux" : id === "apoio" ? "apoio" : id.replace("e", "")).join(", ");
+  return (arr || []).map(id => { const e = eloDef(id); return e ? e.abrev : id; }).join(", ");
 }
 function eloLabel(id) {
-  if (id === "auxiliar") return "cadeia auxiliar";
-  if (id === "apoio") return "cadeia de apoio";
+  const e = eloDef(id);
+  if (!e) return id;
+  if (e.tipo === "agregado") return e.rotulo;
   const b = state.blocos.find(x => x.id === id);
-  return id.replace("e", "") + (b ? " · " + b.nome : "");
+  return e.abrev + (b ? " · " + b.nome : "");
 }
-function laneOf(grupo) { return grupo === "principal" ? "principal" : grupo === "auxiliar" ? "auxiliar" : "apoio"; }
 
 /* ---------- helper de DOM (sem innerHTML) ---------- */
 function el(tag, attrs, children) {
@@ -472,7 +434,11 @@ const FIELD_LABELS = {
 function pathToLabel(path) {
   const parts = path.split(".");
   const last = parts[parts.length - 1];
-  const human = FIELD_LABELS[last] || last;
+  let human = FIELD_LABELS[last] || last;
+  // Campos de uma norma levam o nome das colunas da vista de normas (que é
+  // dado do documento); o sufixo explicativo de "elos" é texto do editor.
+  const nv = parts[0] === "normas" ? vistaDoTipo("normas") : null;
+  if (nv && nv.colunas[last]) human = last === "elos" ? nv.colunas.elos + " (ids separados por vírgula)" : nv.colunas[last];
   return (parts.length >= 3 && /^\d+$/.test(parts[1])) ? `${human} (${parts[0]}, item ${Number(parts[1]) + 1})` : human;
 }
 function editableSpan(cls, path, text, extraAttrs) {
@@ -542,56 +508,52 @@ function wrapSiglas(text, wrapPlain) {
 }
 
 /* ---------- diagrama ---------- */
-const SISTEMAS = [
-  { id: "normas", nome: "Sistema de Normas Técnicas", desc: "Padrões de identidade, qualidade e registro de produtos — MAPA, DIAGRO." },
-  { id: "urbana", nome: "Legislação Urbana", desc: "Uso e ocupação do solo urbano — sem equivalente direto nesta cadeia rural e extrativista." },
-  { id: "ambiental", nome: "Legislação Ambiental", desc: "Licenciamento, manejo e território — SEMA, IBAMA, ICMBio, INCRA, SPU." },
-  { id: "sanitario", nome: "Sistema Sanitário", desc: "Vigilância e segurança sanitária dos alimentos — Anvisa e vigilância estadual/municipal." },
-  { id: "trabalhista", nome: "Sistema Trabalhista", desc: "Segurança e direitos no trabalho rural — MTE e normas regulamentadoras." },
-  { id: "tributario", nome: "Sistema Tributário", desc: "Tributos e obrigações fiscais — SEFAZ e Receita Federal." },
-  { id: "educacional", nome: "Sistema Educacional", desc: "Pesquisa, assistência técnica e capacitação — Embrapa, universidades, Sebrae, Senar, Senai." },
-];
+/* Grupos (raias), sistemas de contexto e etiquetas de elo vêm de modelo.json
+   (state.modelo) — nada disso é fixo no código. Atalhos de leitura: */
+function modeloGrupo(id) { return state.modelo.grupos.find(g => g.id === id) || null; }
 function sistemaMatches(id) { return state.blocos.map((b, i) => ({ b, i })).filter(({ b }) => (b.sistemas || []).includes(id)); }
 function buildEcosystem() {
   const outer = Math.max(220, Math.min(440, (window.innerWidth || 440) - 48));
   const inner = Math.round(outer * (140 / 440));
-  const step = (outer - inner) / (SISTEMAS.length - 1);
+  const sistemas = state.modelo.sistemas;
+  const step = (outer - inner) / Math.max(1, sistemas.length - 1);
   let parent = null, root = null;
-  SISTEMAS.forEach((s, i) => {
+  sistemas.forEach((s, i) => {
     const size = Math.round(outer - i * step);
     const ring = el("div", { class: "eco-ring", style: `width:${size}px;height:${size}px;` });
-    ring.appendChild(el("button", { type: "button", class: "eco-chip", "data-sistema": s.id, title: "Ver no Institucional" }, s.nome));
+    ring.appendChild(el("button", { type: "button", class: "eco-chip", "data-sistema": s.id, title: state.modelo.ecossistema.dicaChip }, s.nome));
     if (parent) parent.appendChild(ring); else root = ring;
     parent = ring;
   });
-  parent.appendChild(el("div", { class: "eco-core" }, "Cadeia do açaí"));
+  parent.appendChild(el("div", { class: "eco-core" }, state.modelo.ecossistema.nucleo));
   const wrap = el("div", { class: "eco-wrap" }, root);
-  const note = el("p", { class: "eco-note" }, wrapSiglas("Modelo adaptado de Blumenschein (2004, UnB) — a cadeia produtiva situada em sete sistemas de contexto."));
+  const note = el("p", { class: "eco-note" }, wrapSiglas(state.modelo.ecossistema.nota));
   const box = el("div", {});
   box.appendChild(wrap);
   box.appendChild(note);
   return box;
 }
-function buildDiagram() {
+function buildDiagram(v) {
   const wrap = el("div");
-  wrap.appendChild(buildEcosystem());
-  wrap.appendChild(buildLane("suprimentos", "📦", "Cadeia de suprimentos", "produção, colheita, transporte e venda do fruto; insumos, máquinas, energia e utilidades", false));
-  wrap.appendChild(buildLane("principal", "🌴", "Cadeia principal ou de processos", "do beneficiamento ao consumo final, em sequência", true));
-  wrap.appendChild(buildLane("auxiliar", "🔬", "Cadeia auxiliar", "conhecimento, pesquisa, laboratórios e logística", false));
-  wrap.appendChild(buildLane("circular", "♻️", "Economia circular e de apoio", "além do modelo original: coprodutos, mão de obra, crédito e mercado", false));
+  // os componentes da vista, na ordem em que ela os lista
+  v.componentes.forEach(c => {
+    if (c === "ecossistema") wrap.appendChild(buildEcosystem());
+    // uma raia por grupo do modelo (na ordem do modelo) que pede raia
+    else if (c === "raias") state.modelo.grupos.filter(g => g.raia).forEach(g => wrap.appendChild(buildLane(g)));
+  });
   return wrap;
 }
-function buildLane(grupo, icon, title, sub, sequential) {
-  const lane = el("div", { class: "lane", "data-lane": grupo });
+function buildLane(g) {
+  const lane = el("div", { class: "lane", "data-lane": g.id, "data-cor": g.cor });
   const head = el("div", { class: "lane-head" });
-  head.appendChild(el("span", { class: "lic" }, icon));
-  head.appendChild(el("h2", {}, title));
-  head.appendChild(el("span", { class: "lane-sub" }, "— " + sub));
+  head.appendChild(el("span", { class: "lic" }, g.icone));
+  head.appendChild(el("h2", {}, g.nome));
+  head.appendChild(el("span", { class: "lane-sub" }, "— " + g.subtitulo));
   lane.appendChild(head);
   const track = el("div", { class: "lane-track" });
-  const items = state.blocos.map((b, i) => ({ b, i })).filter(({ b }) => b.grupo === grupo);
+  const items = state.blocos.map((b, i) => ({ b, i })).filter(({ b }) => b.grupo === g.id);
   items.forEach(({ b, i }, idx) => {
-    track.appendChild(buildNodeCard(b, i, sequential ? idx + 1 : null, sequential && idx < items.length - 1));
+    track.appendChild(buildNodeCard(b, i, g.sequencial ? idx + 1 : null, g.sequencial && idx < items.length - 1));
   });
   lane.appendChild(track);
   return lane;
@@ -639,12 +601,9 @@ function buildEditableList(itens, path) {
   return ul;
 }
 function catTagInfo(grupo) {
-  if (grupo === "principal") return ["Cadeia principal", "var(--cat-principal-soft)", "var(--cat-principal)"];
-  if (grupo === "suprimentos") return ["Cadeia de suprimentos", "var(--cat-sup-soft)", "var(--cat-sup)"];
-  if (grupo === "auxiliar") return ["Cadeia auxiliar", "var(--cat-aux-soft)", "var(--cat-aux)"];
-  if (grupo === "circular") return ["Economia circular e de apoio", "var(--cat-apoio-soft)", "var(--cat-apoio)"];
-  if (grupo === "institucional") return ["Institucional", "var(--surface-2)", "var(--ink-soft)"];
-  return ["", "", ""];
+  const g = modeloGrupo(grupo);
+  if (!g) return ["", "", ""];
+  return [g.etiqueta, `var(--cat-${g.cor}-soft)`, `var(--cat-${g.cor})`];
 }
 function renderDrawer() {
   if (openBlocoIndex != null) return renderBlocoDrawerContent();
@@ -676,15 +635,21 @@ function renderBlocoDrawerContent() {
 
   const foot = document.getElementById("drawer-foot");
   foot.replaceChildren();
-  const ELO_TAG_POR_GRUPO = { circular: "auxiliar", suprimentos: "apoio", auxiliar: "apoio" };
-  // o filtro por elo segue o id do bloco (e1..e10), não o grupo em que ele é
-  // exibido: e1-e4 ficam na raia de suprimentos mas continuam tendo normas
-  // marcadas com o próprio id.
-  if (/^e\d+$/.test(b.id)) foot.appendChild(el("button", { class: "btn btn-block", type: "button", "data-filter-elo": b.id }, "Ver legislação deste elo →"));
-  else foot.appendChild(el("button", { class: "btn btn-block", type: "button", "data-filter-elo": ELO_TAG_POR_GRUPO[b.grupo] || "apoio" }, "Ver legislação aplicável →"));
+  // Um bloco que é ele mesmo um elo (modelo.elos, tipo "bloco") filtra pelo
+  // próprio id, em qualquer grupo em que esteja exibido (e1-e4 ficam na raia de
+  // suprimentos mas continuam tendo normas marcadas com o próprio id). Os
+  // demais filtram pelo elo agregado que o GRUPO indica (grupo.filtroElo); sem
+  // nenhum dos dois, não há botão. Os botões são da vista de normas (é ela que
+  // os nomeia e para onde saltam): sem uma vista dessas, não existem.
+  const nv = vistaDoTipo("normas");
+  if (!nv) return;
+  const elo = eloDef(b.id);
+  const grp = modeloGrupo(b.grupo);
+  if (elo && elo.tipo === "bloco") foot.appendChild(el("button", { class: "btn btn-block", type: "button", "data-filter-elo": b.id }, nv.rotulos.verElo));
+  else if (grp && grp.filtroElo) foot.appendChild(el("button", { class: "btn btn-block", type: "button", "data-filter-elo": grp.filtroElo }, nv.rotulos.verAplicavel));
 }
 function renderSistemaDrawerContent() {
-  const sis = SISTEMAS.find(s => s.id === openSistemaId);
+  const sis = state.modelo.sistemas.find(s => s.id === openSistemaId);
   const tag = document.getElementById("drawer-tag");
   tag.textContent = "Sistema de contexto"; tag.style.background = "var(--surface-2)"; tag.style.color = "var(--ink-soft)";
 
@@ -704,12 +669,12 @@ function renderSistemaDrawerContent() {
     matches.forEach(({ b, i }) => {
       const [tagText] = catTagInfo(b.grupo);
       const li = el("li", { class: "row" });
-      li.appendChild(el("button", { class: "linklike", type: "button", "data-open-bloco": i }, b.nome + (tagText ? " — " + tagText : " — Institucional")));
+      li.appendChild(el("button", { class: "linklike", type: "button", "data-open-bloco": i }, b.nome + (tagText ? " — " + tagText : "")));
       ul.appendChild(li);
     });
     body.appendChild(ul);
   } else {
-    body.appendChild(el("p", { class: "drawer-lede" }, "Esse sistema faz parte do modelo original (Blumenschein, 2004) mas, por ora, não tem um equivalente direto identificado no Amapá."));
+    body.appendChild(el("p", { class: "drawer-lede" }, state.modelo.ecossistema.semItem));
   }
   document.getElementById("drawer-foot").replaceChildren();
 }
@@ -750,24 +715,104 @@ function closeNav() {
   if (!document.body.classList.contains("drawer-open")) document.body.classList.remove("panel-open");
 }
 
+/* ---------- casca do documento: identidade + vistas ----------
+   Marca, título da página, menu e as seções (section.view) vêm de state.meta e
+   de state.modelo.vistas — a ordem do menu é a da lista, a primeira vista é a
+   inicial. Cada vista tem um tipo (diagrama, normas, cartoes, lista) que decide
+   o que ela contém e qual renderizador a desenha. buildChrome() só refaz a
+   casca quando a assinatura (título + vistas) muda: cobre init(), importar,
+   restaurar e desfazer, que trocam o estado inteiro. */
+function vistaDef(id) { return state.modelo.vistas.find(v => v.id === id) || null; }
+function vistaDoTipo(tipo) { return state.modelo.vistas.find(v => v.tipo === tipo) || null; }
+// ids dos contêineres que cada vista preenche (os de tipos únicos — diagrama e
+// normas — têm id fixo; os demais derivam do id da vista)
+function containersOf(v) {
+  if (v.tipo === "diagrama") return ["diagram"];
+  if (v.tipo === "normas") return ["normas-tbody", "pills", "normas-add"];
+  if (v.tipo === "cartoes") return ["cartoes-" + v.id];
+  return ["lista-" + v.id];
+}
+function buildViewSection(v) {
+  const sec = el("section", { class: "view", id: "view-" + v.id });
+  const head = el("div", { class: "view-head" });
+  head.appendChild(el("h1", {}, v.titulo));
+  head.appendChild(el("p"));
+  sec.appendChild(head);
+  if (v.tipo === "diagrama") {
+    sec.appendChild(el("div", { class: "diagram", id: "diagram" }));
+  } else if (v.tipo === "normas") {
+    const bar = el("div", { class: "filters" });
+    const search = el("input", { type: "search", id: "search", class: "search", placeholder: v.rotulos.busca, "aria-label": v.rotulos.buscaAria });
+    search.value = filters.q;
+    bar.appendChild(search);
+    bar.appendChild(el("div", { id: "pills", class: "pills" }));
+    sec.appendChild(bar);
+    sec.appendChild(el("p", { id: "normas-count", class: "count" }));
+    const tr = el("tr");
+    ["esfera", "norma", "resumo", "elos"].forEach(k => tr.appendChild(el("th", {}, v.colunas[k])));
+    tr.appendChild(el("th", { class: "col-actions" }));
+    const table = el("table", { class: "normas" }, [el("thead", {}, tr), el("tbody", { id: "normas-tbody" })]);
+    sec.appendChild(el("div", { class: "card table-wrap" }, table));
+    sec.appendChild(el("div", { id: "normas-add", style: "margin-top:.8rem;" }));
+  } else if (v.tipo === "cartoes") {
+    sec.appendChild(el("div", { class: "card-grid", id: "cartoes-" + v.id }));
+  } else {
+    sec.appendChild(el("div", { class: "card notas-card" }, el("div", { id: "lista-" + v.id })));
+  }
+  return sec;
+}
+// A introdução é texto simples (siglas expandidas); o token {aConferir} vira o
+// selo, construído por DOM (nunca innerHTML), com o rótulo da vista de normas.
+function fillIntro(v) {
+  const p = document.querySelector("#view-" + v.id + " .view-head p");
+  if (!p) return;
+  const nv = vistaDoTipo("normas");
+  const selo = nv ? nv.rotulos.aConferir : "a conferir";
+  const nodes = [];
+  v.intro.split("{aConferir}").forEach((txt, i) => {
+    if (i > 0) nodes.push(el("span", { class: "badge" }, selo));
+    if (txt !== "") nodes.push(...wrapSiglas(txt));
+  });
+  p.replaceChildren(...nodes);
+}
+function applyActiveView() {
+  document.querySelectorAll(".view").forEach(s => s.classList.toggle("active", s.id === "view-" + currentView));
+  document.querySelectorAll("nav.sidenav button").forEach(b => b.classList.toggle("active", b.getAttribute("data-view") === currentView));
+  const v = vistaDef(currentView);
+  document.getElementById("mt-title").textContent = v ? v.rotulo : "";
+}
+let chromeSig = null;
+function buildChrome() {
+  const sig = JSON.stringify([state.meta.titulo, state.modelo.vistas]);
+  if (sig === chromeSig) return;
+  const vistas = state.modelo.vistas;
+  if (!vistaDef(currentView)) currentView = vistas[0].id;
+  document.title = state.meta.titulo;
+  document.getElementById("brand").replaceChildren(el("span", { class: "dot" }), document.createTextNode(state.meta.titulo));
+  document.getElementById("sidenav").replaceChildren(...vistas.map(v =>
+    el("button", { type: "button", "data-view": v.id }, [el("span", { class: "ic" }, v.icone), v.rotulo])));
+  const main = document.getElementById("main-area");
+  main.querySelectorAll(":scope > section.view").forEach(s => s.remove());
+  vistas.forEach(v => { main.appendChild(buildViewSection(v)); fillIntro(v); });
+  applyActiveView();
+  chromeSig = sig; // só depois de pronta: se algo acima falhar, a próxima chamada refaz a casca
+}
+
 /* ---------- navegação entre views ---------- */
-const VIEW_TITLES = { cadeia: "Cadeia", legislacao: "Legislação", institucional: "Institucional", notas: "Notas" };
 function switchView(name) {
+  if (!vistaDef(name)) return;
   currentView = name;
-  document.querySelectorAll(".view").forEach(v => v.classList.toggle("active", v.id === "view-" + name));
-  document.querySelectorAll("nav.sidenav button").forEach(b => b.classList.toggle("active", b.getAttribute("data-view") === name));
-  document.getElementById("mt-title").textContent = VIEW_TITLES[name] || "";
+  applyActiveView();
   closeDrawer();
   closeNav();
   renderAll();
 }
 
-/* ---------- renderizadores de view ---------- */
-function renderCadeiaView() {
+/* ---------- renderizadores de view (um por tipo de vista) ---------- */
+function renderDiagrama(v) {
   const c = document.getElementById("diagram");
   c.replaceChildren();
-  c.appendChild(buildDiagram());
-  document.getElementById("cadeia-intro").replaceChildren(...wrapSiglas(state.meta.intro));
+  c.appendChild(buildDiagram(v));
 }
 function matchesFilter(n) {
   if (filters.esfera && n.esfera !== filters.esfera) return false;
@@ -779,7 +824,7 @@ function matchesFilter(n) {
   }
   return true;
 }
-function buildNormaRow(n, i) {
+function buildNormaRow(n, i, rot) {
   const tr = el("tr");
   tr.appendChild(el("td", {}, editableSpan("text", `normas.${i}.esfera`, n.esfera)));
   const tdTit = el("td");
@@ -794,7 +839,7 @@ function buildNormaRow(n, i) {
     wrapSiglas(n.titulo, s => el("a", { href: fonteHref, target: "_blank", rel: "noopener" }, s)).forEach(node => tdTit.appendChild(node));
   }
   else tdTit.appendChild(editableSpan("text", `normas.${i}.titulo`, n.titulo));
-  if (n.status === "conferir") { tdTit.appendChild(document.createTextNode(" ")); tdTit.appendChild(el("span", { class: "badge" }, "a conferir")); }
+  if (n.status === "conferir") { tdTit.appendChild(document.createTextNode(" ")); tdTit.appendChild(el("span", { class: "badge" }, rot.aConferir)); }
   if (editing) {
     const fdiv = el("div", { class: "fonte-edit" });
     fdiv.appendChild(el("span", { class: "fonte-label" }, "fonte "));
@@ -808,45 +853,49 @@ function buildNormaRow(n, i) {
     const tdAct = el("td", { class: "col-actions" });
     const lbl = el("label", { class: "conferir-toggle" });
     lbl.appendChild(el("input", { type: "checkbox", "data-bool-path": `normas.${i}.status`, checked: n.status === "conferir" ? true : null }));
-    lbl.appendChild(document.createTextNode("a conferir"));
+    lbl.appendChild(document.createTextNode(rot.aConferir));
     tdAct.appendChild(lbl);
     tdAct.appendChild(el("button", { class: "rm", type: "button", "data-remove-path": `normas.${i}`, "aria-label": "remover norma" }, "×"));
     tr.appendChild(tdAct);
   }
   return tr;
 }
-function renderNormas() {
+function renderNormas(v) {
+  v = v || vistaDoTipo("normas");
+  if (!v) return;
+  const rot = v.rotulos;
   const tbody = document.getElementById("normas-tbody");
   tbody.replaceChildren();
   const visible = [];
   state.normas.forEach((n, i) => { if (matchesFilter(n)) visible.push({ n, i }); });
-  visible.forEach(({ n, i }) => tbody.appendChild(buildNormaRow(n, i)));
-  document.getElementById("normas-count").textContent = `${state.normas.length} normas · mostrando ${visible.length}`;
+  visible.forEach(({ n, i }) => tbody.appendChild(buildNormaRow(n, i, rot)));
+  document.getElementById("normas-count").textContent =
+    rot.contagem.split("{total}").join(String(state.normas.length)).split("{visiveis}").join(String(visible.length));
 
   const pillsEl = document.getElementById("pills");
   pillsEl.replaceChildren();
-  const order = ["Federal", "Amapá", "Pará", "Amazonas", "Macapá", "Belém", "Manaus", "Outros estados", "Técnicas"];
+  const order = v.ordemEsferas;
   const esferas = [...new Set(state.normas.map(n => n.esfera))].sort((a, b) => {
     const ia = order.indexOf(a), ib = order.indexOf(b);
     return (ia === -1 ? 99 : ia) - (ib === -1 ? 99 : ib) || a.localeCompare(b, "pt");
   });
   esferas.forEach(es => pillsEl.appendChild(el("button", { class: "pill" + (filters.esfera === es ? " active" : ""), type: "button", "data-filter-esfera": es }, es)));
-  if (filters.elo) pillsEl.appendChild(el("button", { class: "pill active", type: "button", id: "clear-elo-filter" }, "elo: " + eloLabel(filters.elo) + "  ×"));
+  if (filters.elo) pillsEl.appendChild(el("button", { class: "pill active", type: "button", id: "clear-elo-filter" }, rot.filtroElo + ": " + eloLabel(filters.elo) + "  ×"));
 
-  document.querySelectorAll("#view-legislacao thead .col-actions").forEach(th => { th.style.display = editing ? "" : "none"; });
+  document.querySelectorAll("#view-" + v.id + " thead .col-actions").forEach(th => { th.style.display = editing ? "" : "none"; });
 
   const addWrap = document.getElementById("normas-add");
   addWrap.replaceChildren();
-  if (editing) addWrap.appendChild(el("button", { class: "add-item", type: "button", id: "add-norma" }, "+ adicionar norma"));
+  if (editing) addWrap.appendChild(el("button", { class: "add-item", type: "button", id: "add-norma" }, rot.adicionar));
 }
-function renderInstitucional() {
-  const c = document.getElementById("inst-body");
+function renderCartoes(v) {
+  const c = document.getElementById("cartoes-" + v.id);
   c.replaceChildren();
   state.blocos.forEach((b, i) => {
-    if (b.grupo !== "institucional") return;
+    if (b.grupo !== v.grupo) return;
     const card = el("div", { class: "card info-card" });
     (b.sistemas || []).forEach(sid => {
-      const sis = SISTEMAS.find(s => s.id === sid);
+      const sis = state.modelo.sistemas.find(s => s.id === sid);
       if (sis) card.appendChild(el("span", { class: "sis-tag" }, sis.nome));
     });
     card.appendChild(el("h3", {}, editableSpan("text", `blocos.${i}.nome`, b.nome)));
@@ -855,31 +904,34 @@ function renderInstitucional() {
     c.appendChild(card);
   });
 }
-function renderNotas() {
-  const c = document.getElementById("notas-body");
+function renderLista(v) {
+  const c = document.getElementById("lista-" + v.id);
   c.replaceChildren();
-  c.appendChild(buildEditableList(state.notas, "notas"));
+  if (v.fonte === "notas") c.appendChild(buildEditableList(state.notas, "notas"));
 }
-/* só a view ativa é construída no DOM; as outras três ficam com os
-   contêineres vazios até o usuário navegar até elas — evita manter as
-   ~4 telas inteiras (ex.: a tabela de 90+ normas) montadas o tempo todo */
-const VIEW_RENDERERS = { cadeia: renderCadeiaView, legislacao: renderNormas, institucional: renderInstitucional, notas: renderNotas };
-const VIEW_CONTAINERS = { cadeia: ["diagram"], legislacao: ["normas-tbody", "pills", "normas-add"], institucional: ["inst-body"], notas: ["notas-body"] };
+/* só a vista ativa é construída no DOM; as outras ficam com os contêineres
+   vazios até o usuário navegar até elas — evita manter todas as telas
+   (ex.: a tabela de 90+ normas) montadas o tempo todo */
+const VIEW_RENDERERS = { diagrama: renderDiagrama, normas: renderNormas, cartoes: renderCartoes, lista: renderLista };
 function renderAll() {
-  VIEW_RENDERERS[currentView]();
-  Object.keys(VIEW_CONTAINERS).forEach(name => {
-    if (name === currentView) return;
-    VIEW_CONTAINERS[name].forEach(id => { const n = document.getElementById(id); if (n) n.replaceChildren(); });
+  buildChrome();
+  const atual = vistaDef(currentView);
+  VIEW_RENDERERS[atual.tipo](atual);
+  fillIntro(atual); // siglas podem ter mudado (importar/restaurar) sem a casca mudar
+  state.modelo.vistas.forEach(v => {
+    if (v.id === atual.id) return;
+    containersOf(v).forEach(id => { const n = document.getElementById(id); if (n) n.replaceChildren(); });
   });
   if (openBlocoIndex != null) renderDrawer();
 }
 function rerenderForPath(path) {
-  if (path.startsWith("normas")) return renderNormas();
-  if (path.startsWith("notas")) return renderNotas();
+  const atual = vistaDef(currentView);
+  if (path.startsWith("normas")) { if (atual && atual.tipo === "normas") renderNormas(atual); return; }
+  if (path.startsWith("notas")) { if (atual && atual.tipo === "lista" && atual.fonte === "notas") renderLista(atual); return; }
   if (path.startsWith("blocos.")) {
     const idx = Number(path.split(".")[1]);
     const grp = state.blocos[idx] && state.blocos[idx].grupo;
-    if (grp === "institucional") renderInstitucional();
+    if (atual && atual.tipo === "cartoes" && atual.grupo === grp) renderCartoes(atual);
     if (openBlocoIndex === idx) renderDrawer();
   }
 }
@@ -1108,9 +1160,11 @@ document.addEventListener("click", e => {
   }
   const jump = e.target.closest("[data-filter-elo]");
   if (jump) {
+    const nv = vistaDoTipo("normas");
+    if (!nv) return;
     filters.elo = jump.getAttribute("data-filter-elo");
-    switchView("legislacao");
-    renderNormas();
+    switchView(nv.id);
+    renderNormas(nv);
     return;
   }
   const sisBtn = e.target.closest("[data-sistema]");
@@ -1120,7 +1174,8 @@ document.addEventListener("click", e => {
   const esf = e.target.closest("[data-filter-esfera]");
   if (esf) { const v = esf.getAttribute("data-filter-esfera"); filters.esfera = filters.esfera === v ? "" : v; renderNormas(); return; }
 });
-document.getElementById("search").addEventListener("input", e => { filters.q = e.target.value; renderNormas(); });
+// delegado: o campo de busca é criado por buildChrome() junto com a vista de normas
+document.addEventListener("input", e => { if (e.target.id === "search") { filters.q = e.target.value; renderNormas(); } });
 
 function setEditing(v) {
   editing = v;
@@ -1141,7 +1196,7 @@ function updateEditControls() {
 }
 function setStatus(text) { const s = document.getElementById("save-status"); if (s) s.textContent = text; }
 async function doExport() {
-  const filename = "observatorio-acai.json";
+  const filename = SEED.meta.slug + ".json"; // slug da semente (ver LOCAL_KEY)
   const json = JSON.stringify(state, null, 2);
   if (downloadsCap) {
     try {
@@ -1183,6 +1238,119 @@ function doReset() {
   renderAll();
   updateEditControls();
 }
+// Slots de paleta que o CSS sabe pintar (--cat-<slot>); espelha COR_SLOTS do build.py.
+const COR_SLOTS = ["principal", "sup", "aux", "apoio", "neutro"];
+// Confere o modelo (grupos, sistemas, elos, ecossistema) com as mesmas regras que
+// o build.py aplica ao modelo.json. Um modelo importado dirige o desenho — raias,
+// anéis, cores (via slot, nunca valor livre) e rótulos de elo —, então tem que ser
+// rejeitado aqui e não no meio do render. Diferença deliberada em relação ao
+// build: um elo do tipo "bloco" sem o bloco correspondente é tolerado (um
+// arquivo parcial não deixa de importar; eloLabel e o botão do drawer já
+// lidam com a ausência).
+function validModelo(m) {
+  const isTxt = v => typeof v === "string" && v.trim() !== "";
+  const isObj = v => !!v && typeof v === "object" && !Array.isArray(v);
+  if (!isObj(m)) return false;
+  for (const k of ["grupos", "sistemas", "elos"]) {
+    if (!Array.isArray(m[k]) || m[k].length === 0 || !m[k].every(isObj)) return false;
+    const ids = m[k].map(x => x.id);
+    if (!ids.every(isTxt) || new Set(ids).size !== ids.length) return false;
+  }
+  const eloIds = new Set(m.elos.map(e => e.id));
+  for (const g of m.grupos) {
+    if (!isTxt(g.etiqueta) || !COR_SLOTS.includes(g.cor)) return false;
+    if (typeof g.sequencial !== "boolean" || typeof g.raia !== "boolean") return false;
+    if (g.raia && !(isTxt(g.nome) && isTxt(g.icone) && isTxt(g.subtitulo))) return false;
+    if (g.filtroElo !== undefined && !eloIds.has(g.filtroElo)) return false;
+  }
+  for (const s of m.sistemas) { if (!isTxt(s.nome) || !isTxt(s.desc)) return false; }
+  const tokens = new Map();
+  for (const e of m.elos) {
+    if (e.tipo !== "bloco" && e.tipo !== "agregado") return false;
+    if (!isTxt(e.abrev)) return false;
+    if (e.tipo === "agregado" && !isTxt(e.rotulo)) return false;
+    if (e.apelidos !== undefined && !(Array.isArray(e.apelidos) && e.apelidos.every(isTxt))) return false;
+    for (const t of [e.id, e.abrev, ...(e.apelidos || [])]) {
+      const k = t.trim().toLowerCase();
+      if (k === "todos" || k === "t") return false;
+      if (tokens.has(k) && tokens.get(k) !== e.id) return false;
+      tokens.set(k, e.id);
+    }
+  }
+  const eco = m.ecossistema;
+  if (!(isObj(eco) && isTxt(eco.nucleo) && isTxt(eco.nota) && isTxt(eco.semItem) && isTxt(eco.dicaChip))) return false;
+  return validVistas(m.vistas, new Set(m.grupos.map(g => g.id)));
+}
+// Espelham as constantes de mesmo nome do build.py (o TIPO de uma vista é código:
+// um renderizador no template; o resto é dado).
+const TIPOS_VISTA = ["diagrama", "normas", "cartoes", "lista"];
+const COMPONENTES_DIAGRAMA = ["ecossistema", "raias"];
+const FONTES_LISTA = ["notas"];
+const COLUNAS_NORMAS = ["esfera", "norma", "resumo", "elos"];
+const ROTULOS_NORMAS = ["busca", "buscaAria", "contagem", "adicionar", "filtroElo", "aConferir", "verElo", "verAplicavel"];
+// Mesmas regras de validate_vistas() do build.py. Diagrama e normas têm ids de
+// DOM únicos no template, então cada um aparece no máximo uma vez.
+function validVistas(vistas, grupoIds) {
+  const isTxt = v => typeof v === "string" && v.trim() !== "";
+  const isObj = v => !!v && typeof v === "object" && !Array.isArray(v);
+  if (!Array.isArray(vistas) || vistas.length === 0 || !vistas.every(isObj)) return false;
+  const ids = new Set();
+  let diagramas = 0, normas = 0;
+  for (const v of vistas) {
+    if (typeof v.id !== "string" || !/^[a-z][a-z0-9-]*$/.test(v.id) || ids.has(v.id)) return false;
+    ids.add(v.id);
+    if (!TIPOS_VISTA.includes(v.tipo)) return false;
+    if (!isTxt(v.rotulo) || !isTxt(v.icone) || !isTxt(v.titulo) || typeof v.intro !== "string") return false;
+    if (v.tipo === "diagrama") {
+      const c = v.componentes;
+      if (!Array.isArray(c) || c.length === 0 || !c.every(x => COMPONENTES_DIAGRAMA.includes(x)) || new Set(c).size !== c.length) return false;
+      diagramas++;
+    } else if (v.tipo === "normas") {
+      if (!isObj(v.colunas) || !COLUNAS_NORMAS.every(k => isTxt(v.colunas[k]))) return false;
+      if (!Array.isArray(v.ordemEsferas) || !v.ordemEsferas.every(isTxt)) return false;
+      if (!isObj(v.rotulos) || !ROTULOS_NORMAS.every(k => isTxt(v.rotulos[k]))) return false;
+      if (!v.rotulos.contagem.includes("{total}") || !v.rotulos.contagem.includes("{visiveis}")) return false;
+      normas++;
+    } else if (v.tipo === "cartoes") {
+      if (typeof v.grupo !== "string" || !grupoIds.has(v.grupo)) return false;
+    } else if (!FONTES_LISTA.includes(v.fonte)) return false;
+  }
+  return diagramas <= 1 && normas <= 1;
+}
+// Compatibilidade com exports de antes da Fase 3: um modelo sem `vistas` (ou sem
+// `ecossistema.dicaChip`) é completado com o do build — campo a campo, nunca por
+// Object.assign/spread de um objeto vindo do arquivo (uma chave literal
+// "__proto__" trocaria o protótipo). Se o resultado não passar em validModelo
+// (ex.: as vistas do build apontam para um grupo que o modelo importado não tem),
+// o arquivo é rejeitado: não há como adivinhar vistas para um modelo desconhecido.
+function completeModelo(m) {
+  if (!m || typeof m !== "object" || Array.isArray(m)) return m;
+  const eco = m.ecossistema;
+  const sd = JSON.parse(JSON.stringify(SEED.modelo)); // cópia: o estado nunca compartilha objetos com SEED
+  return {
+    grupos: m.grupos, sistemas: m.sistemas, elos: m.elos,
+    ecossistema: (eco && typeof eco === "object" && !Array.isArray(eco))
+      ? { nucleo: eco.nucleo, nota: eco.nota, semItem: eco.semItem, dicaChip: eco.dicaChip !== undefined ? eco.dicaChip : sd.ecossistema.dicaChip }
+      : eco,
+    vistas: m.vistas !== undefined ? m.vistas : sd.vistas,
+  };
+}
+// O modelo que um arquivo importado passaria a ter (ou o do build, se não traz um).
+function importedModelo(obj) {
+  return obj.modelo !== undefined ? completeModelo(obj.modelo) : JSON.parse(JSON.stringify(SEED.modelo));
+}
+// Identidade do documento. `slug` é sempre o da semente (ver LOCAL_KEY); título,
+// ícone e subtítulo vêm do arquivo quando são textos não vazios (export de antes
+// da Fase 3 não os tem: ficam os do build). Campo a campo; chaves desconhecidas
+// (ex.: o antigo meta.intro, que passou a ser a introdução da vista Cadeia) saem.
+function completeMeta(m) {
+  const sm = SEED.meta;
+  const out = { slug: sm.slug };
+  for (const k of ["titulo", "icone", "subtitulo"]) out[k] = (typeof m[k] === "string" && m[k].trim() !== "") ? m[k] : sm[k];
+  out.margem = (Array.isArray(m.margem) && m.margem.every(s => typeof s === "string")) ? m.margem : (sm.margem || []).slice();
+  out.atualizado = typeof m.atualizado === "string" ? m.atualizado : sm.atualizado;
+  return out;
+}
 // Confere não só a presença de meta/blocos/normas/notas (forma de alto nível),
 // mas o tipo de cada campo que o render de fato lê — um JSON importado é
 // conteúdo de fora, então um item malformado (ex.: um bloco nulo, ou uma
@@ -1190,7 +1358,13 @@ function doReset() {
 // em vez de quebrar no meio do render com `state` já mutado.
 function validShape(obj) {
   if (!obj || typeof obj !== "object") return false;
-  if (!obj.meta || typeof obj.meta !== "object") return false;
+  if (!obj.meta || typeof obj.meta !== "object" || Array.isArray(obj.meta)) return false;
+  // identidade: se o arquivo traz título/ícone/subtítulo, têm que ser textos não
+  // vazios (ausentes, valem os do build — ver completeMeta); o slug do arquivo é ignorado
+  for (const k of ["titulo", "icone", "subtitulo"]) {
+    const v = obj.meta[k];
+    if (v !== undefined && !(typeof v === "string" && v.trim() !== "")) return false;
+  }
   if (!Array.isArray(obj.blocos) || !Array.isArray(obj.normas) || !Array.isArray(obj.notas)) return false;
   const isStr = v => typeof v === "string";
   for (const b of obj.blocos) {
@@ -1217,13 +1391,30 @@ function validShape(obj) {
       if (info.url !== undefined && !isStr(info.url)) return false;
     }
   }
+  // O modelo: se o arquivo traz um, ele (completado, se for de antes das vistas)
+  // tem que ser válido; se não traz (export de antes do modelo existir), vale o
+  // do build. Em qualquer caso, blocos e normas só podem apontar para grupos,
+  // sistemas e elos que esse modelo define (o build.py faz a mesma checagem nos
+  // arquivos de dados).
+  const modelo = importedModelo(obj);
+  if (!validModelo(modelo)) return false;
+  const grupoIds = new Set(modelo.grupos.map(g => g.id));
+  const sistemaIds = new Set(modelo.sistemas.map(s => s.id));
+  const eloIds = new Set(modelo.elos.map(e => e.id));
+  for (const b of obj.blocos) {
+    if (!grupoIds.has(b.grupo)) return false;
+    if (b.sistemas !== undefined && !b.sistemas.every(sid => isStr(sid) && sistemaIds.has(sid))) return false;
+  }
+  for (const n of obj.normas) {
+    if (!n.elos.every(eid => isStr(eid) && eloIds.has(eid))) return false;
+  }
   return true;
 }
 async function handleImportFile(file) {
   if (!file) return;
   let parsed;
   try { parsed = JSON.parse(await file.text()); }
-  catch (err) { alert("Não foi possível ler este arquivo. Confira se é um JSON exportado pelo Observatório do Açaí."); return; }
+  catch (err) { alert("Não foi possível ler este arquivo. Confira se é um JSON exportado por \"" + SEED.meta.titulo + "\"."); return; }
   if (!validShape(parsed)) { alert("Este arquivo não tem o formato esperado, ou algum item dentro dele (bloco, norma, sigla...) está incompleto."); return; }
   const seed = cloneSeed();
   const atualizado = (parsed.meta && typeof parsed.meta.atualizado === "string") ? `Atualizado em: ${parsed.meta.atualizado}\n` : "";
@@ -1233,11 +1424,13 @@ async function handleImportFile(file) {
   // Monta o novo estado campo a campo (nunca Object.assign({}, seed, parsed), que
   // copiaria QUALQUER chave de nível superior do arquivo importado, inclusive uma
   // chave literal "__proto__" — um arquivo JSON malicioso poderia usar isso para
-  // trocar o protótipo do objeto `state` resultante). Aqui só os 5 campos
+  // trocar o protótipo do objeto `state` resultante). Aqui só os 6 campos
   // esperados são lidos do arquivo; o resto do conteúdo importado é ignorado.
   state = {
-    meta: parsed.meta, blocos: parsed.blocos, normas: parsed.normas, notas: parsed.notas,
+    meta: completeMeta(parsed.meta), blocos: parsed.blocos, normas: parsed.normas, notas: parsed.notas,
     siglas: (parsed.siglas && typeof parsed.siglas === "object") ? parsed.siglas : seed.siglas,
+    // completado como em validShape (export de antes das vistas, ou do modelo)
+    modelo: importedModelo(parsed),
   };
   SIGLA_RE = null; // o conjunto de siglas pode ter mudado — invalida o cache (ver siglaRegex)
   closeDrawer();
@@ -1261,7 +1454,10 @@ async function handleImportFile(file) {
 }
 
 /* ---------- persistência: capacidade db, com alternativa local ---------- */
-const LOCAL_KEY = "observatorio-acai:content/main";
+// O slug vem SEMPRE da semente (meta.json do build), nunca do estado nem de um
+// arquivo importado: é ele que decide onde este documento guarda os dados no
+// navegador, e um arquivo de fora não pode redirecionar esse armazenamento.
+const LOCAL_KEY = SEED.meta.slug + ":content/main";
 function makeLocalDb() {
   return {
     doc: () => ({
