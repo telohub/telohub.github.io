@@ -284,7 +284,7 @@ def validate(seed):
         raise SystemExit("Falhas de integridade referencial:\n  - " + "\n  - ".join(errors))
 
 
-def build():
+def build(admin=False):
     with open(os.path.join(HERE, "template.html"), encoding="utf-8") as f:
         template = f.read()
 
@@ -312,6 +312,9 @@ def build():
 
     template = inject(template, "__SEED_JSON__", seed_json)
     template = inject(template, "__SEED_VERSION__", seed_version)
+    # Build de administração (--admin): mesmo documento, mesmos dados e mesma
+    # SEED_VERSION; só a interface oferece a mais Importar e a edição estrutural.
+    template = inject(template, "__ADMIN__", "true" if admin else "false")
 
     # Identidade no <head> (título da aba, descrição e favicon). Vem do meta.json
     # e é escapada aqui; em runtime o template também atualiza document.title
@@ -327,8 +330,13 @@ def build():
 
 
 if __name__ == "__main__":
-    out_path = sys.argv[1] if len(sys.argv) > 1 else os.path.join(HERE, "..", "observatorio-acai.html")
-    html = build()
+    # uso: python3 build.py [--admin] [saída]
+    args = sys.argv[1:]
+    admin = "--admin" in args
+    args = [a for a in args if a != "--admin"]
+    padrao = "observatorio-acai-admin.html" if admin else "observatorio-acai.html"
+    out_path = args[0] if args else os.path.join(HERE, "..", padrao)
+    html = build(admin)
     with open(out_path, "w", encoding="utf-8") as f:
         f.write(html)
     print(f"wrote {out_path} ({len(html)} chars)")
