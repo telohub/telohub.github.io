@@ -268,6 +268,16 @@
   .rm:hover{opacity:1; color:var(--danger);}
   body:not(.editing) .rm, body:not(.editing) .add-item{display:none;}
   body.editing .node-card button.node{box-shadow:0 0 0 1px var(--lc) inset;}
+  /* painel "Estrutura do documento" */
+  .est-sec{margin-bottom:1.5rem;}
+  .est-item{border-top:1px solid var(--border); padding-top:.7rem;}
+  .est-bar{display:flex; align-items:center; gap:.15rem; margin-bottom:.4rem;}
+  .est-bar .sis-tag{flex:1; margin:0;}
+  .rm:disabled{opacity:.2; cursor:default;}
+  .est-ctrl{display:block; font-size:.82rem; color:var(--ink-soft); margin:.25rem 0 .55rem;}
+  .est-ctrl select{font:inherit;}
+  .est-ctrl input[type="text"]{font:inherit; width:100%; margin-top:.2rem;}
+  .est-sec [contenteditable="true"]:empty{display:inline-block; min-width:4rem; min-height:1em;}
 
   /* ---------- responsivo ---------- */
   @media (max-width:860px){
@@ -306,6 +316,7 @@
       <div id="edit-extra" class="edit-extra"></div>
       <button type="button" id="edit-toggle" class="btn btn-block">✎ Editar conteúdo</button>
       <input type="file" id="import-file" accept="application/json,.json" hidden>
+      <input type="file" id="proposta-file" accept="application/json,.json" hidden>
     </div>
   </aside>
 
@@ -344,6 +355,11 @@ const SEED = __SEED_JSON__;
 // blindava esse navegador contra qualquer atualização de conteúdo publicada
 // depois, pra sempre, até alguém lembrar de clicar em "Restaurar".
 const SEED_VERSION = "__SEED_VERSION__";
+// true só no build de administração (build.py --admin): oferece Importar e a
+// edição estrutural (painel "Estrutura do documento" e "Estrutura do bloco").
+// O publicado edita textos/conteúdo e exporta. É interface, não segurança: tudo
+// roda no navegador de quem abre a página.
+const ADMIN = __ADMIN__;
 function cloneSeed() { return JSON.parse(JSON.stringify(SEED)); }
 
 /* ---------- estado ---------- */
@@ -354,6 +370,9 @@ let currentView = SEED.modelo.vistas[0].id; // a primeira vista de modelo.vistas
 let openBlocoIndex = null;
 let drawerOpenerEl = null; // elemento que tinha o foco antes de abrir o drawer (ver closeDrawer)
 let openSistemaId = null;
+let estruturaAberta = false; // o drawer mostra o painel "Estrutura do documento"
+let propostaAberta = false;  // o drawer mostra a comparação de uma proposta (admin)
+let proposta = [];           // diferenças da proposta aberta (ver diffEstado)
 let db = null, dbMode = null, downloadsCap = null;
 
 /* ---------- utilidades de caminho ---------- */
@@ -608,6 +627,8 @@ function catTagInfo(grupo) {
 function renderDrawer() {
   if (openBlocoIndex != null) return renderBlocoDrawerContent();
   if (openSistemaId != null) return renderSistemaDrawerContent();
+  if (estruturaAberta) return renderEstruturaContent();
+  if (propostaAberta) return renderPropostaContent();
 }
 function renderBlocoDrawerContent() {
   const b = state.blocos[openBlocoIndex];
@@ -632,6 +653,7 @@ function renderBlocoDrawerContent() {
   b.secoes.forEach((s, si) => (s.margem ? calloutSecs : mainSecs).push({ s, si }));
   mainSecs.forEach(({ s, si }) => body.appendChild(buildPanelSection(s, `blocos.${openBlocoIndex}.secoes.${si}`)));
   calloutSecs.forEach(({ s, si }, idx) => body.appendChild(buildCallout(s, `blocos.${openBlocoIndex}.secoes.${si}`, idx === 0 ? "atores" : "critico")));
+  if (editing && ADMIN) body.appendChild(blocoEstrutura(openBlocoIndex));
 
   const foot = document.getElementById("drawer-foot");
   foot.replaceChildren();
@@ -678,25 +700,237 @@ function renderSistemaDrawerContent() {
   }
   document.getElementById("drawer-foot").replaceChildren();
 }
-function openDrawer(i) {
+/* ---------- painel "Estrutura do documento" (só em modo de edição) ----------
+   Tabela declarativa: cada seção aponta para um objeto (base) ou uma lista do
+   estado e diz quais campos de TEXTO expõe; só aparecem os campos que o item
+   tem. Cada campo é um editableSpan com data-path "meta.…"/"modelo.…", e o
+   commitField manda esses caminhos pelo portão tentarEstado().
+   Toda lista tem mover ↑↓ e remover por item; só as que têm `novo` (uma fábrica
+   que recebe o modelo do clone) têm "+ adicionar". `controles` são campos não
+   textuais ([chave, rótulo, tipo]: "slot" = cor da paleta, "bool" = caixa de
+   seleção, "elo" = elo agregado ou nenhum), aplicados por estruturaCampo(). */
+function idLivre(lista, prefixo) {
+  const ids = new Set(lista.map(x => x.id));
+  let n = 1;
+  while (ids.has(`${prefixo}-${n}`)) n++;
+  return `${prefixo}-${n}`;
+}
+// nova vista: cartões do primeiro grupo que nenhuma vista de cartões mostra ainda (senão, do primeiro)
+function novaVista(m) {
+  const usados = new Set(m.vistas.filter(v => v.tipo === "cartoes").map(v => v.grupo));
+  const g = m.grupos.find(x => !usados.has(x.id)) || m.grupos[0];
+  return { id: idLivre(m.vistas, "vista"), tipo: "cartoes", rotulo: "Nova vista", icone: "📄", titulo: "Nova vista", intro: "", grupo: g.id };
+}
+function novoSistema(m) { return { id: idLivre(m.sistemas, "sistema"), nome: "Novo sistema", desc: "Descrição do sistema." }; }
+// novo elo agregado (os do tipo "bloco" nascem com o bloco, nos dados); abreviação = id, que é único
+function novoElo(m) { const id = idLivre(m.elos, "elo"); return { id, tipo: "agregado", abrev: id, rotulo: "novo elo", apelidos: [] }; }
+function novoGrupo(m) {
+  return { id: idLivre(m.grupos, "grupo"), etiqueta: "Novo grupo", sequencial: false, raia: true, cor: "neutro", nome: "Novo grupo", icone: "📌", subtitulo: "descrição do grupo" };
+}
+// Campo não textual (cor, raia, sequencial, filtroElo, grupo de um bloco, ou um
+// id posto/tirado de uma lista — data-est-membro, ex.: sistemas de um bloco), pelo portão.
+function estruturaCampo(ctrl) {
+  const path = ctrl.getAttribute("data-est-campo");
+  const k = path.slice(path.lastIndexOf(".") + 1);
+  const valor = ctrl.type === "checkbox" ? ctrl.checked
+    : ctrl.hasAttribute("data-est-csv") ? ctrl.value.split(",").map(s => s.trim()).filter(Boolean)
+    : ctrl.value;
+  const membro = ctrl.getAttribute("data-est-membro");
+  const ok = tentarEstado(c => {
+    const obj = getPath(c, path.slice(0, path.lastIndexOf(".")));
+    if (membro) {
+      const atual = new Set(obj[k] || []);
+      if (valor) atual.add(membro); else atual.delete(membro);
+      obj[k] = c.modelo.sistemas.map(s => s.id).filter(id => atual.has(id)); // na ordem do modelo
+    } else if (valor === "") delete obj[k]; else obj[k] = valor; // "" = nenhum (filtroElo é opcional)
+    // uma raia precisa de nome, ícone e subtítulo: ligar a raia completa o que faltar
+    if (k === "raia" && valor === true) {
+      obj.nome = obj.nome || obj.etiqueta; obj.icone = obj.icone || "📌"; obj.subtitulo = obj.subtitulo || "descrição do grupo";
+    }
+  });
+  if (!ok) setStatus("Alteração recusada: o resultado não seria um documento válido.");
+  renderDrawer(); // refaz também quando recusado: o controle volta ao valor do estado
+  focusLater(`[data-est-campo="${path}"]` + (membro ? `[data-est-membro="${membro}"]` : ""));
+}
+/* ---------- blocos: estrutura no drawer do bloco (modo de edição) ---------- */
+// índices (em state.blocos) dos blocos do mesmo grupo, na ordem em que aparecem
+function irmaos(i) { const g = state.blocos[i].grupo; return state.blocos.map((b, j) => j).filter(j => state.blocos[j].grupo === g); }
+function blocoEstrutura(i) {
+  const b = state.blocos[i], base = `blocos.${i}`;
+  const mesmos = irmaos(i), pos = mesmos.indexOf(i);
+  const btn = (op, s, rot, off) => el("button", { class: "rm", type: "button", "data-bloco-op": op, "aria-label": rot, title: rot, disabled: off }, s);
+  const sel = el("select", { "data-est-campo": `${base}.grupo` }, state.modelo.grupos.map(g => el("option", { value: g.id }, g.etiqueta)));
+  sel.value = b.grupo;
+  return el("div", { class: "est-sec" }, [
+    el("h3", { class: "panel-label" }, "Estrutura do bloco"),
+    el("div", { class: "est-bar" }, [el("span", { class: "sis-tag" }, b.id),
+      btn("up", "↑", "mover para antes no grupo", pos === 0), btn("down", "↓", "mover para depois no grupo", pos === mesmos.length - 1), btn("rm", "×", "remover bloco", false)]),
+    el("label", { class: "est-ctrl" }, ["Grupo ", sel]),
+    el("span", { class: "panel-label" }, "Sistemas de contexto"),
+    ...state.modelo.sistemas.map(s => el("label", { class: "est-ctrl" }, [
+      el("input", { type: "checkbox", "data-est-campo": `${base}.sistemas`, "data-est-membro": s.id, checked: (b.sistemas || []).includes(s.id) }), " " + s.nome])),
+  ]);
+}
+function blocoOp(op) {
+  const i = openBlocoIndex, b = state.blocos[i];
+  if (op === "rm") {
+    // um bloco que é elo sai junto com o seu elo — desde que nada mais use esse elo
+    const elo = eloDef(b.id);
+    const comElo = !!(elo && elo.tipo === "bloco");
+    const uso = comElo ? usoDoItem("modelo.elos", elo) : "";
+    if (uso) { setStatus(`Não foi possível remover o bloco "${b.nome}" — o elo ${elo.abrev} do modelo ${uso.startsWith("é ") ? uso : "está " + uso}.`); return; }
+    if (!confirm(`Remover o bloco "${b.nome}" e todo o seu conteúdo?` + (comElo ? ` O elo ${elo.abrev} sai junto.` : ""))) return;
+    openBlocoIndex = null; // o renderAll do portão não pode redesenhar um bloco que deixou de existir
+    if (tentarEstado(c => { c.blocos.splice(i, 1); if (comElo) c.modelo.elos = c.modelo.elos.filter(e => e.id !== b.id); })) closeDrawer();
+    else { openBlocoIndex = i; setStatus("Alteração recusada: o resultado não seria um documento válido."); }
+    return;
+  }
+  const mesmos = irmaos(i), pos = mesmos.indexOf(i);
+  const j = mesmos[op === "up" ? pos - 1 : pos + 1];
+  if (!tentarEstado(c => { [c.blocos[i], c.blocos[j]] = [c.blocos[j], c.blocos[i]]; })) { setStatus("Alteração recusada: o resultado não seria um documento válido."); return; }
+  openBlocoIndex = j; // o drawer acompanha o bloco movido
+  renderDrawer();
+  const ponta = op === "up" ? mesmos.indexOf(j) === 0 : mesmos.indexOf(j) === mesmos.length - 1;
+  focusLater(`[data-bloco-op="${ponta ? (op === "up" ? "down" : "up") : op}"]`);
+}
+function blocoAdd(gid) {
+  const novo = { id: idLivre(state.blocos, "bloco"), grupo: gid, nome: "Novo bloco", resumo: "Descrição do bloco.", secoes: [{ titulo: "Itens", itens: [] }], sistemas: [] };
+  if (!tentarEstado(c => c.blocos.push(novo))) { setStatus("Alteração recusada: o resultado não seria um documento válido."); return; }
+  openDrawer(state.blocos.length - 1);
+  focusLater("#drawer-name");
+}
+const ESTRUTURA = [
+  { titulo: "Identidade", base: "meta", campos: [["titulo", "Título"], ["icone", "Ícone (favicon)"], ["subtitulo", "Descrição"]] },
+  { titulo: "Vistas (menu e telas)", lista: "modelo.vistas", item: "vista", novo: novaVista, campos: [["rotulo", "Rótulo do menu"], ["icone", "Ícone"], ["titulo", "Título da tela"], ["intro", "Introdução"],
+      // vocabulário da vista de normas (só aparece nela)
+      ["colunas.esfera", "Coluna: esfera"], ["colunas.norma", "Coluna: norma"], ["colunas.resumo", "Coluna: resumo"], ["colunas.elos", "Coluna: elos"],
+      ["rotulos.busca", "Busca (texto de exemplo)"], ["rotulos.buscaAria", "Busca (nome acessível)"], ["rotulos.contagem", "Contagem (use {total} e {visiveis})"],
+      ["rotulos.adicionar", "Botão de adicionar"], ["rotulos.filtroElo", "Prefixo do filtro de elo"], ["rotulos.aConferir", "Selo \"a conferir\""],
+      ["rotulos.verElo", "Botão: ver legislação do elo"], ["rotulos.verAplicavel", "Botão: ver legislação aplicável"]],
+    controles: [["ordemEsferas", "Ordem das esferas (separadas por vírgula)", "csv"]] },
+  { titulo: "Grupos (raias)", lista: "modelo.grupos", item: "grupo", novo: novoGrupo, campos: [["etiqueta", "Etiqueta"], ["nome", "Nome da raia"], ["subtitulo", "Subtítulo da raia"]],
+    controles: [["cor", "Cor", "slot"], ["raia", "Raia no diagrama", "bool"], ["sequencial", "Numerado em sequência", "bool"], ["filtroElo", "Legislação aplicável (elo)", "elo"]],
+    extra: g => el("button", { class: "add-item", type: "button", "data-bloco-add": g.id }, "+ adicionar bloco neste grupo") },
+  { titulo: "Sistemas de contexto", lista: "modelo.sistemas", item: "sistema", novo: novoSistema, campos: [["nome", "Nome"], ["desc", "Descrição"]] },
+  { titulo: "Elos (para ligar normas)", lista: "modelo.elos", item: "elo", novo: novoElo, campos: [["abrev", "Abreviação"], ["rotulo", "Rótulo"]],
+    controles: [["apelidos", "Apelidos (separados por vírgula)", "csv"]] },
+  { titulo: "Ecossistema", base: "modelo.ecossistema", campos: [["nucleo", "Núcleo"], ["nota", "Nota"], ["semItem", "Texto sem item"], ["dicaChip", "Dica dos anéis"]] },
+];
+// Por que um item não pode sair (texto) ou "" se pode; o portão ainda confere o
+// resultado, isto só dá a mensagem específica.
+function usoDoItem(lista, item) {
+  const blocos = n => `${n} bloco${n === 1 ? "" : "s"}`;
+  if (lista === "modelo.vistas" && state.modelo.vistas.length === 1) return "é a única vista";
+  if (lista === "modelo.grupos") {
+    const n = state.blocos.filter(b => b.grupo === item.id).length;
+    if (n) return `em uso por ${blocos(n)}`;
+    const v = state.modelo.vistas.find(x => x.tipo === "cartoes" && x.grupo === item.id);
+    if (v) return `é mostrado pela vista "${v.rotulo}"`;
+  }
+  if (lista === "modelo.sistemas") {
+    const n = state.blocos.filter(b => (b.sistemas || []).includes(item.id)).length;
+    if (n) return `em uso por ${blocos(n)}`;
+  }
+  if (lista === "modelo.elos") {
+    const n = state.normas.filter(x => (x.elos || []).includes(item.id)).length;
+    if (n) return `ligado a ${n} norma${n === 1 ? "" : "s"}`;
+    const g = state.modelo.grupos.find(x => x.filtroElo === item.id);
+    if (g) return `é a legislação aplicável do grupo "${g.etiqueta}"`;
+  }
+  return "";
+}
+function estruturaOp(btn) {
+  const op = btn.getAttribute("data-est-op"), lista = btn.getAttribute("data-est-lista");
+  const i = Number(btn.getAttribute("data-est-i"));
+  const sec = ESTRUTURA.find(s => s.lista === lista);
+  const arr = getPath(state, lista);
+  let ok, foco = "#drawer-close";
+  if (op === "rm") {
+    const uso = usoDoItem(lista, arr[i]);
+    if (uso) { setStatus(`Não foi possível remover ${sec.item} "${arr[i].id}": ${uso}.`); return; }
+    ok = tentarEstado(c => removeAtPath(c, `${lista}.${i}`));
+  } else if (op === "add") {
+    const novoIndice = arr.length;
+    ok = tentarEstado(c => getPath(c, lista).push(sec.novo(c.modelo)));
+    foco = `[data-path="${lista}.${novoIndice}.${sec.campos[0][0]}"]`;
+  } else {
+    const j = op === "up" ? i - 1 : i + 1;
+    ok = tentarEstado(c => { const a = getPath(c, lista); [a[i], a[j]] = [a[j], a[i]]; });
+    // o botão que acabou de ser usado fica desabilitado numa ponta: o foco vai para o oposto
+    const alvo = (op === "up" && j === 0) ? "down" : (op === "down" && j === arr.length - 1) ? "up" : op;
+    foco = `[data-est-op="${alvo}"][data-est-lista="${lista}"][data-est-i="${j}"]`;
+  }
+  if (!ok) { setStatus("Alteração recusada: o resultado não seria um documento válido."); return; }
+  renderEstruturaContent();
+  focusLater(foco);
+}
+function renderEstruturaContent() {
+  const tag = document.getElementById("drawer-tag");
+  tag.textContent = "Estrutura"; tag.style.background = "var(--surface-2)"; tag.style.color = "var(--ink-soft)";
+  const nameEl = document.getElementById("drawer-name");
+  nameEl.textContent = "Estrutura do documento";
+  nameEl.removeAttribute("contenteditable");
+  nameEl.removeAttribute("data-path");
+  const body = document.getElementById("drawer-body");
+  body.replaceChildren();
+  // chave pode ser aninhada ("colunas.esfera"); ausente em qualquer nível = o campo não aparece
+  const pega = (obj, k) => k.split(".").reduce((o, p) => (o && typeof o === "object") ? o[p] : undefined, obj);
+  const linhas = (obj, base, campos) => campos.filter(([k]) => typeof pega(obj, k) === "string").flatMap(([k, rot]) => [
+    el("span", { class: "panel-label" }, rot),
+    el("p", { class: "drawer-lede" }, editableSpan("text", `${base}.${k}`, pega(obj, k))),
+  ]);
+  const controles = (obj, base, ctrls) => (ctrls || []).flatMap(([k, rot, tipo]) => {
+    const path = `${base}.${k}`;
+    if (tipo === "csv") { // lista de textos editada como "a, b, c"; só aparece se o item tem a lista
+      if (!Array.isArray(obj[k])) return [];
+      return [el("label", { class: "est-ctrl" }, [rot + " ", el("input", { type: "text", "data-est-campo": path, "data-est-csv": true, value: obj[k].join(", ") })])];
+    }
+    if (tipo === "bool") return el("label", { class: "est-ctrl" }, [el("input", { type: "checkbox", "data-est-campo": path, checked: obj[k] === true }), " " + rot]);
+    const opcoes = tipo === "slot" ? COR_SLOTS.map(c => [c, c])
+      : [["", "(nenhum)"], ...state.modelo.elos.filter(e => e.tipo === "agregado").map(e => [e.id, e.rotulo])];
+    const sel = el("select", { "data-est-campo": path }, opcoes.map(([v, t]) => el("option", { value: v }, t)));
+    sel.value = obj[k] || "";
+    return el("label", { class: "est-ctrl" }, [rot + " ", sel]);
+  });
+  ESTRUTURA.forEach(sec => {
+    const bloco = el("div", { class: "est-sec" }, el("h3", { class: "panel-label" }, sec.titulo));
+    if (sec.base) bloco.append(...linhas(getPath(state, sec.base), sec.base, sec.campos));
+    else {
+      const arr = getPath(state, sec.lista);
+      const op = (nome, simbolo, rotulo, i, off) => el("button",
+        { class: "rm", type: "button", "data-est-op": nome, "data-est-lista": sec.lista, "data-est-i": String(i), "aria-label": `${rotulo} (${sec.item} ${arr[i].id})`, title: rotulo, disabled: off }, simbolo);
+      arr.forEach((item, i) => bloco.appendChild(el("div", { class: "est-item" }, [
+        el("div", { class: "est-bar" }, [
+          el("span", { class: "sis-tag" }, item.id),
+          op("up", "↑", "mover para cima", i, i === 0), op("down", "↓", "mover para baixo", i, i === arr.length - 1), op("rm", "×", "remover", i, false),
+        ]),
+        ...linhas(item, `${sec.lista}.${i}`, sec.campos),
+        ...controles(item, `${sec.lista}.${i}`, sec.controles),
+        ...(sec.extra ? [sec.extra(item)] : []),
+      ])));
+      if (sec.novo) bloco.appendChild(el("button", { class: "add-item", type: "button", "data-est-op": "add", "data-est-lista": sec.lista }, `+ adicionar ${sec.item}`));
+    }
+    body.appendChild(bloco);
+  });
+  document.getElementById("drawer-foot").replaceChildren();
+}
+// Abre o drawer num único modo: { bloco: i } | { sistema: id } | { estrutura: true } | { proposta: true }.
+function abrirDrawerModo(modo) {
   drawerOpenerEl = document.activeElement;
-  openBlocoIndex = i; openSistemaId = null;
+  openBlocoIndex = modo.bloco ?? null; openSistemaId = modo.sistema ?? null;
+  estruturaAberta = !!modo.estrutura; propostaAberta = !!modo.proposta;
   renderDrawer();
   document.body.classList.add("panel-open", "drawer-open");
   focusLater("#drawer-close");
 }
-function openSistemaDrawer(id) {
-  drawerOpenerEl = document.activeElement;
-  openSistemaId = id; openBlocoIndex = null;
-  renderDrawer();
-  document.body.classList.add("panel-open", "drawer-open");
-  focusLater("#drawer-close");
-}
+function openEstrutura() { abrirDrawerModo({ estrutura: true }); }
+function openDrawer(i) { abrirDrawerModo({ bloco: i }); }
+function openSistemaDrawer(id) { abrirDrawerModo({ sistema: id }); }
 function closeDrawer() {
   const wasOpen = document.body.classList.contains("drawer-open");
   document.body.classList.remove("drawer-open");
   if (!document.body.classList.contains("nav-open")) document.body.classList.remove("panel-open");
-  openBlocoIndex = null; openSistemaId = null;
+  openBlocoIndex = null; openSistemaId = null; estruturaAberta = false; propostaAberta = false;
   document.getElementById("drawer-body").replaceChildren();
   document.getElementById("drawer-foot").replaceChildren();
   // devolve o foco pra quem abriu o drawer (o card ou item de sistema
@@ -937,10 +1171,30 @@ function rerenderForPath(path) {
 }
 
 /* ---------- edição: eventos ---------- */
+// Portão de toda edição ESTRUTURAL (identidade, modelo, vistas): a mudança é
+// aplicada num clone do estado e só vira o estado se validShape() — as mesmas
+// regras de um arquivo importado — aceitar o resultado. Recusada, nada muda.
+function tentarEstado(mutar) {
+  const cand = JSON.parse(JSON.stringify(state));
+  mutar(cand);
+  if (!validShape(cand)) return false;
+  state = cand;
+  scheduleSave();
+  renderAll();
+  return true;
+}
 function commitField(t) {
   const path = t.getAttribute("data-path");
   if (!path) return;
   const raw = t.textContent.replace(/\s+/g, " ").trim();
+  if (/^(meta|modelo)\./.test(path)) {
+    if (raw === getPath(state, path)) return; // nada mudou: não reconstrói a casca à toa
+    if (!tentarEstado(c => setPath(c, path, raw))) {
+      t.textContent = getPath(state, path); // restaura o texto anterior
+      setStatus("Alteração recusada: o resultado não seria um documento válido (ex.: texto vazio).");
+    }
+    return;
+  }
   if (t.getAttribute("data-parse") === "elos") {
     const arr = parseElosText(raw);
     setPath(state, path, arr);
@@ -1093,9 +1347,15 @@ document.addEventListener("drop", e => {
 document.addEventListener("change", e => {
   const cb = e.target.closest("[data-bool-path]");
   if (cb) { setPath(state, cb.getAttribute("data-bool-path"), cb.checked ? "conferir" : "ok"); scheduleSave(); renderNormas(); }
+  const est = e.target.closest("[data-est-campo]");
+  if (est) estruturaCampo(est);
   if (e.target.id === "import-file") {
     const file = e.target.files && e.target.files[0];
     handleImportFile(file).finally(() => { e.target.value = ""; });
+  }
+  if (e.target.id === "proposta-file") {
+    const file = e.target.files && e.target.files[0];
+    abrirProposta(file).finally(() => { e.target.value = ""; });
   }
 });
 document.addEventListener("click", e => {
@@ -1128,10 +1388,21 @@ document.addEventListener("click", e => {
 
   const editToggle = e.target.closest("#edit-toggle");
   if (editToggle) { setEditing(!editing); return; }
+  if (e.target.closest("#estrutura-btn")) { openEstrutura(); return; }
+  const estOp = e.target.closest("[data-est-op]");
+  if (estOp) { estruturaOp(estOp); return; }
+  const blOp = e.target.closest("[data-bloco-op]");
+  if (blOp) { blocoOp(blOp.getAttribute("data-bloco-op")); return; }
+  const blAdd = e.target.closest("[data-bloco-add]");
+  if (blAdd) { blocoAdd(blAdd.getAttribute("data-bloco-add")); return; }
   const exportBtn = e.target.closest("#export-btn");
   if (exportBtn) { doExport(); return; }
   const importBtn = e.target.closest("#import-btn");
   if (importBtn) { document.getElementById("import-file").click(); return; }
+  if (e.target.closest("#proposta-btn")) { document.getElementById("proposta-file").click(); return; }
+  const todas = e.target.closest("[data-prop-todas]");
+  if (todas) { document.querySelectorAll("#drawer-body [data-prop-i]").forEach(x => { x.checked = todas.getAttribute("data-prop-todas") === "1"; }); return; }
+  if (e.target.closest("#adotar-btn")) { adotarProposta(); return; }
   const resetBtn = e.target.closest("#reset-btn");
   if (resetBtn) { doReset(); return; }
   const undoBtn = e.target.closest("#undo-btn");
@@ -1180,6 +1451,7 @@ document.addEventListener("input", e => { if (e.target.id === "search") { filter
 function setEditing(v) {
   editing = v;
   document.body.classList.toggle("editing", v);
+  if (!v && estruturaAberta) closeDrawer(); // o painel de estrutura só existe em modo de edição
   renderAll();
   updateEditControls();
 }
@@ -1187,11 +1459,14 @@ function updateEditControls() {
   document.getElementById("edit-toggle").textContent = editing ? "✓ Concluir edição" : "✎ Editar conteúdo";
   const extra = document.getElementById("edit-extra");
   extra.replaceChildren();
+  if (ADMIN) extra.appendChild(el("span", { class: "sis-tag", id: "admin-tag" }, "Administração"));
   if (editing) {
+    if (ADMIN) extra.appendChild(el("button", { class: "link-btn", type: "button", id: "estrutura-btn" }, "Estrutura do documento"));
     extra.appendChild(el("button", { class: "link-btn", type: "button", id: "export-btn" }, "Exportar dados (JSON)"));
-    extra.appendChild(el("button", { class: "link-btn", type: "button", id: "import-btn" }, "Importar dados (JSON)"));
+    if (ADMIN) extra.appendChild(el("button", { class: "link-btn", type: "button", id: "proposta-btn" }, "Comparar proposta (JSON)"));
+    if (ADMIN) extra.appendChild(el("button", { class: "link-btn", type: "button", id: "import-btn" }, "Importar dados (JSON)"));
     extra.appendChild(el("button", { class: "link-btn", type: "button", id: "reset-btn" }, "Restaurar conteúdo original"));
-    if (undoSnapshot) extra.appendChild(el("button", { class: "link-btn", type: "button", id: "undo-btn" }, "↺ Desfazer importação/restauração"));
+    if (undoSnapshot) extra.appendChild(el("button", { class: "link-btn", type: "button", id: "undo-btn" }, "↺ Desfazer importação/restauração/adoção"));
   }
 }
 function setStatus(text) { const s = document.getElementById("save-status"); if (s) s.textContent = text; }
@@ -1233,6 +1508,7 @@ function doReset() {
   if (!confirm("Restaurar todo o conteúdo para a versão original? Isso substitui as edições atuais.")) return;
   undoSnapshot = JSON.stringify(state);
   state = cloneSeed();
+  closeDrawer(); // o que o drawer mostrava (bloco, painel de estrutura) vem do estado antigo
   SIGLA_RE = null; // siglas.json da seed pode ter um conjunto diferente do estado atual
   scheduleSave();
   renderAll();
@@ -1410,28 +1686,37 @@ function validShape(obj) {
   }
   return true;
 }
-async function handleImportFile(file) {
-  if (!file) return;
+// Lê um JSON exportado e devolve { parsed, estado } — o estado que ele
+// representa — ou alerta e devolve null. Usada por Importar e por Comparar proposta.
+async function lerEstadoDeArquivo(file) {
   let parsed;
   try { parsed = JSON.parse(await file.text()); }
-  catch (err) { alert("Não foi possível ler este arquivo. Confira se é um JSON exportado por \"" + SEED.meta.titulo + "\"."); return; }
-  if (!validShape(parsed)) { alert("Este arquivo não tem o formato esperado, ou algum item dentro dele (bloco, norma, sigla...) está incompleto."); return; }
+  catch (err) { alert("Não foi possível ler este arquivo. Confira se é um JSON exportado por \"" + SEED.meta.titulo + "\"."); return null; }
+  if (!validShape(parsed)) { alert("Este arquivo não tem o formato esperado, ou algum item dentro dele (bloco, norma, sigla...) está incompleto."); return null; }
+  // Monta o estado campo a campo (nunca Object.assign({}, seed, parsed), que
+  // copiaria QUALQUER chave de nível superior do arquivo importado, inclusive uma
+  // chave literal "__proto__" — um arquivo JSON malicioso poderia usar isso para
+  // trocar o protótipo do objeto resultante). Aqui só os 6 campos esperados são
+  // lidos do arquivo; o resto do conteúdo importado é ignorado.
+  const estado = {
+    meta: completeMeta(parsed.meta), blocos: parsed.blocos, normas: parsed.normas, notas: parsed.notas,
+    siglas: (parsed.siglas && typeof parsed.siglas === "object") ? parsed.siglas : cloneSeed().siglas,
+    // completado como em validShape (export de antes das vistas, ou do modelo)
+    modelo: importedModelo(parsed),
+  };
+  return { parsed, estado };
+}
+async function handleImportFile(file) {
+  if (!file) return;
+  const lido = await lerEstadoDeArquivo(file);
+  if (!lido) return;
+  const { parsed } = lido;
   const seed = cloneSeed();
   const atualizado = (parsed.meta && typeof parsed.meta.atualizado === "string") ? `Atualizado em: ${parsed.meta.atualizado}\n` : "";
   const resumo = `${atualizado}Blocos: ${parsed.blocos.length} · Normas: ${parsed.normas.length} · Notas: ${parsed.notas.length}`;
   if (!confirm(`Importar este arquivo vai substituir todo o conteúdo atual por ele.\n\n${resumo}\n\nContinuar?`)) return;
   undoSnapshot = JSON.stringify(state);
-  // Monta o novo estado campo a campo (nunca Object.assign({}, seed, parsed), que
-  // copiaria QUALQUER chave de nível superior do arquivo importado, inclusive uma
-  // chave literal "__proto__" — um arquivo JSON malicioso poderia usar isso para
-  // trocar o protótipo do objeto `state` resultante). Aqui só os 6 campos
-  // esperados são lidos do arquivo; o resto do conteúdo importado é ignorado.
-  state = {
-    meta: completeMeta(parsed.meta), blocos: parsed.blocos, normas: parsed.normas, notas: parsed.notas,
-    siglas: (parsed.siglas && typeof parsed.siglas === "object") ? parsed.siglas : seed.siglas,
-    // completado como em validShape (export de antes das vistas, ou do modelo)
-    modelo: importedModelo(parsed),
-  };
+  state = lido.estado;
   SIGLA_RE = null; // o conjunto de siglas pode ter mudado — invalida o cache (ver siglaRegex)
   closeDrawer();
   try {
@@ -1451,6 +1736,111 @@ async function handleImportFile(file) {
   }
   updateEditControls();
   scheduleSave();
+}
+
+/* ---------- propostas (só no build de administração) ----------
+   Um arquivo exportado pelo build público é uma proposta. diffEstado() lista as
+   diferenças entre ele e o documento atual — por item e por campo de primeiro
+   nível, para não sobrescrever um item inteiro — e cada diferença sabe se
+   aplicar num clone. A administração marca as que quer; "Adotar selecionadas"
+   aplica as marcadas, em ordem, pelo portão tentarEstado(). A ORDEM das listas
+   não é proposta (reordena-se no painel Estrutura). */
+function diffEstado(A, P) {
+  const mud = [];
+  const igual = (a, b) => JSON.stringify(a) === JSON.stringify(b);
+  const clone = v => (v === undefined ? undefined : JSON.parse(JSON.stringify(v)));
+  const curto = t => { t = String(t); return t.length > 60 ? t.slice(0, 57) + "…" : t; };
+  const add = (secao, rotulo, aplicar) => mud.push({ secao, rotulo, aplicar });
+  // objeto simples, por campo
+  const porCampo = (secao, caminho, campos) => {
+    const a = getPath(A, caminho), p = getPath(P, caminho);
+    campos.forEach(k => { if (!igual(a[k], p[k])) add(secao, `~ ${k}: "${curto(p[k])}"`, c => { getPath(c, caminho)[k] = clone(p[k]); }); });
+  };
+  // lista de objetos com chave (id; nas normas, o título + nº da ocorrência se repetido)
+  const chaves = (arr, campo) => { const n = new Map(); return arr.map(x => { const b = String(x[campo]); n.set(b, (n.get(b) || 0) + 1); return n.get(b) > 1 ? `${b}#${n.get(b)}` : b; }); };
+  const porChave = (secao, caminho, campo, nome, rotuloDe) => {
+    const a = getPath(A, caminho), p = getPath(P, caminho);
+    const ma = new Map(chaves(a, campo).map((k, i) => [k, a[i]])), mp = new Map(chaves(p, campo).map((k, i) => [k, p[i]]));
+    const onde = (c, k) => chaves(getPath(c, caminho), campo).indexOf(k);
+    mp.forEach((x, k) => {
+      if (!ma.has(k)) { add(secao, `+ ${nome} "${curto(rotuloDe(x))}"`, c => { getPath(c, caminho).push(clone(x)); }); return; }
+      const y = ma.get(k);
+      new Set([...Object.keys(y), ...Object.keys(x)]).forEach(f => {
+        if (f === "__proto__" || igual(y[f], x[f])) return; // chave literal "__proto__" de um arquivo nunca é aplicada
+        add(secao, `~ ${nome} "${curto(rotuloDe(y))}": ${f}`, c => {
+          const i = onde(c, k); if (i < 0) return;
+          const it = getPath(c, caminho)[i];
+          if (x[f] === undefined) delete it[f]; else it[f] = clone(x[f]);
+        });
+      });
+    });
+    ma.forEach((y, k) => { if (!mp.has(k)) add(secao, `− ${nome} "${curto(rotuloDe(y))}"`, c => { const i = onde(c, k); if (i >= 0) getPath(c, caminho).splice(i, 1); }); });
+  };
+  porCampo("Identidade", "meta", ["titulo", "icone", "subtitulo"]);
+  // o modelo antes de blocos e normas: adotar um grupo/elo novo vem antes de quem o usa
+  porChave("Vistas", "modelo.vistas", "id", "vista", x => x.rotulo);
+  porChave("Grupos", "modelo.grupos", "id", "grupo", x => x.etiqueta);
+  porChave("Sistemas de contexto", "modelo.sistemas", "id", "sistema", x => x.nome);
+  porChave("Elos", "modelo.elos", "id", "elo", x => x.abrev);
+  porCampo("Ecossistema", "modelo.ecossistema", ["nucleo", "nota", "semItem", "dicaChip"]);
+  porChave("Blocos", "blocos", "id", "bloco", x => x.nome);
+  porChave("Normas", "normas", "titulo", "norma", x => x.titulo);
+  const na = new Set(A.notas), np = new Set(P.notas);
+  P.notas.forEach(t => { if (!na.has(t)) add("Notas", `+ nota "${curto(t)}"`, c => { c.notas.push(t); }); });
+  A.notas.forEach(t => { if (!np.has(t)) add("Notas", `− nota "${curto(t)}"`, c => { const i = c.notas.indexOf(t); if (i >= 0) c.notas.splice(i, 1); }); });
+  const temA = k => Object.prototype.hasOwnProperty.call(A.siglas, k), temP = k => Object.prototype.hasOwnProperty.call(P.siglas, k);
+  Object.keys(P.siglas).forEach(k => {
+    if (k === "__proto__") return;
+    if (!temA(k)) add("Siglas", `+ sigla ${k}`, c => { c.siglas[k] = clone(P.siglas[k]); });
+    else if (!igual(A.siglas[k], P.siglas[k])) add("Siglas", `~ sigla ${k}`, c => { c.siglas[k] = clone(P.siglas[k]); });
+  });
+  Object.keys(A.siglas).forEach(k => { if (!temP(k)) add("Siglas", `− sigla ${k}`, c => { delete c.siglas[k]; }); });
+  return mud;
+}
+async function abrirProposta(file) {
+  if (!file) return;
+  const lido = await lerEstadoDeArquivo(file);
+  if (!lido) return;
+  proposta = diffEstado(state, lido.estado);
+  abrirDrawerModo({ proposta: true });
+}
+function renderPropostaContent() {
+  const tag = document.getElementById("drawer-tag");
+  tag.textContent = "Proposta"; tag.style.background = "var(--surface-2)"; tag.style.color = "var(--ink-soft)";
+  const nameEl = document.getElementById("drawer-name");
+  nameEl.textContent = "Comparar proposta";
+  nameEl.removeAttribute("contenteditable");
+  nameEl.removeAttribute("data-path");
+  const body = document.getElementById("drawer-body");
+  const foot = document.getElementById("drawer-foot");
+  foot.replaceChildren();
+  if (!proposta.length) { body.replaceChildren(el("p", { class: "drawer-lede" }, "A proposta é igual ao documento atual.")); return; }
+  body.replaceChildren(
+    el("p", { class: "drawer-lede" }, `${proposta.length} diferença${proposta.length === 1 ? "" : "s"} em relação ao documento atual. Marque as que devem entrar (+ novo, − removido, ~ alterado).`),
+    el("div", { class: "est-bar" }, [
+      el("button", { class: "link-btn", type: "button", "data-prop-todas": "1" }, "marcar todas"),
+      el("button", { class: "link-btn", type: "button", "data-prop-todas": "0" }, "desmarcar todas")]));
+  let secao = null, bloco = null;
+  proposta.forEach((m, i) => {
+    if (m.secao !== secao) { secao = m.secao; bloco = el("div", { class: "est-sec" }, el("h3", { class: "panel-label" }, secao)); body.appendChild(bloco); }
+    bloco.appendChild(el("label", { class: "est-ctrl" }, [el("input", { type: "checkbox", "data-prop-i": String(i) }), " " + m.rotulo]));
+  });
+  foot.appendChild(el("button", { class: "btn btn-block", type: "button", id: "adotar-btn" }, "Adotar selecionadas"));
+}
+function adotarProposta() {
+  const sel = [...document.querySelectorAll("#drawer-body [data-prop-i]")].filter(x => x.checked).map(x => proposta[Number(x.getAttribute("data-prop-i"))]);
+  if (!sel.length) { setStatus("Nenhuma mudança selecionada."); return; }
+  const antes = JSON.stringify(state);
+  if (!tentarEstado(c => sel.forEach(m => m.aplicar(c)))) {
+    setStatus("Alteração recusada: a combinação escolhida não forma um documento válido (ex.: um bloco que usa um grupo novo exige adotar o grupo também).");
+    return;
+  }
+  undoSnapshot = antes;
+  SIGLA_RE = null; // as siglas podem ter mudado
+  renderAll();
+  closeDrawer();
+  updateEditControls();
+  setStatus(`${sel.length} mudança${sel.length === 1 ? " adotada" : "s adotadas"}.`);
 }
 
 /* ---------- persistência: capacidade db, com alternativa local ---------- */
@@ -1548,6 +1938,7 @@ async function init() {
           state = cloneSeed();
           contentWasRefreshed = true; // havia um snap.exists -- sempre houve algo pra descartar, formato antigo ou não
         }
+        currentView = state.modelo.vistas[0].id; // a vista inicial é a primeira das vistas do estado carregado (podem ter sido reordenadas)
         renderAll();
       }
     } catch (e) { /* mantém a semente */ }
